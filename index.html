@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Osoitetutka PRO | Tontin, kiinteistön ja asuinalueen täydellinen analyysi</title>
+    <title>Osoitetutka PRO | Tontin, kiinteistön, liikenteen ja lähipalveluiden täydellinen analyysi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.3/mqtt.min.js"></script>
     <style>
-        /* Custom scrollbar & dark theme tweaks */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -18,7 +18,7 @@
             filter: none;
         }
         .leaflet-control-layers {
-            background: rgba(15, 23, 42, 0.92) !important;
+            background: rgba(15, 23, 42, 0.94) !important;
             color: #e2e8f0 !important;
             border: 1px solid #334155 !important;
             border-radius: 0.75rem !important;
@@ -28,6 +28,31 @@
         }
         .leaflet-control-layers-separator {
             border-top-color: #334155 !important;
+        }
+        .bus-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 10px;
+            color: #fff;
+            border-radius: 9999px;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.55);
+            white-space: nowrap;
+            padding: 0 4px;
+        }
+        .poi-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1.5px solid #475569;
+            border-radius: 9999px;
+            width: 26px;
+            height: 26px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.45);
         }
     </style>
 </head>
@@ -73,7 +98,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg leading-tight text-white">Asunnonostajan & Tontin Tiedustelutyökalu</h1>
-                        <p class="text-xs text-slate-400">Kiinteistörajat, Paavo-tilastot, kaavat, maaperä, aurinko, valokuitu & uutiset</p>
+                        <p class="text-xs text-slate-400">Kiinteistörajat, live-bussit, koulut, harrastukset, latausasemat, Paavo-tilastot, aurinko & kaavat</p>
                     </div>
                 </div>
                 <button onclick="openMmlModal()" id="mmlKeyBtnMobile" class="md:hidden text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg">
@@ -103,24 +128,25 @@
         
         <!-- Tervetuloa / Tyhjä tila -->
         <div id="emptyState" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 md:p-12 text-center my-6 max-w-3xl mx-auto">
-            <div class="text-5xl mb-4">🏡🔍</div>
+            <div class="text-5xl mb-4">🏡🚌⚡</div>
             <h2 class="text-2xl font-bold text-white mb-2">Tutki mikä tahansa suomalainen osoite</h2>
             <p class="text-slate-400 text-sm mb-6 max-w-xl mx-auto">
-                Syötä katuosoite ja paikkakunta yläpalkkiin. Sovellus hakee tontin kiinteistötunnuksen ja rajat, Tilastokeskuksen Paavo-alueprofiilin (tulotaso, omistus-/vuokrasuhde), lähipalvelut, simuloi auringon kierron ja varjot sekä etsii alueen tuoreimmat uutiset.
+                Syötä katuosoite ja paikkakunta yläpalkkiin. Sovellus hakee tontin kiinteistörajat, näyttää kartalla reaaliajassa liikkuvat bussit ja junat sekä pysäkkiaikataulut, kartoittaa lähimmät koulut, päiväkodit, kaupat, ulkoilu- ja harrastuspaikat, sähköauton latausasemat ja bensa-asemat sekä Tilastokeskuksen Paavo-alueprofiilin.
             </p>
             <div class="flex flex-wrap justify-center gap-2 text-xs text-slate-300 mb-6">
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">📐 Kiinteistörajat & Kiinteistötunnus (WFS/MML)</span>
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">📊 Tilastokeskus Paavo Live-tilastot</span>
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">☀️ Interaktiivinen aurinkokello & 3D-varjot</span>
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">🗺️ GTK Maaperä & Asemakaavat (WMS)</span>
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">🏫 Koulut, päiväkodit & kaupat (etäisyys)</span>
-                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">📰 Automaattinen uutishaku</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">🚌 Live-bussit kartalla & Pysäkkiaikataulut</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">🏫 Koulut, Tarhat, Kaupat & Terveys</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">🏃 Ulkoilu, Kuntosalit, Uinti & Koirapuistot</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">⚡ Sähköauton pikalataus & Bensa-asemat</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">📐 Kiinteistörajat & Paavo-tilastot</span>
+                <span class="bg-slate-800/90 px-3 py-1.5 rounded-full border border-slate-700">☀️ Aurinkosimulaatio, Ilmanlaatu & Kelikamera</span>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-2 text-xs">
                 <span class="text-slate-500">Kokeile pikahakua:</span>
                 <button onclick="quickSearch('Yliopistonkatu 20, Turku')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg transition">Yliopistonkatu 20, Turku</button>
                 <button onclick="quickSearch('Mannerheimintie 30, Helsinki')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg transition">Mannerheimintie 30, Helsinki</button>
-                <button onclick="quickSearch('rotuaari, Oulu')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg transition">Kirkkokatu 15, Oulu</button>
+                <button onclick="quickSearch('Hämeenkatu 15, Tampere')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg transition">Hämeenkatu 15, Tampere</button>
+                <button onclick="quickSearch('Kirkkokatu 15, Oulu')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg transition">Kirkkokatu 15, Oulu</button>
             </div>
         </div>
 
@@ -130,31 +156,40 @@
         <!-- Varsinainen Dashboard (Piilotettu aluksi) -->
         <div id="dashboard" class="hidden space-y-6">
 
-            <!-- Ylärivin speksipalkki (5 korttia) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                    <div class="text-xs text-slate-400">Haettu osoite</div>
-                    <div id="statAddress" class="font-bold text-white text-base truncate mt-0.5">-</div>
+            <!-- Ylärivin speksipalkki (6 korttia) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+                    <div class="text-[11px] text-slate-400">Haettu osoite</div>
+                    <div id="statAddress" class="font-bold text-white text-sm truncate mt-0.5">-</div>
+                    <div id="statCoords" class="font-mono text-slate-400 text-[11px] mt-0.5">-</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                    <div class="text-xs text-slate-400">Kaupunginosa & Postinumero</div>
-                    <div id="statArea" class="font-bold text-emerald-400 text-base truncate mt-0.5">-</div>
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+                    <div class="text-[11px] text-slate-400">Kaupunginosa & Postinro</div>
+                    <div id="statArea" class="font-bold text-emerald-400 text-sm truncate mt-0.5">-</div>
+                    <div id="statCity" class="text-[11px] text-slate-400 truncate mt-0.5">-</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs text-slate-400">Kiinteistötunnus & Tontti</span>
+                        <span class="text-[11px] text-slate-400">Kiinteistötunnus</span>
                         <button onclick="copyPropertyId()" id="copyPropBtn" class="hidden text-[10px] text-emerald-400 hover:underline">Kopioi</button>
                     </div>
                     <div id="statPropertyId" class="font-bold text-cyan-400 text-sm truncate mt-0.5">Haetaan...</div>
-                    <div id="statPropertyArea" class="text-[11px] text-slate-400 truncate">-</div>
+                    <div id="statPropertyArea" class="text-[11px] text-slate-400 truncate mt-0.5">-</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                    <div class="text-xs text-slate-400">Päivän pituus (valittu pv)</div>
-                    <div id="statDaylight" class="font-bold text-amber-400 text-base mt-0.5">-</div>
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+                    <div class="text-[11px] text-slate-400">Korkeus & Tulvariski</div>
+                    <div id="statElevation" class="font-bold text-indigo-300 text-sm truncate mt-0.5">Haetaan...</div>
+                    <div id="statFloodRisk" class="text-[11px] text-slate-400 truncate mt-0.5">-</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl col-span-2 sm:col-span-1">
-                    <div class="text-xs text-slate-400">WGS84 Koordinaatit</div>
-                    <div id="statCoords" class="font-mono text-slate-300 text-sm mt-1">-</div>
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+                    <div class="text-[11px] text-slate-400">Sää & Ilmanlaatu nyt</div>
+                    <div id="statWeather" class="font-bold text-sky-300 text-sm truncate mt-0.5">Haetaan...</div>
+                    <div id="statAirQuality" class="text-[11px] text-slate-400 truncate mt-0.5">-</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl">
+                    <div class="text-[11px] text-slate-400">Päivän pituus (valittu pv)</div>
+                    <div id="statDaylight" class="font-bold text-amber-400 text-sm mt-0.5">-</div>
+                    <div id="statSunMaxAlt" class="text-[11px] text-slate-400 truncate mt-0.5">-</div>
                 </div>
             </div>
 
@@ -166,19 +201,22 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
-                                🗺️ Tonttikartta, Kiinteistörajat, Kaava & Aurinkovektorit
+                                🗺️ Tonttikartta, Live-bussit, Lähipalvelut & Aurinkovektorit
                             </h2>
-                            <p class="text-xs text-slate-400">Klikkaa tonttia nähdäksesi kiinteistötunnuksen ja pinta-alan. Vaihda karttatasoa oikeasta yläkulmasta.</p>
+                            <p class="text-xs text-slate-400">Kartalla näkyvät tontin rajat, reaaliaikaiset bussit/junat ja lähipalvelut. Vaihda tasoja oikeasta yläkulmasta.</p>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="centerMapOnTarget()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                🎯 Keskitä tonttiin
+                            </button>
                             <button onclick="toggle3DShadows()" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs px-3 py-1.5 rounded-lg font-medium transition">
-                                🏢 3D-varjosimulaattori (ShadeMap)
+                                🏢 3D-varjosimulaattori
                             </button>
                         </div>
                     </div>
 
                     <!-- Leaflet Kartta -->
-                    <div id="map" class="w-full h-[480px] rounded-lg border border-slate-800 z-0"></div>
+                    <div id="map" class="w-full h-[500px] rounded-lg border border-slate-800 z-0"></div>
 
                     <!-- 3D ShadeMap Iframe (Piilotettu oletuksena, avataan napista) -->
                     <div id="shadeMapContainer" class="hidden mt-4">
@@ -190,13 +228,13 @@
                     </div>
 
                     <!-- Kartan värikoodit ja kiinteistöstatus -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 mt-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mt-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
                         <div class="flex flex-wrap gap-3">
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500/30 border-2 border-emerald-400 inline-block"></span> Haettu tontti / kiinteistö</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-cyan-500/10 border border-cyan-400 inline-block"></span> Naapurikiinteistöt</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500/30 border-2 border-emerald-400 inline-block"></span> Haettu tontti</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 border border-white inline-block"></span> Live-bussi / ratikka</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-600 border border-white inline-block"></span> Live-juna</span>
                             <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-amber-400 inline-block"></span> Auringonnousu</span>
                             <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-orange-600 inline-block"></span> Auringonlasku</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-yellow-300 border border-black inline-block"></span> Paistesuunta</span>
                         </div>
                         <div id="parcelSourceBadge" class="text-[11px] text-slate-400"></div>
                     </div>
@@ -256,7 +294,127 @@
                 </div>
             </div>
 
-            <!-- KESKIRIVI: Tilastokeskus Paavo Live-tilastot & Lähipalvelut + Kiinteistötiedot -->
+            <!-- RIVI 2: LIVE JOUKKOLIIKENNE, BUSSIAIKATAULUT & LIIKENNEKAMERA -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Live-bussit, Junat & Lähimpien pysäkkien lähtöajat (2/3 leveys) -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h2 class="font-bold text-white flex items-center gap-2">
+                                    🚌 Reaaliaikainen Joukkoliikenne & Bussiaikataulut
+                                    <span id="liveTransitPulse" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span> LIVE
+                                    </span>
+                                </h2>
+                                <p id="transitSubtitle" class="text-xs text-slate-400">Seurataan lähialueen busseja, raitiovaunuja, junia ja pysäkkiaikatauluja...</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="refreshLiveTransit()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition">
+                                    🔄 Päivitä sijainnit
+                                </button>
+                                <a id="transitRoutePlannerLink" href="https://opas.matkahuolto.fi/" target="_blank" class="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-lg transition">
+                                    🗺️ Avaa Reittiopas ↗
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Vasen sarake: Lähimmät pysäkit & Seuraavat lähdöt (Aikataulut) -->
+                            <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider">🚏 Lähimmät pysäkit & Aikataulut</h3>
+                                    <span id="stopBoardSource" class="text-[10px] text-slate-500"></span>
+                                </div>
+                                <div id="stopSchedulesContainer" class="space-y-2.5 max-h-64 overflow-y-auto pr-1 text-xs">
+                                    <div class="text-slate-500 italic">Haetaan lähimpiä pysäkkejä ja lähtöaikoja...</div>
+                                </div>
+                            </div>
+
+                            <!-- Oikea sarake: Parhaillaan lähistöllä liikkuvat bussit, ratikat & junat -->
+                            <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">🛰️ Parhaillaan liikkuvat bussit & junat</h3>
+                                    <span id="liveVehicleCountBadge" class="text-[10px] text-slate-400">0 kpl</span>
+                                </div>
+                                <div id="liveVehiclesListContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1 text-xs">
+                                    <div class="text-slate-500 italic">Etsitään liikkuvia ajoneuvoja...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap justify-between gap-2">
+                        <span>💡 Klikkaa mitä tahansa bussia tai pysäkkiä listasta kohdistaaksesi kartan suoraan siihen.</span>
+                        <span>Lähteet: Föli SIRI, HSL HFP MQTT, Tampere Nysse, Fintraffic Digitraffic & OSM</span>
+                    </div>
+                </div>
+
+                <!-- Lähin Liikenne- ja Tiesääkamera Live-kuvalla (1/3 leveys) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <h2 class="font-bold text-white flex items-center gap-2">📹 Lähin Liikennekamera</h2>
+                            <span id="weatherCamDistBadge" class="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-slate-700">-</span>
+                        </div>
+                        <p id="weatherCamTitle" class="text-xs text-slate-400 mb-3">Haetaan lähintä Fintrafficin kelikameraa...</p>
+
+                        <div id="weatherCamBox" class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[210px] relative">
+                            <div class="text-xs text-slate-500 italic p-4">Ladataan kelikamerakuvaa...</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Lähde: Fintraffic / Digitraffic Tie</span>
+                        <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="text-emerald-400 hover:underline">Liikennetilanne ↗</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 3: KATTAVA LÄHIPALVELU-, KOULU-, HARRASTUS- JA LATAUSTUTKA -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="font-bold text-white text-base flex items-center gap-2">
+                            🎯 Lähipalvelut, Koulut, Ulkoilu & Harrastukset sekä Sähköauton lataus (2,5 km säteellä)
+                        </h2>
+                        <p class="text-xs text-slate-400">
+                            Kaikki kohteet on haettu OpenStreetMapista, järjestetty etäisyyden mukaan ja merkitty kartalle. Klikkaa kohdetta näyttääksesi sen kartalla!
+                        </p>
+                    </div>
+
+                    <!-- Kategoriavälilehdet -->
+                    <div class="flex flex-wrap gap-1.5" id="poiCategoryTabs">
+                        <button onclick="setPoiCategory('all')" data-cat="all" class="poi-tab bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                            Kaikki (<span id="count-all">0</span>)
+                        </button>
+                        <button onclick="setPoiCategory('edu')" data-cat="edu" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                            🏫 Koulut, Tarhat & Leikkipuistot (<span id="count-edu">0</span>)
+                        </button>
+                        <button onclick="setPoiCategory('daily')" data-cat="daily" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                            🛒 Kaupat, Apteekit & Terveys (<span id="count-daily">0</span>)
+                        </button>
+                        <button onclick="setPoiCategory('sport')" data-cat="sport" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                            🏃 Ulkoilu, Liikunta & Koirapuistot (<span id="count-sport">0</span>)
+                        </button>
+                        <button onclick="setPoiCategory('auto')" data-cat="auto" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                            ⚡ Latausasemat & Bensa-asemat (<span id="count-auto">0</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pikayhteenveto lähimmistä avainkohteista (6 pikalinjaa) -->
+                <div id="nearestHighlightsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-4"></div>
+
+                <!-- Varsinainen suodatettava kohdelista -->
+                <div id="poiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-80 overflow-y-auto pr-1 text-xs">
+                    <div class="text-slate-500 italic col-span-full py-4">Etsitään lähipalveluita, kouluja, harrastuspaikkoja ja latausasemia...</div>
+                </div>
+            </div>
+
+            <!-- RIVI 4: Tilastokeskus Paavo Live-tilastot & Kiinteistöanalyysi -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 <!-- Tilastokeskus Paavo -postinumeroalueen profiili (2/3 leveys) -->
@@ -338,32 +496,25 @@
                     </div>
                 </div>
 
-                <!-- Lähipalvelututka & Tontin Rakennukset (1/3 leveys) -->
+                <!-- Tontin kiinteistö- ja naapurustoanalyysi (1/3 leveys) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <h2 class="font-bold text-white mb-1 flex items-center gap-2">🏫 Lähipalvelut & Tontin tiedot</h2>
-                        <p class="text-xs text-slate-400 mb-3">Automaattinen etäisyyslaskenta (linnuntietä) lähimpiin arjen palveluihin:</p>
+                        <h2 class="font-bold text-white mb-1 flex items-center gap-2">📐 Tontin & Kiinteistön Tiedot</h2>
+                        <p class="text-xs text-slate-400 mb-3">Kiinteistörekisterin ja kantakartan mukaiset tiedot tontista ja sen välittömistä rajanaapureista:</p>
 
-                        <div id="amenitiesContainer" class="space-y-2 text-xs mb-4">
-                            <div class="text-slate-500 italic">Etsitään lähipalveluita (OpenStreetMap)...</div>
-                        </div>
-
-                        <div class="border-t border-slate-800 pt-3">
-                            <div class="text-xs font-semibold text-slate-300 mb-2">📐 Tontin & naapuruston kiinteistöt:</div>
-                            <div id="parcelDetailsBox" class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-300 space-y-1.5">
-                                <div class="text-slate-500 italic">Haetaan kiinteistörajoja...</div>
-                            </div>
+                        <div id="parcelDetailsBox" class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-300 space-y-2">
+                            <div class="text-slate-500 italic">Haetaan kiinteistörajoja...</div>
                         </div>
                     </div>
 
                     <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        Klikkaa mitä tahansa tonttia kartalla nähdäksesi sen kiinteistötunnuksen ja lasketun pinta-alan.
+                        Klikkaa mitä tahansa tonttia tai rakennusta yläkartalla nähdäksesi sen kiinteistötunnuksen ja pinta-alan.
                     </div>
                 </div>
 
             </div>
 
-            <!-- Alarivin kortit: Valokuitu, Rakennusluvat, Kartat, Uutiset -->
+            <!-- RIVI 5: Alarivin kortit: Valokuitu, Rakennusluvat, Kartat, Uutiset -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 <!-- 1. Valokuitu, Sähkö & Infra -->
@@ -446,9 +597,22 @@ let sunriseLine = null;
 let sunsetLine = null;
 let currentSunLine = null;
 let currentSunDot = null;
+
+// Karttatasoryhmät
 let parcelLayerGroup = null;
 let buildingLayerGroup = null;
 let postalAreaLayerGroup = null;
+let liveTransitLayerGroup = null;
+let poiLayerGroup = null;
+
+// Välimuistit ja ajastimet
+let allPois = [];
+let activePoiCategory = 'all';
+let foliStopsCache = null;
+let weatherCamStationsCache = null;
+let transitTimer = null;
+let hslMqttClient = null;
+let hslVehiclesMap = new Map();
 
 // Asetetaan oletuspäivämääräksi tämä päivä
 window.addEventListener('DOMContentLoaded', () => {
@@ -518,6 +682,23 @@ function quickSearch(q) {
     executeSearch();
 }
 
+function centerMapOnTarget() {
+    if (map) {
+        map.setView([currentLoc.lat, currentLoc.lon], 17);
+        if (marker) marker.openPopup();
+    }
+}
+
+function focusMapPoint(lat, lon, title, subtitle) {
+    if (!map) return;
+    map.setView([lat, lon], 17);
+    L.popup()
+        .setLatLng([lat, lon])
+        .setContent(`<div class="text-xs"><b>${title}</b><br>${subtitle || ''}</div>`)
+        .openOn(map);
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function setTodayDate() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('sunDateInput').value = today;
@@ -543,7 +724,6 @@ async function executeSearch() {
     searchBtn.disabled = true;
 
     try {
-        // 1. Geokoodaus: Käytetään ensisijaisesti Nominatimia Suomessa
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=fi&addressdetails=1&limit=1`;
         const res = await fetch(url, { headers: { 'Accept-Language': 'fi' } });
         const data = await res.json();
@@ -565,11 +745,9 @@ async function executeSearch() {
         currentLoc.propertyId = '';
         currentLoc.propertyAreaM2 = 0;
 
-        // Näytetään dashboard
         document.getElementById('emptyState').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
 
-        // Päivitetään URL-historia jakamista varten
         const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
         window.history.replaceState({}, '', newUrl);
 
@@ -578,10 +756,13 @@ async function executeSearch() {
         updateSunInteractive();
         renderAllLinks();
 
-        // Rinnakkaiset tietohaut: Kiinteistörajat (MML/WFS), Paavo-tilastot, Lähipalvelut ja Uutiset
+        // Käynnistetään kaikki rinnakkaiset tietohaut
         fetchPropertyBoundaries();
         fetchPaavoStats();
-        fetchNearbyAmenities();
+        fetchElevationWeatherAndAir();
+        fetchEverythingNearbyOverpass();
+        startLiveTransitTracking();
+        fetchNearestWeatherCam();
         fetchLocalNews();
 
     } catch (err) {
@@ -595,7 +776,8 @@ async function executeSearch() {
 
 function renderStats() {
     const fullStreet = `${currentLoc.street} ${currentLoc.num}`.trim();
-    document.getElementById('statAddress').textContent = `${fullStreet}, ${currentLoc.city}`;
+    document.getElementById('statAddress').textContent = fullStreet;
+    document.getElementById('statCity').textContent = currentLoc.city;
     document.getElementById('statArea').textContent = `${currentLoc.suburb || 'Keskusta'} (${currentLoc.zip || '-'})`;
     document.getElementById('statCoords').textContent = `${currentLoc.lat.toFixed(5)}, ${currentLoc.lon.toFixed(5)}`;
 }
@@ -619,7 +801,6 @@ function initOrUpdateMap() {
             attribution: '© OpenTopoMap (Korkeuskäyrät)'
         });
 
-        // WMS-tasot (Suomen viranomaisrajapinnat)
         const gtkMaapera = L.tileLayer.wms('https://gtkdata.gtk.fi/arcgis/services/GTKMaps/Maapera_20k_ja_200k/MapServer/WMSServer', {
             layers: '0,1,2',
             format: 'image/png',
@@ -653,12 +834,14 @@ function initOrUpdateMap() {
 
         parcelLayerGroup = L.layerGroup();
         buildingLayerGroup = L.layerGroup();
+        liveTransitLayerGroup = L.layerGroup();
+        poiLayerGroup = L.layerGroup();
         postalAreaLayerGroup = L.layerGroup();
 
         map = L.map('map', {
             center: [lat, lon],
-            zoom: 18,
-            layers: [osm, parcelLayerGroup, buildingLayerGroup]
+            zoom: 16,
+            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup]
         });
 
         const baseMaps = {
@@ -671,6 +854,8 @@ function initOrUpdateMap() {
         const overlayMaps = {
             "📐 Kiinteistörajat & Tontit (Vektori)": parcelLayerGroup,
             "🏢 Rakennukset tontilla": buildingLayerGroup,
+            "🚌 Live-joukkoliikenne (Bussit & Junat)": liveTransitLayerGroup,
+            "🎯 Lähipalvelut, Harrastukset & Lataus": poiLayerGroup,
             "📮 Postinumeroalueen raja (Paavo)": postalAreaLayerGroup,
             "🪨 GTK Maaperäkartta (Savi/Kallio)": gtkMaapera,
             "🗺️ Turun seudun Asemakaava (WMS)": turunAsemakaava,
@@ -679,7 +864,7 @@ function initOrUpdateMap() {
 
         L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
     } else {
-        map.setView([lat, lon], 18);
+        map.setView([lat, lon], 16);
     }
 
     if (marker) map.removeLayer(marker);
@@ -693,7 +878,726 @@ function initOrUpdateMap() {
     }
 }
 
-// Muotoilee 14-numeroisen kiinteistötunnuksen (esim. 85300600130010 -> 853-6-13-10)
+// 1. KORKEUS MERENPINNASTA, SÄÄ & ILMANLAATU (Open-Meteo APIs)
+async function fetchElevationWeatherAndAir() {
+    const { lat, lon } = currentLoc;
+    const elevEl = document.getElementById('statElevation');
+    const floodEl = document.getElementById('statFloodRisk');
+    const weatherEl = document.getElementById('statWeather');
+    const aqiEl = document.getElementById('statAirQuality');
+
+    try {
+        const [elevRes, weathRes, aqiRes] = await Promise.all([
+            fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`),
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&wind_speed_unit=ms`),
+            fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,pm10,pm2_5`)
+        ]);
+
+        if (elevRes.ok) {
+            const ed = await elevRes.json();
+            const m = ed.elevation && ed.elevation[0] !== undefined ? ed.elevation[0] : null;
+            if (m !== null) {
+                elevEl.textContent = `+${m.toFixed(1)} m mpy`;
+                if (m < 2.5) {
+                    floodEl.innerHTML = `<span class="text-amber-400">⚠️ Matala korkeus (tarkista tulvariski)</span>`;
+                } else if (m < 8) {
+                    floodEl.textContent = `Normaali alava maasto`;
+                } else {
+                    floodEl.innerHTML = `<span class="text-emerald-400">✅ Korkealla merenpinnasta</span>`;
+                }
+            }
+        }
+
+        if (weathRes.ok) {
+            const wd = await weathRes.json();
+            const cur = wd.current || {};
+            weatherEl.textContent = `${cur.temperature_2m ?? '-'} °C • Tuuli ${cur.wind_speed_10m ?? '-'} m/s`;
+        }
+
+        if (aqiRes.ok) {
+            const ad = await aqiRes.json();
+            const curA = ad.current || {};
+            const aqi = curA.european_aqi;
+            let aqiDesc = 'Hyvä';
+            let aqiColor = 'text-emerald-400';
+            if (aqi > 60) { aqiDesc = 'Huono'; aqiColor = 'text-red-400'; }
+            else if (aqi > 40) { aqiDesc = 'Kohtalainen'; aqiColor = 'text-amber-400'; }
+            else if (aqi > 20) { aqiDesc = 'Tyydyttävä'; aqiColor = 'text-emerald-300'; }
+
+            aqiEl.innerHTML = `Ilmanlaatu: <strong class="${aqiColor}">${aqiDesc}</strong> (PM2.5: ${curA.pm2_5 ?? '-'} µg/m³)`;
+        }
+    } catch (e) {
+        console.warn('Sää/korkeusvirhe:', e);
+    }
+}
+
+// 2. REAALIAIKAINEN JOUKKOLIIKENNE (Bussit, Ratikat, Junat & Pysäkkiaikataulut)
+function startLiveTransitTracking() {
+    if (transitTimer) clearInterval(transitTimer);
+    if (hslMqttClient) {
+        try { hslMqttClient.end(true); } catch (e) {}
+        hslMqttClient = null;
+    }
+    hslVehiclesMap.clear();
+
+    const { city, lat, lon } = currentLoc;
+    const cityLow = (city || '').toLowerCase();
+
+    // Päivitetään paikallisen Reittioppaan linkki
+    const plannerLink = document.getElementById('transitRoutePlannerLink');
+    if (['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'paimio'].includes(cityLow)) {
+        plannerLink.href = `https://reittiopas.foli.fi/`;
+        plannerLink.textContent = `🚌 Föli Reittiopas ↗`;
+    } else if (['helsinki', 'espoo', 'vantaa', 'kauniainen', 'kerava', 'sipoo', 'kirkkonummi'].includes(cityLow)) {
+        plannerLink.href = `https://reittiopas.hsl.fi/`;
+        plannerLink.textContent = `🚌 HSL Reittiopas ↗`;
+    } else if (['tampere', 'nokia', 'pirkkala', 'kangasala', 'lempäälä', 'ylöjärvi'].includes(cityLow)) {
+        plannerLink.href = `https://reittiopas.tampere.fi/`;
+        plannerLink.textContent = `🚌 Nysse Reittiopas ↗`;
+    } else {
+        plannerLink.href = `https://opas.matkahuolto.fi/`;
+        plannerLink.textContent = `🚌 Matkahuolto Reittiopas ↗`;
+    }
+
+    // Jos ollaan HSL-alueella, avataan suora reaaliaikainen HSL MQTT WebSocket
+    if (['helsinki', 'espoo', 'vantaa', 'kauniainen', 'kerava', 'sipoo', 'kirkkonummi', 'tuusula'].includes(cityLow) && typeof mqtt !== 'undefined') {
+        try {
+            hslMqttClient = mqtt.connect('wss://mqtt.hsl.fi:443/');
+            const degLat = Math.floor(lat);
+            const degLon = Math.floor(lon);
+            hslMqttClient.on('connect', () => {
+                hslMqttClient.subscribe(`/hfp/v2/journey/ongoing/vp/+/+/+/+/+/+/+/+/+/${degLat};${degLon}/#`);
+            });
+            hslMqttClient.on('message', (topic, message) => {
+                try {
+                    const payload = JSON.parse(message.toString());
+                    const vp = payload.VP;
+                    if (!vp || !vp.lat || !vp.long) return;
+                    const dist = haversineMeters(currentLoc.lat, currentLoc.lon, vp.lat, vp.long);
+                    if (dist <= 3500) {
+                        const parts = topic.split('/');
+                        const mode = parts[6] || 'bus';
+                        const headsign = parts[11] || '';
+                        hslVehiclesMap.set(`${vp.oper}_${vp.veh}`, {
+                            id: `${vp.oper}_${vp.veh}`,
+                            line: vp.desi || '?',
+                            dest: headsign,
+                            lat: vp.lat,
+                            lon: vp.long,
+                            speedKmh: vp.spd ? Math.round(vp.spd * 3.6) : 0,
+                            dist: Math.round(dist),
+                            mode: mode === 'tram' ? 'Ratikka' : mode === 'train' ? 'Lähijuna' : mode === 'metro' ? 'Metro' : 'Bussi',
+                            color: mode === 'tram' ? '#059669' : mode === 'train' ? '#9333ea' : mode === 'metro' ? '#ea580c' : '#2563eb'
+                        });
+                    }
+                } catch (err) {}
+            });
+        } catch (e) {
+            console.warn('HSL MQTT virhe:', e);
+        }
+    }
+
+    refreshLiveTransit();
+    transitTimer = setInterval(refreshLiveTransit, 10000);
+}
+
+async function refreshLiveTransit() {
+    const { lat, lon, city } = currentLoc;
+    const cityLow = (city || '').toLowerCase();
+    const isFoli = ['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'paimio'].includes(cityLow);
+    const isNysse = ['tampere', 'nokia', 'pirkkala', 'kangasala', 'lempäälä', 'ylöjärvi'].includes(cityLow);
+    const isHsl = ['helsinki', 'espoo', 'vantaa', 'kauniainen', 'kerava', 'sipoo', 'kirkkonummi', 'tuusula'].includes(cityLow);
+
+    const vehicles = [];
+
+    // 1. Turun seutu (Föli SIRI VM + SM pysäkkiaikataulut)
+    if (isFoli) {
+        try {
+            const vmRes = await fetch('https://data.foli.fi/siri/vm');
+            if (vmRes.ok) {
+                const vmData = await vmRes.json();
+                const vDict = (vmData.result && vmData.result.vehicles) || {};
+                Object.values(vDict).forEach(v => {
+                    if (!v.latitude || !v.longitude) return;
+                    const dist = haversineMeters(lat, lon, v.latitude, v.longitude);
+                    if (dist <= 4000) {
+                        vehicles.push({
+                            id: v.vehicleref,
+                            line: v.publishedlinename || v.lineref || '?',
+                            dest: v.destinationname || '',
+                            nextStop: v.next_stoppointname || '',
+                            lat: v.latitude,
+                            lon: v.longitude,
+                            dist: Math.round(dist),
+                            delaySec: v.delaysecs || 0,
+                            mode: 'Föli Bussi',
+                            color: '#d97706'
+                        });
+                    }
+                });
+            }
+            fetchFoliStopSchedules();
+        } catch (e) {
+            console.warn('Föli live-virhe:', e);
+        }
+    }
+
+    // 2. Tampereen seutu (Nysse SIRI Vehicle Activity + Pysäkkiaikataulut)
+    if (isNysse) {
+        try {
+            const nRes = await fetch('https://data.itsfactory.fi/journeys/api/1/vehicle-activity');
+            if (nRes.ok) {
+                const nData = await nRes.json();
+                const upcomingStopCalls = [];
+                (nData.body || []).forEach(item => {
+                    const mvj = item.monitoredVehicleJourney || {};
+                    const loc = mvj.vehicleLocation;
+                    if (!loc || !loc.latitude || !loc.longitude) return;
+                    const vLat = parseFloat(loc.latitude);
+                    const vLon = parseFloat(loc.longitude);
+                    const dist = haversineMeters(lat, lon, vLat, vLon);
+                    if (dist <= 4500) {
+                        vehicles.push({
+                            id: mvj.vehicleRef,
+                            line: mvj.lineRef || '?',
+                            dest: mvj.destinationShortName || '',
+                            lat: vLat,
+                            lon: vLon,
+                            speedKmh: mvj.speed ? Math.round(parseFloat(mvj.speed)) : 0,
+                            dist: Math.round(dist),
+                            mode: 'Nysse',
+                            color: '#2563eb'
+                        });
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn('Nysse live-virhe:', e);
+        }
+    }
+
+    // 3. Pääkaupunkiseutu (HSL MQTT puskurista)
+    if (isHsl && hslVehiclesMap.size > 0) {
+        hslVehiclesMap.forEach(v => {
+            v.dist = Math.round(haversineMeters(lat, lon, v.lat, v.lon));
+            if (v.dist <= 3500) vehicles.push(v);
+        });
+    }
+
+    // 4. Valtakunnallinen Junaliikenne (Fintraffic Digitraffic) – toimii kaikkialla Suomessa!
+    try {
+        const trRes = await fetch('https://rata.digitraffic.fi/api/v1/train-locations/latest');
+        if (trRes.ok) {
+            const trList = await trRes.json();
+            trList.forEach(tr => {
+                const coords = tr.location && tr.location.coordinates;
+                if (!coords || coords.length < 2) return;
+                const tLon = coords[0], tLat = coords[1];
+                const dist = haversineMeters(lat, lon, tLat, tLon);
+                if (dist <= 15000) {
+                    vehicles.push({
+                        id: `train_${tr.trainNumber}`,
+                        line: `Juna ${tr.trainNumber}`,
+                        dest: `${tr.speed || 0} km/h`,
+                        lat: tLat,
+                        lon: tLon,
+                        speedKmh: tr.speed || 0,
+                        dist: Math.round(dist),
+                        mode: 'Juna (VR)',
+                        color: '#9333ea'
+                    });
+                }
+            });
+        }
+    } catch (e) {}
+
+    // Järjestetään etäisyyden mukaan
+    vehicles.sort((a, b) => a.dist - b.dist);
+    renderLiveVehicles(vehicles);
+}
+
+function renderLiveVehicles(vehicles) {
+    if (liveTransitLayerGroup) liveTransitLayerGroup.clearLayers();
+    const listEl = document.getElementById('liveVehiclesListContainer');
+    const badgeEl = document.getElementById('liveVehicleCountBadge');
+    const subEl = document.getElementById('transitSubtitle');
+
+    badgeEl.textContent = `${vehicles.length} ajoneuvoa lähistöllä`;
+    subEl.textContent = `Reaaliaikainen seuranta (päivittyy 10 sekunnin välein) • ${vehicles.length} ajoneuvoa lähialueella`;
+
+    // Piirretään kartalle enintään 35 lähintä ajoneuvoa
+    vehicles.slice(0, 35).forEach(v => {
+        const icon = L.divIcon({
+            className: '',
+            html: `<div class="bus-marker-badge" style="background:${v.color};min-width:26px;height:22px;">${v.line}</div>`,
+            iconSize: [30, 22],
+            iconAnchor: [15, 11]
+        });
+
+        L.marker([v.lat, v.lon], { icon })
+            .bindPopup(`
+                <div class="text-xs">
+                    <b>🚌 ${v.mode} – Linja ${v.line}</b><br>
+                    ${v.dest ? `Määränpää: <b>${v.dest}</b><br>` : ''}
+                    ${v.nextStop ? `Seuraava pysäkki: ${v.nextStop}<br>` : ''}
+                    Etäisyys kohteesta: ${v.dist} m
+                </div>
+            `)
+            .addTo(liveTransitLayerGroup);
+    });
+
+    if (vehicles.length === 0) {
+        listEl.innerHTML = `
+            <div class="text-slate-400 p-2">
+                Lähistöllä (4 km säteellä) ei juuri nyt havaittu avoimen GPS-seurannan busseja tai junia. Tarkista viereisestä sarakkeesta lähimmät pysäkit ja reittiopas!
+            </div>
+        `;
+        return;
+    }
+
+    listEl.innerHTML = vehicles.slice(0, 12).map(v => {
+        const distStr = v.dist >= 1000 ? `${(v.dist / 1000).toFixed(1)} km` : `${v.dist} m`;
+        const safeDest = (v.dest || v.mode).replace(/'/g, '');
+        return `
+            <div onclick="focusMapPoint(${v.lat}, ${v.lon}, '${v.mode} ${v.line}', '${safeDest}')"
+                 class="flex items-center justify-between bg-slate-900 hover:bg-slate-800 p-2 rounded-lg border border-slate-800 cursor-pointer transition">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="px-2 py-0.5 rounded font-bold text-white text-xs whitespace-nowrap" style="background:${v.color}">${v.line}</span>
+                    <div class="truncate">
+                        <div class="font-medium text-slate-200 truncate">${v.dest || v.mode}</div>
+                        <div class="text-[10px] text-slate-400 truncate">${v.nextStop ? 'Seuraava: ' + v.nextStop : v.mode}</div>
+                    </div>
+                </div>
+                <span class="text-blue-400 font-semibold whitespace-nowrap ml-2">${distStr}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// Hakee Fölin lähimmät pysäkit ja niiden reaaliaikaiset lähtöajat (SIRI SM)
+async function fetchFoliStopSchedules() {
+    const { lat, lon } = currentLoc;
+    const container = document.getElementById('stopSchedulesContainer');
+    const srcEl = document.getElementById('stopBoardSource');
+    srcEl.textContent = 'Föli Live SIRI';
+
+    try {
+        if (!foliStopsCache) {
+            const res = await fetch('https://data.foli.fi/gtfs/v0/stops');
+            if (res.ok) foliStopsCache = await res.json();
+        }
+        if (!foliStopsCache) return;
+
+        // Etsitään 3 lähintä pysäkkiä
+        const stopsArr = Object.entries(foliStopsCache).map(([id, s]) => ({
+            id,
+            code: s.stop_code || id,
+            name: s.stop_name,
+            lat: s.stop_lat,
+            lon: s.stop_lon,
+            dist: haversineMeters(lat, lon, s.stop_lat, s.stop_lon)
+        }));
+        stopsArr.sort((a, b) => a.dist - b.dist);
+        const nearestStops = stopsArr.slice(0, 3);
+
+        const boards = await Promise.all(nearestStops.map(async stop => {
+            const smRes = await fetch(`https://data.foli.fi/siri/sm/${encodeURIComponent(stop.id)}`);
+            const smData = smRes.ok ? await smRes.json() : {};
+            return { stop, departures: (smData.result || []).slice(0, 4) };
+        }));
+
+        const nowSec = Math.floor(Date.now() / 1000);
+        container.innerHTML = boards.map(({ stop, departures }) => {
+            const depHtml = departures.length > 0
+                ? departures.map(d => {
+                    const exp = d.expecteddeparturetime || d.aimeddeparturetime;
+                    const mins = Math.max(0, Math.round((exp - nowSec) / 60));
+                    const timeStr = new Date(exp * 1000).toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
+                    return `
+                        <div class="flex items-center justify-between py-1 border-t border-slate-800/70 text-[11px]">
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="bg-amber-500 text-slate-950 font-extrabold px-1.5 py-0.2 rounded">${d.lineref}</span>
+                                <span class="text-slate-200 truncate">${d.destinationdisplay || ''}</span>
+                            </div>
+                            <span class="text-emerald-400 font-semibold whitespace-nowrap ml-2">${mins === 0 ? 'Nyt' : mins + ' min'} (${timeStr})</span>
+                        </div>
+                    `;
+                }).join('')
+                : `<div class="text-[11px] text-slate-500 py-1">Ei lähiajan lähtöjä.</div>`;
+
+            return `
+                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                    <div onclick="focusMapPoint(${stop.lat}, ${stop.lon}, 'Pysäkki ${stop.code}: ${stop.name.replace(/'/g, '')}', 'Etäisyys ${Math.round(stop.dist)} m')"
+                         class="flex items-center justify-between mb-1 cursor-pointer hover:text-emerald-400">
+                        <span class="font-bold text-white">🚏 ${stop.name} <span class="text-amber-400">(#${stop.code})</span></span>
+                        <span class="text-[11px] text-slate-400">${Math.round(stop.dist)} m</span>
+                    </div>
+                    ${depHtml}
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.warn('Föli pysäkkitauluvirhe:', e);
+    }
+}
+
+// 3. LÄHIN FINTRAFFIC LIIKENNE- JA KELIKAMERA (Digitraffic API)
+async function fetchNearestWeatherCam() {
+    const { lat, lon } = currentLoc;
+    const box = document.getElementById('weatherCamBox');
+    const titleEl = document.getElementById('weatherCamTitle');
+    const distEl = document.getElementById('weatherCamDistBadge');
+
+    try {
+        if (!weatherCamStationsCache) {
+            const res = await fetch('https://tie.digitraffic.fi/api/weathercam/v1/stations');
+            if (res.ok) {
+                const data = await res.json();
+                weatherCamStationsCache = data.features || [];
+            }
+        }
+        if (!weatherCamStationsCache || weatherCamStationsCache.length === 0) return;
+
+        let bestCam = null;
+        let bestDist = Infinity;
+
+        weatherCamStationsCache.forEach(f => {
+            const coords = f.geometry && f.geometry.coordinates;
+            const presets = f.properties && f.properties.presets;
+            if (!coords || !presets || presets.length === 0) return;
+            const d = haversineMeters(lat, lon, coords[1], coords[0]);
+            if (d < bestDist) {
+                bestDist = d;
+                bestCam = {
+                    id: f.properties.id,
+                    name: f.properties.name || 'Kelikamera',
+                    presetId: presets[0].id,
+                    lon: coords[0],
+                    lat: coords[1],
+                    dist: d
+                };
+            }
+        });
+
+        if (bestCam) {
+            const distKm = (bestCam.dist / 1000).toFixed(1);
+            distEl.textContent = `${distKm} km päässä`;
+            titleEl.textContent = `Kamera: ${bestCam.name.replace(/_/g, ' ')}`;
+            const imgUrl = `https://weathercam.digitraffic.fi/${bestCam.presetId}.jpg?t=${Date.now()}`;
+            box.innerHTML = `
+                <a href="${imgUrl}" target="_blank" class="w-full block relative group">
+                    <img src="${imgUrl}" alt="${bestCam.name}" class="w-full h-[210px] object-cover">
+                    <div class="absolute bottom-2 right-2 bg-black/75 text-white text-[10px] px-2 py-1 rounded">
+                        🔍 Klikkaa suurentaaksesi
+                    </div>
+                </a>
+            `;
+        }
+    } catch (e) {
+        box.innerHTML = `<div class="text-xs text-slate-500 p-4">Kelikameran kuvaa ei saatu ladattua.</div>`;
+    }
+}
+
+// 4. KATTAVA LÄHIPALVELU-, KOULU-, HARRASTUS- JA LATAUSASEMATUTKA (Overpass API)
+async function fetchEverythingNearbyOverpass() {
+    const { lat, lon, city } = currentLoc;
+    const cityLow = (city || '').toLowerCase();
+    const isFoli = ['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'paimio'].includes(cityLow);
+
+    const gridEl = document.getElementById('poiGridContainer');
+    gridEl.innerHTML = `<div class="text-slate-400 animate-pulse col-span-full py-4">Haetaan 2,5 km säteeltä kouluja, päiväkoteja, kauppoja, liikuntapaikkoja, latausasemia ja bensa-asemia...</div>`;
+
+    if (poiLayerGroup) poiLayerGroup.clearLayers();
+    if (buildingLayerGroup) buildingLayerGroup.clearLayers();
+
+    const query = `
+        [out:json][timeout:18];
+        (
+          node["amenity"~"school|kindergarten|library|pharmacy|clinic|doctors|hospital|charging_station|fuel|car_wash|post_office|parcel_locker|cafe|restaurant"](around:2500,${lat},${lon});
+          way["amenity"~"school|kindergarten|library|pharmacy|clinic|doctors|hospital|charging_station|fuel|car_wash"](around:2500,${lat},${lon});
+          node["shop"~"supermarket|convenience|mall|department_store|bakery|hardware"](around:2500,${lat},${lon});
+          way["shop"~"supermarket|convenience|mall"](around:2500,${lat},${lon});
+          node["leisure"~"fitness_centre|sports_centre|pitch|playground|dog_park|swimming_pool|park|fitness_station|disc_golf_course|golf_course|ice_rink|marina"](around:2500,${lat},${lon});
+          way["leisure"~"fitness_centre|sports_centre|pitch|playground|dog_park|swimming_pool|park|fitness_station|disc_golf_course|golf_course|ice_rink"](around:2500,${lat},${lon});
+          node["highway"="bus_stop"](around:900,${lat},${lon});
+          way["building"](around:75,${lat},${lon});
+        );
+        out body geom;
+    `;
+
+    try {
+        const res = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: 'data=' + encodeURIComponent(query)
+        });
+        const data = await res.json();
+        const elements = data.elements || [];
+
+        const pois = [];
+        const busStops = [];
+        const seenKeys = new Set();
+
+        elements.forEach(el => {
+            const tags = el.tags || {};
+
+            // 1. Tontin ja lähiympäristön rakennukset kartalle
+            if (tags.building && el.geometry && buildingLayerGroup) {
+                const latLngs = el.geometry.map(pt => [pt.lat, pt.lon]);
+                const dist = distToPolygonCenter(lat, lon, latLngs);
+                const isMainBld = dist < 28;
+                const bldArea = Math.round(computePolygonAreaM2(latLngs));
+
+                L.polygon(latLngs, {
+                    color: isMainBld ? '#f59e0b' : '#94a3b8',
+                    weight: isMainBld ? 2 : 1,
+                    fillColor: isMainBld ? '#f59e0b' : '#64748b',
+                    fillOpacity: isMainBld ? 0.35 : 0.2
+                }).bindPopup(`
+                    <div class="text-xs">
+                        <strong>🏢 Rakennus${tags.name ? ': ' + tags.name : ''}</strong><br>
+                        Pohjapinta-ala: n. ${bldArea} m²
+                        ${tags['building:levels'] ? `<br>Kerroksia: ${tags['building:levels']}` : ''}
+                        ${tags.start_date ? `<br>Rakennusvuosi: ${tags.start_date}` : ''}
+                    </div>
+                `).addTo(buildingLayerGroup);
+                return;
+            }
+
+            const elLat = el.lat || (el.geometry && el.geometry[0] ? el.geometry[0].lat : null);
+            const elLon = el.lon || (el.geometry && el.geometry[0] ? el.geometry[0].lon : null);
+            if (!elLat || !elLon) return;
+
+            const dist = Math.round(haversineMeters(lat, lon, elLat, elLon));
+
+            // 2. Bussipysäkit (käytetään kun ei olla Föli-alueella)
+            if (tags.highway === 'bus_stop') {
+                busStops.push({
+                    name: tags.name || 'Bussipysäkki',
+                    code: tags.ref || '',
+                    routes: tags.route_ref || '',
+                    lat: elLat,
+                    lon: elLon,
+                    dist
+                });
+                return;
+            }
+
+            // 3. Luokitellaan palvelut, koulut, harrastukset ja lataus/bensa
+            let cat = null;
+            let icon = '📍';
+            let typeLabel = '';
+            let extra = '';
+
+            if (tags.amenity === 'school') { cat = 'edu'; icon = '🏫'; typeLabel = 'Koulu / Oppilaitos'; }
+            else if (tags.amenity === 'kindergarten') { cat = 'edu'; icon = '🧸'; typeLabel = 'Päiväkoti / Tarha'; }
+            else if (tags.leisure === 'playground') { cat = 'edu'; icon = '🛝'; typeLabel = 'Leikkipuisto'; }
+            else if (tags.amenity === 'library') { cat = 'edu'; icon = '📚'; typeLabel = 'Kirjasto'; }
+
+            else if (tags.shop === 'supermarket') { cat = 'daily'; icon = '🛒'; typeLabel = 'Supermarket / Ruokakauppa'; }
+            else if (tags.shop === 'convenience') { cat = 'daily'; icon = '🏪'; typeLabel = 'Lähikauppa / Kioski'; }
+            else if (tags.shop === 'mall' || tags.shop === 'department_store') { cat = 'daily'; icon = '🛍️'; typeLabel = 'Kauppakeskus / Tavaratalo'; }
+            else if (tags.amenity === 'pharmacy') { cat = 'daily'; icon = '💊'; typeLabel = 'Apteekki'; }
+            else if (['clinic', 'doctors', 'hospital'].includes(tags.amenity)) { cat = 'daily'; icon = '🏥'; typeLabel = 'Terveysasema / Lääkäri'; }
+            else if (['post_office', 'parcel_locker'].includes(tags.amenity)) { cat = 'daily'; icon = '📦'; typeLabel = 'Pakettiautomaatti / Posti'; }
+            else if (['restaurant', 'cafe'].includes(tags.amenity)) { cat = 'daily'; icon = '☕'; typeLabel = tags.amenity === 'cafe' ? 'Kahvila' : 'Ravintola'; }
+
+            else if (tags.leisure === 'fitness_centre') { cat = 'sport'; icon = '🏋️'; typeLabel = 'Kuntosali'; }
+            else if (tags.leisure === 'fitness_station') { cat = 'sport'; icon = '💪'; typeLabel = 'Ulkokuntoilupaikka'; }
+            else if (tags.leisure === 'sports_centre') { cat = 'sport'; icon = '🏟️'; typeLabel = 'Urheiluhalli / Liikuntakeskus'; }
+            else if (tags.leisure === 'pitch') {
+                cat = 'sport'; icon = '⚽';
+                typeLabel = tags.sport ? `Urheilukenttä (${tags.sport})` : 'Urheilukenttä / Pelikenttä';
+            }
+            else if (tags.leisure === 'swimming_pool') { cat = 'sport'; icon = '🏊'; typeLabel = 'Uimahalli / Maauimala'; }
+            else if (tags.leisure === 'dog_park') { cat = 'sport'; icon = '🐕'; typeLabel = 'Koirapuisto'; }
+            else if (tags.leisure === 'disc_golf_course' || tags.leisure === 'golf_course') { cat = 'sport'; icon = '⛳'; typeLabel = tags.leisure === 'disc_golf_course' ? 'Frisbeegolf' : 'Golfkenttä'; }
+            else if (tags.leisure === 'ice_rink') { cat = 'sport'; icon = '⛸️'; typeLabel = 'Jäähalli / Tekojää'; }
+            else if (tags.leisure === 'park') { cat = 'sport'; icon = '🌳'; typeLabel = 'Puisto / Viheralue'; }
+
+            else if (tags.amenity === 'charging_station') {
+                cat = 'auto'; icon = '⚡'; typeLabel = 'Sähköauton latausasema';
+                const cap = tags.capacity ? `${tags.capacity} pistettä` : '';
+                const out = tags['socket:type2_combo:output'] || tags['charging_station:output'] || '';
+                extra = [tags.operator || tags.brand, out, cap].filter(Boolean).join(' • ');
+            }
+            else if (tags.amenity === 'fuel') {
+                cat = 'auto'; icon = '⛽'; typeLabel = 'Bensa-asema / Polttoaine';
+                extra = tags.brand || tags.operator || '';
+            }
+            else if (tags.amenity === 'car_wash') {
+                cat = 'auto'; icon = '🚿'; typeLabel = 'Autopesula';
+            }
+
+            if (!cat) return;
+
+            const name = tags.name || tags.brand || tags.operator || typeLabel;
+            // Poistetaan nimettömät puistot ja tuplat
+            if (tags.leisure === 'park' && !tags.name) return;
+            const dedupKey = `${cat}_${name.toLowerCase()}_${Math.round(dist / 40)}`;
+            if (seenKeys.has(dedupKey)) return;
+            seenKeys.add(dedupKey);
+
+            pois.push({
+                cat,
+                icon,
+                name,
+                typeLabel,
+                extra,
+                lat: elLat,
+                lon: elLon,
+                dist
+            });
+        });
+
+        pois.sort((a, b) => a.dist - b.dist);
+        allPois = pois;
+
+        // Jos ei olla Föli-alueella, näytetään OSM:n lähimmät bussipysäkit pysäkkitaulussa
+        if (!isFoli) {
+            busStops.sort((a, b) => a.dist - b.dist);
+            renderFallbackStopBoard(busStops.slice(0, 5));
+        }
+
+        updatePoiCountsAndRender();
+    } catch (e) {
+        console.warn('Overpass-virhe:', e);
+        gridEl.innerHTML = `<div class="text-slate-500 col-span-full py-4">Lähipalveluiden haku ruuhkautui. Yritä hetken kuluttua uudelleen.</div>`;
+    }
+}
+
+function renderFallbackStopBoard(stops) {
+    const container = document.getElementById('stopSchedulesContainer');
+    const srcEl = document.getElementById('stopBoardSource');
+    srcEl.textContent = 'OpenStreetMap Pysäkit';
+
+    if (!stops || stops.length === 0) {
+        container.innerHTML = `<div class="text-slate-500">Ei pysäkkejä 900 m säteellä.</div>`;
+        return;
+    }
+
+    container.innerHTML = stops.map(s => `
+        <div onclick="focusMapPoint(${s.lat}, ${s.lon}, 'Pysäkki: ${s.name.replace(/'/g, '')}', 'Etäisyys ${s.dist} m')"
+             class="bg-slate-900 hover:bg-slate-800 p-2.5 rounded-lg border border-slate-800 cursor-pointer transition flex items-center justify-between">
+            <div class="truncate pr-2">
+                <div class="font-bold text-white truncate">🚏 ${s.name} ${s.code ? `<span class="text-amber-400">(#${s.code})</span>` : ''}</div>
+                <div class="text-[11px] text-slate-400">${s.routes ? `Linjat: ${s.routes}` : 'Klikkaa näyttääksesi kartalla'}</div>
+            </div>
+            <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded font-semibold whitespace-nowrap">${s.dist} m</span>
+        </div>
+    `).join('');
+}
+
+function setPoiCategory(cat) {
+    activePoiCategory = cat;
+    document.querySelectorAll('.poi-tab').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+            btn.className = 'poi-tab bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition';
+        } else {
+            btn.className = 'poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition';
+        }
+    });
+    renderPoisOnMapAndGrid();
+}
+
+function updatePoiCountsAndRender() {
+    document.getElementById('count-all').textContent = allPois.length;
+    document.getElementById('count-edu').textContent = allPois.filter(p => p.cat === 'edu').length;
+    document.getElementById('count-daily').textContent = allPois.filter(p => p.cat === 'daily').length;
+    document.getElementById('count-sport').textContent = allPois.filter(p => p.cat === 'sport').length;
+    document.getElementById('count-auto').textContent = allPois.filter(p => p.cat === 'auto').length;
+
+    // Päivitetään 6 avainkohteen pikayhteenveto
+    const findFirst = (fn) => allPois.find(fn);
+    const highlights = [
+        { label: 'Lähin päiväkoti', icon: '🧸', item: findFirst(p => p.typeLabel.includes('Päiväkoti')) },
+        { label: 'Lähin koulu', icon: '🏫', item: findFirst(p => p.typeLabel.includes('Koulu')) },
+        { label: 'Lähin ruokakauppa', icon: '🛒', item: findFirst(p => p.icon === '🛒' || p.icon === '🏪') },
+        { label: 'Lähin kuntosali/liikunta', icon: '🏋️', item: findFirst(p => p.cat === 'sport') },
+        { label: 'Sähköauton lataus', icon: '⚡', item: findFirst(p => p.icon === '⚡') },
+        { label: 'Lähin bensa-asema', icon: '⛽', item: findFirst(p => p.icon === '⛽') }
+    ];
+
+    document.getElementById('nearestHighlightsBar').innerHTML = highlights.map(h => {
+        if (!h.item) {
+            return `
+                <div class="bg-slate-950 border border-slate-800/80 p-2.5 rounded-xl text-xs">
+                    <div class="text-[10px] text-slate-400">${h.icon} ${h.label}</div>
+                    <div class="font-semibold text-slate-500 mt-0.5">> 2,5 km</div>
+                </div>
+            `;
+        }
+        const dStr = h.item.dist >= 1000 ? `${(h.item.dist / 1000).toFixed(1)} km` : `${h.item.dist} m`;
+        const safeName = h.item.name.replace(/'/g, '');
+        return `
+            <div onclick="focusMapPoint(${h.item.lat}, ${h.item.lon}, '${h.item.icon} ${safeName}', '${h.item.typeLabel} (${dStr})')"
+                 class="bg-slate-950 hover:bg-slate-800/90 border border-slate-800 p-2.5 rounded-xl text-xs cursor-pointer transition">
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>${h.icon} ${h.label}</span>
+                    <span class="text-emerald-400 font-bold">${dStr}</span>
+                </div>
+                <div class="font-bold text-white truncate mt-0.5">${h.item.name}</div>
+            </div>
+        `;
+    }).join('');
+
+    renderPoisOnMapAndGrid();
+}
+
+function renderPoisOnMapAndGrid() {
+    if (poiLayerGroup) poiLayerGroup.clearLayers();
+    const gridEl = document.getElementById('poiGridContainer');
+
+    const filtered = activePoiCategory === 'all'
+        ? allPois
+        : allPois.filter(p => p.cat === activePoiCategory);
+
+    // Piirretään kartalle enintään 50 lähintä valitun kategorian kohdetta
+    filtered.slice(0, 50).forEach(p => {
+        const icon = L.divIcon({
+            className: '',
+            html: `<div class="poi-marker-badge">${p.icon}</div>`,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+        });
+
+        const dStr = p.dist >= 1000 ? `${(p.dist / 1000).toFixed(1)} km` : `${p.dist} m`;
+        L.marker([p.lat, p.lon], { icon })
+            .bindPopup(`
+                <div class="text-xs">
+                    <b>${p.icon} ${p.name}</b><br>
+                    ${p.typeLabel}<br>
+                    ${p.extra ? `<span style="color:#059669">${p.extra}</span><br>` : ''}
+                    Etäisyys: <b>${dStr}</b>
+                </div>
+            `)
+            .addTo(poiLayerGroup);
+    });
+
+    if (filtered.length === 0) {
+        gridEl.innerHTML = `<div class="text-slate-500 col-span-full py-4">Ei kohteita tässä kategoriassa 2,5 km säteellä.</div>`;
+        return;
+    }
+
+    gridEl.innerHTML = filtered.slice(0, 60).map(p => {
+        const dStr = p.dist >= 1000 ? `${(p.dist / 1000).toFixed(1)} km` : `${p.dist} m`;
+        const safeName = p.name.replace(/'/g, '');
+        return `
+            <div onclick="focusMapPoint(${p.lat}, ${p.lon}, '${p.icon} ${safeName}', '${p.typeLabel} • ${dStr}')"
+                 class="flex items-center justify-between bg-slate-950 hover:bg-slate-800/90 p-2.5 rounded-lg border border-slate-800/90 cursor-pointer transition">
+                <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                    <span class="text-base">${p.icon}</span>
+                    <div class="truncate">
+                        <div class="font-semibold text-slate-200 truncate">${p.name}</div>
+                        <div class="text-[10px] text-slate-400 truncate">${p.typeLabel}${p.extra ? ' • ' + p.extra : ''}</div>
+                    </div>
+                </div>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold whitespace-nowrap">${dStr}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// 5. KIINTEISTÖRAJAT, KIINTEISTÖTUNNUS & TONTIN PINTA-ALA (MML OGC API / Kuntien avoimet WFS:t)
 function formatFinnishPropertyId(raw) {
     if (!raw) return '';
     const clean = String(raw).trim();
@@ -708,7 +1612,6 @@ function formatFinnishPropertyId(raw) {
     return clean;
 }
 
-// Laskee polygonin pinta-alan neliömetreinä (m²) WGS84-koordinaateista ([lat, lon] -taulukko)
 function computePolygonAreaM2(latLngs) {
     if (!latLngs || latLngs.length < 3) return 0;
     const R = 6378137;
@@ -726,7 +1629,6 @@ function computePolygonAreaM2(latLngs) {
     return Math.abs(area / 2);
 }
 
-// Tarkistaa onko piste [lat, lon] polygonin sisällä (Ray-casting)
 function isPointInPolygon(lat, lon, latLngs) {
     let inside = false;
     for (let i = 0, j = latLngs.length - 1; i < latLngs.length; j = i++) {
@@ -739,7 +1641,6 @@ function isPointInPolygon(lat, lon, latLngs) {
     return inside;
 }
 
-// Pisteen etäisyys polygonin keskipisteeseen
 function distToPolygonCenter(lat, lon, latLngs) {
     let sumLat = 0, sumLon = 0;
     latLngs.forEach(p => { sumLat += p[0]; sumLon += p[1]; });
@@ -757,7 +1658,6 @@ function haversineMeters(lat1, lon1, lat2, lon2) {
     return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Hakee tontin ja naapuritonttien kiinteistörajat sekä kiinteistötunnuksen (MML API tai Kuntien avoimet WFS-rajapinnat)
 async function fetchPropertyBoundaries() {
     const { lat, lon, city } = currentLoc;
     const statPropId = document.getElementById('statPropertyId');
@@ -769,7 +1669,6 @@ async function fetchPropertyBoundaries() {
     statPropArea.textContent = 'Etsitään tonttia...';
     document.getElementById('copyPropBtn').classList.add('hidden');
     if (parcelLayerGroup) parcelLayerGroup.clearLayers();
-    if (buildingLayerGroup) buildingLayerGroup.clearLayers();
 
     const mmlKey = localStorage.getItem('osoitetutka_mml_key');
     const d = 0.0014;
@@ -777,7 +1676,6 @@ async function fetchPropertyBoundaries() {
     let parcels = [];
     let sourceName = '';
 
-    // 1. Jos käyttäjällä on MML API-avain, haetaan suoraan Maanmittauslaitoksen OGC API Features -rajapinnasta
     if (mmlKey) {
         try {
             const mmlUrl = `https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/PalstanSijaintitiedot/items?bbox=${bbox}&limit=40&api-key=${encodeURIComponent(mmlKey)}`;
@@ -803,11 +1701,10 @@ async function fetchPropertyBoundaries() {
                 }
             }
         } catch (e) {
-            console.warn('MML haku epäonnistui, siirrytään avoimiin kuntarajapintoihin:', e);
+            console.warn('MML haku epäonnistui:', e);
         }
     }
 
-    // 2. Jos MML-avainta ei ole, käytetään kuntien avoimia WFS-rajapintoja (CORS-tuetut)
     if (parcels.length === 0) {
         const cityLow = (city || '').toLowerCase();
         const teklaEndpoints = {
@@ -861,11 +1758,9 @@ async function fetchPropertyBoundaries() {
         }
     }
 
-    // Piirretään löydetyt kiinteistöt kartalle ja valitaan kohdetontti
     if (parcels.length > 0) {
         let matched = parcels.find(p => isPointInPolygon(lat, lon, p.latLngs));
         if (!matched) {
-            // Jos piste on kadun puolella, valitaan lähin tontti (suositaan Tontti-lajia yleisen alueen sijaan)
             const tontit = parcels.filter(p => !String(p.type).toLowerCase().includes('yleinen'));
             const pool = tontit.length > 0 ? tontit : parcels;
             pool.sort((a, b) => distToPolygonCenter(lat, lon, a.latLngs) - distToPolygonCenter(lat, lon, b.latLngs));
@@ -879,7 +1774,7 @@ async function fetchPropertyBoundaries() {
                 weight: isTarget ? 3 : 1.5,
                 dashArray: isTarget ? null : '4, 4',
                 fillColor: isTarget ? '#10b981' : '#0284c7',
-                fillOpacity: isTarget ? 0.22 : 0.06
+                fillOpacity: isTarget ? 0.22 : 0.05
             }).addTo(parcelLayerGroup);
 
             const areaStr = p.areaM2 > 10000
@@ -911,24 +1806,25 @@ async function fetchPropertyBoundaries() {
                 `);
             }
 
-            const neighborIds = [...new Set(parcels.map(p => p.id).filter(id => id && id !== matched.id))].slice(0, 5);
+            const neighborIds = [...new Set(parcels.map(p => p.id).filter(id => id && id !== matched.id))].slice(0, 8);
             parcelBox.innerHTML = `
-                <div class="flex justify-between"><span class="text-slate-400">Kohdekiinteistö:</span><strong class="text-emerald-400 font-mono">${matched.id}</strong></div>
-                <div class="flex justify-between"><span class="text-slate-400">Rekisterilaji:</span><span>${matched.type}</span></div>
-                <div class="flex justify-between"><span class="text-slate-400">Tontin pinta-ala:</span><strong>${currentLoc.propertyAreaM2.toLocaleString('fi-FI')} m²</strong></div>
-                <div class="pt-1 border-t border-slate-800 text-[11px] text-slate-400">
-                    <strong>Naapurikiinteistöt (${neighborIds.length}):</strong> ${neighborIds.join(', ') || '-'}
+                <div class="flex justify-between py-1 border-b border-slate-800"><span class="text-slate-400">Kohdekiinteistö:</span><strong class="text-emerald-400 font-mono">${matched.id}</strong></div>
+                <div class="flex justify-between py-1 border-b border-slate-800"><span class="text-slate-400">Rekisterilaji:</span><span>${matched.type}</span></div>
+                <div class="flex justify-between py-1 border-b border-slate-800"><span class="text-slate-400">Tontin pinta-ala:</span><strong>${currentLoc.propertyAreaM2.toLocaleString('fi-FI')} m²</strong></div>
+                <div class="pt-1 text-[11px] text-slate-400 leading-relaxed">
+                    <strong class="text-slate-300">Naapurikiinteistöt (${neighborIds.length}):</strong><br>
+                    ${neighborIds.join(', ') || '-'}
                 </div>
             `;
-            badge.innerHTML = `✅ Kiinteistörajat ladattu: <strong>${sourceName}</strong> (${parcels.length} palstaa)`;
+            badge.innerHTML = `✅ Kiinteistörajat: <strong>${sourceName}</strong> (${parcels.length} palstaa)`;
         }
     } else {
-        statPropId.innerHTML = `<button onclick="openMmlModal()" class="text-amber-400 hover:underline text-xs">🔑 Lisää MML-avain nähdäksesi</button>`;
-        statPropArea.textContent = 'Ei avointa kunta-WFS:ää tälle kunnalle';
+        statPropId.innerHTML = `<button onclick="openMmlModal()" class="text-amber-400 hover:underline text-xs">🔑 Lisää MML-avain</button>`;
+        statPropArea.textContent = 'Kytke MML-avain nähdäksesi rajat';
         parcelBox.innerHTML = `
-            <div class="text-slate-400">
-                Tämän kunnan kiinteistörajat vaativat ilmaisen Maanmittauslaitoksen API-avaimen.
-                <button onclick="openMmlModal()" class="text-emerald-400 hover:underline font-medium ml-1">Syötä MML-avain tästä →</button>
+            <div class="text-slate-400 leading-relaxed">
+                Tämän kunnan kiinteistörajat haetaan Maanmittauslaitoksen OGC-rajapinnasta.
+                <button onclick="openMmlModal()" class="text-emerald-400 hover:underline font-medium block mt-2">🔑 Syötä ilmainen MML API-avain tästä →</button>
             </div>
         `;
         badge.innerHTML = `ℹ️ Kiinteistörajat: <button onclick="openMmlModal()" class="text-emerald-400 hover:underline">Kytke MML API-avain</button>`;
@@ -984,7 +1880,7 @@ function copyPropertyId() {
     showToast(`Kiinteistötunnus ${currentLoc.propertyId} kopioitu leikepöydälle!`);
 }
 
-// Hakee Tilastokeskuksen Paavo-tietokannasta postinumeroalueen tilastot ja aluerajan (WFS GeoJSON)
+// 6. TILASTOKESKUS PAAVO -POSTINUMEROALUEEN TILASTOT (WFS GeoJSON)
 async function fetchPaavoStats() {
     const { zip, lat, lon } = currentLoc;
     const titleEl = document.getElementById('paavoAreaTitle');
@@ -1012,7 +1908,6 @@ async function fetchPaavoStats() {
             renderStats();
         }
 
-        // Lisätään postinumeroalueen raja valinnaiseen karttatasoon
         if (feat.geometry && postalAreaLayerGroup) {
             L.geoJSON(feat, {
                 style: {
@@ -1038,7 +1933,6 @@ async function fetchPaavoStats() {
         document.getElementById('paavoAptSize').textContent = `${fmtNum(p.ra_as_kpa, ' m²')}`;
         document.getElementById('paavoHouseholdSize').textContent = `Talouden keskikoko: ${fmtNum(p.te_takk, ' hlö')}`;
 
-        // Korkeakoulutusaste & työttömyysaste
         const eduTotal = p.ko_ika18y || 0;
         const higherEdu = (p.ko_al_kork || 0) + (p.ko_yl_kork || 0);
         const eduPct = eduTotal > 0 ? ((higherEdu / eduTotal) * 100).toFixed(1) : null;
@@ -1048,7 +1942,6 @@ async function fetchPaavoStats() {
         const unempPct = laborForce > 0 ? (((p.pt_tyott || 0) / laborForce) * 100).toFixed(1) : null;
         document.getElementById('paavoUnemp').textContent = unempPct ? `Työttömyysaste: ${unempPct} %` : '-';
 
-        // Omistus- vs. vuokra-asunnot
         const own = p.te_omis_as || 0;
         const rent = p.te_vuok_as || 0;
         const totalTenure = own + rent + (p.te_muu_as || 0);
@@ -1062,7 +1955,6 @@ async function fetchPaavoStats() {
             document.getElementById('paavoRentDetail').textContent = `Vuokrataloudet: ${rent.toLocaleString('fi-FI')} kpl (${rentPct} %)`;
         }
 
-        // Pientalot vs. kerrostalot
         const houses = p.ra_pt_as || 0;
         const apts = p.ra_kt_as || 0;
         const totalBld = houses + apts + (p.ra_muu_as || 0);
@@ -1076,7 +1968,6 @@ async function fetchPaavoStats() {
             document.getElementById('paavoAptDetail').textContent = `Kerrostaloasunnot: ${apts.toLocaleString('fi-FI')} kpl`;
         }
 
-        // Lapsiperheiden osuus
         if (p.te_taly > 0 && p.te_laps >= 0) {
             const famPct = ((p.te_laps / p.te_taly) * 100).toFixed(1);
             document.getElementById('paavoFamilyShare').textContent = `👨‍👩‍👧‍👦 Lapsiperhetalouksia: ${famPct} % (${p.te_laps.toLocaleString('fi-FI')} taloutta)`;
@@ -1084,115 +1975,6 @@ async function fetchPaavoStats() {
     } catch (e) {
         console.warn('Paavo-tilastojen haku epäonnistui:', e);
         titleEl.textContent = 'Paavo-tilastojen haku epäonnistui tilapäisesti.';
-    }
-}
-
-// Hakee OpenStreetMap Overpass API:sta lähimmät koulut, päiväkodit, ruokakaupat, pysäkit ja tontin rakennukset
-async function fetchNearbyAmenities() {
-    const { lat, lon } = currentLoc;
-    const container = document.getElementById('amenitiesContainer');
-    container.innerHTML = `<div class="text-slate-400 animate-pulse">Lasketaan etäisyyksiä lähipalveluihin...</div>`;
-
-    const query = `
-        [out:json][timeout:12];
-        (
-          node["amenity"="school"](around:2000,${lat},${lon});
-          way["amenity"="school"](around:2000,${lat},${lon});
-          node["amenity"="kindergarten"](around:1500,${lat},${lon});
-          way["amenity"="kindergarten"](around:1500,${lat},${lon});
-          node["shop"~"supermarket|convenience"](around:1500,${lat},${lon});
-          way["shop"~"supermarket|convenience"](around:1500,${lat},${lon});
-          node["highway"="bus_stop"](around:800,${lat},${lon});
-          way["building"](around:75,${lat},${lon});
-        );
-        out body geom;
-    `;
-
-    try {
-        const res = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: 'data=' + encodeURIComponent(query)
-        });
-        const data = await res.json();
-        const elements = data.elements || [];
-
-        const categories = {
-            school: { icon: '🏫', label: 'Lähin koulu', best: null },
-            kindergarten: { icon: '🧸', label: 'Lähin päiväkoti', best: null },
-            shop: { icon: '🛒', label: 'Lähin ruokakauppa', best: null },
-            bus: { icon: '🚌', label: 'Joukkoliikennepysäkki', best: null }
-        };
-
-        let buildingCount = 0;
-
-        elements.forEach(el => {
-            const tags = el.tags || {};
-
-            // Piirretään lähirakennukset kartalle
-            if (tags.building && el.geometry && buildingLayerGroup) {
-                const latLngs = el.geometry.map(pt => [pt.lat, pt.lon]);
-                const dist = distToPolygonCenter(lat, lon, latLngs);
-                const isMainBld = dist < 28;
-                const bldArea = Math.round(computePolygonAreaM2(latLngs));
-                buildingCount++;
-
-                L.polygon(latLngs, {
-                    color: isMainBld ? '#f59e0b' : '#94a3b8',
-                    weight: isMainBld ? 2 : 1,
-                    fillColor: isMainBld ? '#f59e0b' : '#64748b',
-                    fillOpacity: isMainBld ? 0.35 : 0.2
-                }).bindPopup(`
-                    <div class="text-xs">
-                        <strong>🏢 Rakennus${tags.name ? ': ' + tags.name : ''}</strong><br>
-                        Pohjapinta-ala: n. ${bldArea} m²
-                        ${tags['building:levels'] ? `<br>Kerroksia: ${tags['building:levels']}` : ''}
-                        ${tags.start_date ? `<br>Rakennusvuosi: ${tags.start_date}` : ''}
-                    </div>
-                `).addTo(buildingLayerGroup);
-                return;
-            }
-
-            const elLat = el.lat || (el.geometry && el.geometry[0] ? el.geometry[0].lat : null);
-            const elLon = el.lon || (el.geometry && el.geometry[0] ? el.geometry[0].lon : null);
-            if (!elLat || !elLon) return;
-
-            const dist = Math.round(haversineMeters(lat, lon, elLat, elLon));
-            const name = tags.name || tags.brand || 'Palvelupiste';
-
-            let catKey = null;
-            if (tags.amenity === 'school') catKey = 'school';
-            else if (tags.amenity === 'kindergarten') catKey = 'kindergarten';
-            else if (tags.shop) catKey = 'shop';
-            else if (tags.highway === 'bus_stop') catKey = 'bus';
-
-            if (catKey && (!categories[catKey].best || dist < categories[catKey].best.dist)) {
-                categories[catKey].best = { name, dist };
-            }
-        });
-
-        container.innerHTML = Object.values(categories).map(c => {
-            if (!c.best) {
-                return `
-                    <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800/80">
-                        <span class="text-slate-400">${c.icon} ${c.label}:</span>
-                        <span class="text-slate-500">> 1,5 km</span>
-                    </div>
-                `;
-            }
-            const distText = c.best.dist >= 1000 ? `${(c.best.dist / 1000).toFixed(1)} km` : `${c.best.dist} m`;
-            return `
-                <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-lg border border-slate-800/80">
-                    <div class="truncate pr-2">
-                        <span class="text-slate-400">${c.icon} ${c.label}:</span>
-                        <strong class="text-slate-200 ml-1">${c.best.name}</strong>
-                    </div>
-                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold whitespace-nowrap">${distText}</span>
-                </div>
-            `;
-        }).join('');
-
-    } catch (e) {
-        container.innerHTML = `<div class="text-slate-500">Lähipalveluiden etäisyyshaku ei vastannut ajoissa.</div>`;
     }
 }
 
@@ -1224,8 +2006,10 @@ function updateSunInteractive() {
 
     const times = SunCalc.getTimes(selectedDate, lat, lon);
     const pos = SunCalc.getPosition(calcTime, lat, lon);
+    const noonPos = SunCalc.getPosition(times.solarNoon, lat, lon);
 
     const altitudeDeg = (pos.altitude * 180 / Math.PI);
+    const maxAltDeg = (noonPos.altitude * 180 / Math.PI);
     const compassDeg = ((pos.azimuth * 180 / Math.PI) + 180) % 360;
 
     const getCompassName = (deg) => {
@@ -1245,8 +2029,10 @@ function updateSunInteractive() {
         const h = Math.floor(diffMs / 3600000);
         const m = Math.round((diffMs % 3600000) / 60000);
         document.getElementById('statDaylight').textContent = `${h} h ${m} min`;
+        document.getElementById('statSunMaxAlt').textContent = `Maksimikorkeus: ${maxAltDeg.toFixed(1)}°`;
     } else {
         document.getElementById('statDaylight').textContent = 'Yötön yö / Kaamos';
+        document.getElementById('statSunMaxAlt').textContent = '-';
     }
 
     document.getElementById('sunDetailsList').innerHTML = `
@@ -1308,7 +2094,6 @@ function renderAllLinks() {
 
     const btnClass = "flex items-center justify-between bg-slate-950 hover:bg-slate-800 border border-slate-800 px-3 py-2 rounded-lg text-slate-200 hover:text-emerald-400 transition text-xs font-medium";
 
-    // 1. Valokuitu & Infra
     document.getElementById('fiberLinks').innerHTML = `
         <a href="https://elisa.fi/kauppa/nettiliittymat/kiintea-laajakaista" target="_blank" class="${btnClass}">
             <span>⚡ Elisa Valokuitu & 5G saatavuus</span><span>↗</span>
@@ -1330,7 +2115,6 @@ function renderAllLinks() {
         </a>
     `;
 
-    // 2. Rakennusluvat & Kaavoitus
     document.getElementById('permitLinks').innerHTML = `
         <a href="https://www.lupapiste.fi/" target="_blank" class="${btnClass}">
             <span>📑 Lupapiste (Julkipano & vireillä olevat luvat)</span><span>↗</span>
@@ -1350,7 +2134,6 @@ function renderAllLinks() {
         </a>
     `;
 
-    // 3. Hintataso, Maaperä & Historia
     document.getElementById('deepMapLinks').innerHTML = `
         <a href="https://asuntojen.hintatiedot.fi/haku/" target="_blank" class="${btnClass} border-amber-800/50 text-amber-300">
             <span>💶 Toteutuneet kauppahinnat (${zip || city})</span><span>↗</span>
@@ -1369,7 +2152,6 @@ function renderAllLinks() {
         </a>
     `;
 
-    // 4. Uutislinkit
     document.getElementById('newsLinks').innerHTML = `
         <a href="https://news.google.com/search?q=${encodeURIComponent(areaName + ' ' + city)}&hl=fi&gl=FI&ceid=FI:fi" target="_blank" class="text-emerald-400 hover:underline block">
             👉 Kaikki Google News -uutiset alueelta (${areaName}) ↗
