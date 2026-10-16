@@ -1601,23 +1601,32 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
     const pois = [];
     const busStops = [];
     const seenKeys = new Set();
-    const sourcesUsed = [];
+    const sourcesUsed = new Set();
 
     const addPoiItem = (cat, icon, name, typeLabel, extra, elLat, elLon) => {
         if (!elLat || !elLon || !cat) return;
         const dist = Math.round(haversineMeters(lat, lon, elLat, elLon));
         if (dist > queryRadius) return;
         const cleanName = (name || typeLabel).trim();
-        const dedupKey = `${cat}_${cleanName.toLowerCase().slice(0, 18)}_${Math.round(elLat * 250)}_${Math.round(elLon * 250)}`;
+        const dedupKey = `${cat}_${cleanName.toLowerCase().slice(0, 18)}_${Math.round(elLat * 300)}_${Math.round(elLon * 300)}`;
         if (seenKeys.has(dedupKey)) return;
         seenKeys.add(dedupKey);
         pois.push({ cat, icon, name: cleanName, typeLabel, extra: extra || '', lat: elLat, lon: elLon, dist });
     };
 
-    // Käynnistetään tontin rakennusten haku kevyenä erillisenä kyselynä
+    const updateProgressiveView = () => {
+        fetchedRadiusMeters = queryRadius;
+        rawFetchedPois = [...pois];
+        if (srcBadge) {
+            srcBadge.textContent = sourcesUsed.size > 0 ? `Lähteet: ${[...sourcesUsed].join(' + ')}` : 'Monilähdehaku';
+        }
+        filterAndRenderPoisByRadius();
+    };
+
+    // 1. Haetaan rakennukset taustalla
     fetchNearbyBuildingsFootprints(lat, lon);
 
-    // LÄHDE 1: Tilastokeskuksen virallinen Oppilaitosrekisteri WFS (erittäin nopea, <0.1s)
+    // 2. LÄHDE 1: Tilastokeskuksen virallinen Oppilaitosrekisteri WFS (<0.1s)
     const statSchoolsPromise = (async () => {
         try {
             const wfsUrl = `https://geo.stat.fi/geoserver/oppilaitokset/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=oppilaitokset:oppilaitokset&outputFormat=application/json&srsName=EPSG:4326&bbox=${w},${s},${e},${n},EPSG:4326`;
@@ -1632,160 +1641,177 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
                     const sAddr = [p.okatuosoite, p.opostinumero].filter(Boolean).join(', ');
                     addPoiItem('edu', '🏫', sName, 'Koulu / Oppilaitos (Tilastokeskus)', sAddr, coords[1], coords[0]);
                 });
-                if ((geo.features || []).length > 0) sourcesUsed.push('Tilastokeskus');
+                if ((geo.features || []).length > 0) {
+                    sourcesUsed.add('Tilastokeskus');
+                    updateProgressiveView();
+                }
             }
         } catch (err) {}
     })();
 
-    // LÄHDE 2: Overpass API nopea GET + BBOX + out center qt (kokeillaan rinnakkaisia peilipalvelimia)
-    const overpassQuery = `[out:json][timeout:14][bbox:${s},${w},${n},${e}];(nwr["amenity"~"school|kindergarten|library|pharmacy|clinic|doctors|hospital|charging_station|fuel|car_wash|post_office|parcel_locker|cafe|restaurant"];nwr["shop"~"supermarket|convenience|mall|department_store|bakery|hardware"];nwr["leisure"~"fitness_centre|sports_centre|pitch|playground|dog_park|swimming_pool|park|fitness_station|disc_golf_course|golf_course|ice_rink|marina"];node["highway"="bus_stop"];);out center qt;`;
+    // 3. LÄHDE 2: LIPAS Liikuntapaikat WFS - Jyväskylän yliopiston valtakunnallinen liikunta- ja ulkoilupaikkarekisteri (<0.2s)
+    const lipasPromise = (async () => {
+        try {
+            const lipasUrl = `https://liikuntapaikat.lipas.fi/geoserver/lipas/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=lipas:lipas_kaikki_pisteet&outputFormat=application/json&srsName=EPSG:4326&bbox=${w},${s},${e},${n},EPSG:4326&maxFeatures=250`;
+            const res = await fetch(lipasUrl);
+            if (res.ok) {
+                const geo = await res.json();
+                (geo.features || []).forEach(f => {
+                    const coords = f.geometry && f.geometry.coordinates;
+                    const p = f.properties || {};
+                    if (!coords || coords.length < 2) return;
+                    const fLon = coords[0], fLat = coords[1];
+                    const name = p.nimi_fi || p.tyyppi_nimi_fi || 'Liikuntapaikka';
+                    const typeName = (p.tyyppi_nimi_fi || '').toLowerCase();
+                    const addr = [p.katuosoite, p.postinumero].filter(Boolean).join(', ');
 
-    const overpassPromise = (async () => {
-        const endpoints = [
-            'https://overpass-api.de/api/interpreter',
-            'https://lz4.overpass-api.de/api/interpreter',
-            'https://overpass.kumi.systems/api/interpreter'
-        ];
-        for (const ep of endpoints) {
-            try {
-                const ctrl = new AbortController();
-                const timer = setTimeout(() => ctrl.abort(), 9000);
-                const res = await fetch(`${ep}?data=${encodeURIComponent(overpassQuery)}`, { signal: ctrl.signal });
-                clearTimeout(timer);
-                if (!res.ok) continue;
-                const data = await res.json();
-                const elements = data.elements || [];
-                if (elements.length > 0) {
-                    sourcesUsed.push('OSM Overpass');
-                    elements.forEach(el => {
-                        const tags = el.tags || {};
-                        const elLat = el.lat || (el.center && el.center.lat);
-                        const elLon = el.lon || (el.center && el.center.lon);
-                        if (!elLat || !elLon) return;
-                        const dist = Math.round(haversineMeters(lat, lon, elLat, elLon));
+                    let icon = '🏟️';
+                    let cat = 'sport';
+                    let label = p.tyyppi_nimi_fi || 'Liikuntapaikka';
 
-                        if (tags.highway === 'bus_stop') {
-                            if (dist <= 1500) {
-                                busStops.push({
-                                    name: tags.name || 'Bussipysäkki',
-                                    code: tags.ref || '',
-                                    routes: tags.route_ref || '',
-                                    lat: elLat,
-                                    lon: elLon,
-                                    dist
-                                });
-                            }
-                            return;
-                        }
+                    if (typeName.includes('koirapuisto')) {
+                        icon = '🐕'; label = 'Koirapuisto (LIPAS)';
+                    } else if (typeName.includes('leikkipuisto') || typeName.includes('lähiliikuntapaikka')) {
+                        icon = '🛝'; cat = 'edu'; label = 'Leikkipaikka / Lähiliikunta (LIPAS)';
+                    } else if (typeName.includes('kuntosali') || typeName.includes('kuntoilupaikka') || typeName.includes('voimailu')) {
+                        icon = '🏋️'; label = 'Kuntosali / Voimailupaikka (LIPAS)';
+                    } else if (typeName.includes('uimahalli') || typeName.includes('maauimala') || typeName.includes('talviuinti') || typeName.includes('uimaranta')) {
+                        icon = '🏊'; label = 'Uimahalli / Uimaranta (LIPAS)';
+                    } else if (typeName.includes('frisbee') || typeName.includes('golf')) {
+                        icon = '⛳'; label = 'Frisbeegolf / Golf (LIPAS)';
+                    } else if (typeName.includes('jäähalli') || typeName.includes('luistelu') || typeName.includes('tekojää') || typeName.includes('kaukalo')) {
+                        icon = '⛸️'; label = 'Jäähalli / Luistelu (LIPAS)';
+                    } else if (typeName.includes('kenttä') || typeName.includes('stadion') || typeName.includes('areena')) {
+                        icon = '⚽'; label = 'Urheilukenttä / Pelikenttä (LIPAS)';
+                    } else if (typeName.includes('kuntorata') || typeName.includes('hiihto') || typeName.includes('ulkoilureitti') || typeName.includes('luontopolku')) {
+                        icon = '🏃'; label = 'Ulkoilureitti / Kuntorata (LIPAS)';
+                    }
 
-                        let cat = null, icon = '📍', typeLabel = '', extra = '';
-                        if (tags.amenity === 'school') { cat = 'edu'; icon = '🏫'; typeLabel = 'Koulu / Oppilaitos'; }
-                        else if (tags.amenity === 'kindergarten') { cat = 'edu'; icon = '🧸'; typeLabel = 'Päiväkoti / Tarha'; }
-                        else if (tags.leisure === 'playground') { cat = 'edu'; icon = '🛝'; typeLabel = 'Leikkipuisto'; }
-                        else if (tags.amenity === 'library') { cat = 'edu'; icon = '📚'; typeLabel = 'Kirjasto'; }
-                        else if (tags.shop === 'supermarket') { cat = 'daily'; icon = '🛒'; typeLabel = 'Supermarket / Ruokakauppa'; }
-                        else if (tags.shop === 'convenience') { cat = 'daily'; icon = '🏪'; typeLabel = 'Lähikauppa / Kioski'; }
-                        else if (tags.shop === 'mall' || tags.shop === 'department_store') { cat = 'daily'; icon = '🛍️'; typeLabel = 'Kauppakeskus / Tavaratalo'; }
-                        else if (tags.shop === 'bakery') { cat = 'daily'; icon = '🥐'; typeLabel = 'Leipomo'; }
-                        else if (tags.shop === 'hardware') { cat = 'daily'; icon = '🛠️'; typeLabel = 'Rautakauppa'; }
-                        else if (tags.amenity === 'pharmacy') { cat = 'daily'; icon = '💊'; typeLabel = 'Apteekki'; }
-                        else if (['clinic', 'doctors', 'hospital'].includes(tags.amenity)) { cat = 'daily'; icon = '🏥'; typeLabel = 'Terveysasema / Lääkäri'; }
-                        else if (['post_office', 'parcel_locker'].includes(tags.amenity)) { cat = 'daily'; icon = '📦'; typeLabel = 'Pakettiautomaatti / Posti'; }
-                        else if (['restaurant', 'cafe'].includes(tags.amenity)) { cat = 'daily'; icon = '☕'; typeLabel = tags.amenity === 'cafe' ? 'Kahvila' : 'Ravintola'; }
-                        else if (tags.leisure === 'fitness_centre') { cat = 'sport'; icon = '🏋️'; typeLabel = 'Kuntosali'; }
-                        else if (tags.leisure === 'fitness_station') { cat = 'sport'; icon = '💪'; typeLabel = 'Ulkokuntoilupaikka'; }
-                        else if (tags.leisure === 'sports_centre') { cat = 'sport'; icon = '🏟️'; typeLabel = 'Urheiluhalli / Liikuntakeskus'; }
-                        else if (tags.leisure === 'pitch') {
-                            cat = 'sport'; icon = '⚽';
-                            typeLabel = tags.sport ? `Urheilukenttä (${tags.sport})` : 'Urheilukenttä / Pelikenttä';
-                        }
-                        else if (tags.leisure === 'swimming_pool') { cat = 'sport'; icon = '🏊'; typeLabel = 'Uimahalli / Maauimala'; }
-                        else if (tags.leisure === 'dog_park') { cat = 'sport'; icon = '🐕'; typeLabel = 'Koirapuisto'; }
-                        else if (tags.leisure === 'disc_golf_course' || tags.leisure === 'golf_course') { cat = 'sport'; icon = '⛳'; typeLabel = tags.leisure === 'disc_golf_course' ? 'Frisbeegolf' : 'Golfkenttä'; }
-                        else if (tags.leisure === 'ice_rink') { cat = 'sport'; icon = '⛸️'; typeLabel = 'Jäähalli / Tekojää'; }
-                        else if (tags.leisure === 'marina') { cat = 'sport'; icon = '⛵'; typeLabel = 'Venesatama'; }
-                        else if (tags.leisure === 'park') {
-                            if (!tags.name) return;
-                            cat = 'sport'; icon = '🌳'; typeLabel = 'Puisto / Viheralue';
-                        }
-                        else if (tags.amenity === 'charging_station') {
-                            cat = 'auto'; icon = '⚡'; typeLabel = 'Sähköauton latausasema';
-                            const cap = tags.capacity ? `${tags.capacity} pistettä` : '';
-                            const out = tags['socket:type2_combo:output'] || tags['charging_station:output'] || '';
-                            extra = [tags.operator || tags.brand, out, cap].filter(Boolean).join(' • ');
-                        }
-                        else if (tags.amenity === 'fuel') {
-                            cat = 'auto'; icon = '⛽'; typeLabel = 'Bensa-asema / Polttoaine';
-                            extra = tags.brand || tags.operator || '';
-                        }
-                        else if (tags.amenity === 'car_wash') {
-                            cat = 'auto'; icon = '🚿'; typeLabel = 'Autopesula';
-                        }
-
-                        if (!cat) return;
-                        const itemName = tags.name || tags.brand || tags.operator || typeLabel;
-                        addPoiItem(cat, icon, itemName, typeLabel, extra, elLat, elLon);
-                    });
-                    break;
+                    addPoiItem(cat, icon, name, label, addr, fLat, fLon);
+                });
+                if ((geo.features || []).length > 0) {
+                    sourcesUsed.add('LIPAS Liikuntapaikat');
+                    updateProgressiveView();
                 }
-            } catch (err) {
-                console.warn('Overpass peili ei vastannut:', ep, err);
             }
-        }
+        } catch (err) {}
     })();
 
-    await Promise.all([statSchoolsPromise, overpassPromise]);
-
-    // LÄHDE 3: Jos Overpass oli ruuhkautunut (tai palautti < 5 kohdetta), haetaan välittömästi Nominatim Viewbox -varajärjestelmästä!
-    if (pois.length < 5) {
+    // 4. LÄHDE 3: Photon OSM API (Päiväkodit, Kaupat, Apteekit, Huoltoasemat & Sähköautojen lataus)
+    const photonPromise = (async () => {
         try {
-            const nomQueries = [
-                { q: 'koulu', cat: 'edu', icon: '🏫', label: 'Koulu / Oppilaitos' },
+            const photonQueries = [
+                // Päiväkodit ja tarhat
                 { q: 'päiväkoti', cat: 'edu', icon: '🧸', label: 'Päiväkoti / Tarha' },
+                { q: 'daghem', cat: 'edu', icon: '🧸', label: 'Päiväkoti / Tarha' },
                 { q: 'leikkipuisto', cat: 'edu', icon: '🛝', label: 'Leikkipuisto' },
-                { q: 'kirjasto', cat: 'edu', icon: '📚', label: 'Kirjasto' },
-                { q: 'supermarket', cat: 'daily', icon: '🛒', label: 'Supermarket / Ruokakauppa' },
-                { q: 'k-market', cat: 'daily', icon: '🏪', label: 'Lähikauppa' },
+                // Ruokakaupat ja päivittäistavarat
+                { q: 'k-market', cat: 'daily', icon: '🛒', label: 'K-Market' },
+                { q: 's-market', cat: 'daily', icon: '🛒', label: 'S-market' },
+                { q: 'prisma', cat: 'daily', icon: '🛍️', label: 'Prisma' },
+                { q: 'lidl', cat: 'daily', icon: '🛒', label: 'Lidl' },
+                { q: 'k-supermarket', cat: 'daily', icon: '🛒', label: 'K-Supermarket' },
+                { q: 'k-citymarket', cat: 'daily', icon: '🛍️', label: 'K-Citymarket' },
+                { q: 'sale', cat: 'daily', icon: '🏪', label: 'Sale' },
+                { q: 'alepa', cat: 'daily', icon: '🏪', label: 'Alepa' },
+                // Apteekit ja terveyspalvelut
                 { q: 'apteekki', cat: 'daily', icon: '💊', label: 'Apteekki' },
-                { q: 'kuntosali', cat: 'sport', icon: '🏋️', label: 'Kuntosali' },
-                { q: 'uimahalli', cat: 'sport', icon: '🏊', label: 'Uimahalli' },
-                { q: 'koirapuisto', cat: 'sport', icon: '🐕', label: 'Koirapuisto' },
-                { q: 'charging_station', cat: 'auto', icon: '⚡', label: 'Sähköauton latausasema' },
-                { q: 'fuel', cat: 'auto', icon: '⛽', label: 'Bensa-asema / Polttoaine' }
+                { q: 'terveysasema', cat: 'daily', icon: '🏥', label: 'Terveysasema' },
+                { q: 'lääkäriasema', cat: 'daily', icon: '🏥', label: 'Lääkäriasema' },
+                // Sähköauton pikalataus ja polttoaine
+                { q: 'lataus', cat: 'auto', icon: '⚡', label: 'Sähköauton latausasema' },
+                { q: 'k-lataus', cat: 'auto', icon: '⚡', label: 'K-Lataus' },
+                { q: 'neste', cat: 'auto', icon: '⛽', label: 'Neste-asema' },
+                { q: 'st1', cat: 'auto', icon: '⛽', label: 'St1-asema' },
+                { q: 'abc', cat: 'auto', icon: '⛽', label: 'ABC-asema' },
+                { q: 'shell', cat: 'auto', icon: '⛽', label: 'Shell-asema' },
+                { q: 'teboil', cat: 'auto', icon: '⛽', label: 'Teboil-asema' }
             ];
 
-            await Promise.all(nomQueries.map(async item => {
-                try {
-                    const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(item.q)}&viewbox=${w},${n},${e},${s}&bounded=1&limit=25`;
-                    const r = await fetch(u, { headers: { 'Accept-Language': 'fi' } });
-                    if (r.ok) {
-                        const arr = await r.json();
-                        arr.forEach(hit => {
-                            const hLat = parseFloat(hit.lat);
-                            const hLon = parseFloat(hit.lon);
-                            const hName = hit.name || (hit.display_name ? hit.display_name.split(',')[0] : item.label);
-                            addPoiItem(item.cat, item.icon, hName, item.label, '', hLat, hLon);
-                        });
-                    }
-                } catch (e) {}
-            }));
-            sourcesUsed.push('Nominatim Paikkahaku');
+            // Suoritetaan kyselyt 3 kpl kerrallaan pienellä viiveellä, jotta vältetään palvelimen kuormitus
+            const chunkSize = 3;
+            for (let i = 0; i < photonQueries.length; i += chunkSize) {
+                const chunk = photonQueries.slice(i, i + chunkSize);
+                await Promise.all(chunk.map(async item => {
+                    try {
+                        const u = `https://photon.komoot.io/api/?q=${encodeURIComponent(item.q)}&lat=${lat}&lon=${lon}&bbox=${w},${s},${e},${n}&limit=20`;
+                        const res = await fetch(u);
+                        if (res.ok) {
+                            const data = await res.json();
+                            (data.features || []).forEach(feat => {
+                                const coords = feat.geometry && feat.geometry.coordinates;
+                                const prop = feat.properties || {};
+                                if (!coords || coords.length < 2) return;
+                                const pLon = coords[0], pLat = coords[1];
+                                const d = haversineMeters(lat, lon, pLat, pLon);
+                                if (d > queryRadius) return;
+
+                                const pName = prop.name || item.q;
+                                const pStreet = [prop.street, prop.housenumber].filter(Boolean).join(' ');
+                                addPoiItem(item.cat, item.icon, pName, item.label, pStreet, pLat, pLon);
+                            });
+                        }
+                    } catch (e) {}
+                }));
+                if (i + chunkSize < photonQueries.length) {
+                    await new Promise(r => setTimeout(r, 80));
+                }
+            }
+
+            if (pois.length > 0) {
+                sourcesUsed.add('Photon OSM');
+                updateProgressiveView();
+            }
         } catch (err) {}
-    }
+    })();
 
-    fetchedRadiusMeters = queryRadius;
-    rawFetchedPois = pois;
+    // 5. LÄHDE 4: Tausta-Overpass (jos vastaa nopeasti, rikastetaan vielä lisää tietoja kuten pysäkkejä)
+    const overpassPromise = (async () => {
+        try {
+            const opQuery = `[out:json][timeout:10][bbox:${s},${w},${n},${e}];(node["highway"="bus_stop"];node["amenity"="charging_station"];node["amenity"="fuel"];);out center qt;`;
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 6500);
+            const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(opQuery)}`, { signal: ctrl.signal });
+            clearTimeout(timer);
+            if (res.ok) {
+                const data = await res.json();
+                (data.elements || []).forEach(el => {
+                    const tags = el.tags || {};
+                    const elLat = el.lat || (el.center && el.center.lat);
+                    const elLon = el.lon || (el.center && el.center.lon);
+                    if (!elLat || !elLon) return;
+                    const d = Math.round(haversineMeters(lat, lon, elLat, elLon));
 
-    if (srcBadge) {
-        srcBadge.textContent = sourcesUsed.length > 0 ? `Lähteet: ${sourcesUsed.join(' + ')}` : 'Monilähdehaku';
-    }
+                    if (tags.highway === 'bus_stop' && d <= 1500) {
+                        busStops.push({
+                            name: tags.name || 'Bussipysäkki',
+                            code: tags.ref || '',
+                            routes: tags.route_ref || '',
+                            lat: elLat,
+                            lon: elLon,
+                            dist: d
+                        });
+                    } else if (tags.amenity === 'charging_station') {
+                        const out = tags['socket:type2_combo:output'] || tags['charging_station:output'] || '';
+                        addPoiItem('auto', '⚡', tags.name || tags.brand || 'Latausasema', 'Sähköauton latausasema', out, elLat, elLon);
+                    } else if (tags.amenity === 'fuel') {
+                        addPoiItem('auto', '⛽', tags.name || tags.brand || 'Bensa-asema', 'Polttoaine', '', elLat, elLon);
+                    }
+                });
+                sourcesUsed.add('OSM Overpass');
+                updateProgressiveView();
+            }
+        } catch (err) {}
+    })();
+
+    await Promise.allSettled([statSchoolsPromise, lipasPromise, photonPromise, overpassPromise]);
 
     if (!isFoli && busStops.length > 0) {
         busStops.sort((a, b) => a.dist - b.dist);
         renderFallbackStopBoard(busStops.slice(0, 5));
     }
 
-    filterAndRenderPoisByRadius();
+    updateProgressiveView();
 }
 
 async function fetchNearbyBuildingsFootprints(lat, lon) {
