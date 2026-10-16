@@ -1703,64 +1703,47 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
             const photonQueries = [
                 // Päiväkodit ja tarhat
                 { q: 'päiväkoti', cat: 'edu', icon: '🧸', label: 'Päiväkoti / Tarha' },
-                { q: 'daghem', cat: 'edu', icon: '🧸', label: 'Päiväkoti / Tarha' },
                 { q: 'leikkipuisto', cat: 'edu', icon: '🛝', label: 'Leikkipuisto' },
-                // Ruokakaupat ja päivittäistavarat
-                { q: 'k-market', cat: 'daily', icon: '🛒', label: 'K-Market' },
+                // Kaupat ja päivittäistavarat
+                { q: 'supermarket', cat: 'daily', icon: '🛒', label: 'Supermarket / Ruokakauppa' },
+                { q: 'k-market', cat: 'daily', icon: '🏪', label: 'K-Market' },
                 { q: 's-market', cat: 'daily', icon: '🛒', label: 'S-market' },
                 { q: 'prisma', cat: 'daily', icon: '🛍️', label: 'Prisma' },
                 { q: 'lidl', cat: 'daily', icon: '🛒', label: 'Lidl' },
-                { q: 'k-supermarket', cat: 'daily', icon: '🛒', label: 'K-Supermarket' },
-                { q: 'k-citymarket', cat: 'daily', icon: '🛍️', label: 'K-Citymarket' },
-                { q: 'sale', cat: 'daily', icon: '🏪', label: 'Sale' },
-                { q: 'alepa', cat: 'daily', icon: '🏪', label: 'Alepa' },
-                // Apteekit ja terveyspalvelut
+                // Apteekki ja terveys
                 { q: 'apteekki', cat: 'daily', icon: '💊', label: 'Apteekki' },
                 { q: 'terveysasema', cat: 'daily', icon: '🏥', label: 'Terveysasema' },
-                { q: 'lääkäriasema', cat: 'daily', icon: '🏥', label: 'Lääkäriasema' },
-                // Sähköauton pikalataus ja polttoaine
-                { q: 'lataus', cat: 'auto', icon: '⚡', label: 'Sähköauton latausasema' },
+                // Sähköauton latausasemat ja polttoaine
+                { q: 'latausasema', cat: 'auto', icon: '⚡', label: 'Sähköauton latausasema' },
                 { q: 'k-lataus', cat: 'auto', icon: '⚡', label: 'K-Lataus' },
                 { q: 'neste', cat: 'auto', icon: '⛽', label: 'Neste-asema' },
                 { q: 'st1', cat: 'auto', icon: '⛽', label: 'St1-asema' },
-                { q: 'abc', cat: 'auto', icon: '⛽', label: 'ABC-asema' },
-                { q: 'shell', cat: 'auto', icon: '⛽', label: 'Shell-asema' },
-                { q: 'teboil', cat: 'auto', icon: '⛽', label: 'Teboil-asema' }
+                { q: 'abc', cat: 'auto', icon: '⛽', label: 'ABC-asema' }
             ];
 
-            // Suoritetaan kyselyt 3 kpl kerrallaan pienellä viiveellä, jotta vältetään palvelimen kuormitus
-            const chunkSize = 3;
-            for (let i = 0; i < photonQueries.length; i += chunkSize) {
-                const chunk = photonQueries.slice(i, i + chunkSize);
-                await Promise.all(chunk.map(async item => {
-                    try {
-                        const u = `https://photon.komoot.io/api/?q=${encodeURIComponent(item.q)}&lat=${lat}&lon=${lon}&bbox=${w},${s},${e},${n}&limit=20`;
-                        const res = await fetch(u);
-                        if (res.ok) {
-                            const data = await res.json();
-                            (data.features || []).forEach(feat => {
-                                const coords = feat.geometry && feat.geometry.coordinates;
-                                const prop = feat.properties || {};
-                                if (!coords || coords.length < 2) return;
-                                const pLon = coords[0], pLat = coords[1];
-                                const d = haversineMeters(lat, lon, pLat, pLon);
-                                if (d > queryRadius) return;
+            for (const item of photonQueries) {
+                try {
+                    const u = `https://photon.komoot.io/api/?q=${encodeURIComponent(item.q)}&lat=${lat}&lon=${lon}&limit=25`;
+                    const res = await fetch(u);
+                    if (res.ok) {
+                        const data = await res.json();
+                        (data.features || []).forEach(feat => {
+                            const coords = feat.geometry && feat.geometry.coordinates;
+                            const prop = feat.properties || {};
+                            if (!coords || coords.length < 2) return;
+                            const pLon = coords[0], pLat = coords[1];
+                            const d = haversineMeters(lat, lon, pLat, pLon);
+                            if (d > queryRadius) return;
 
-                                const pName = prop.name || item.q;
-                                const pStreet = [prop.street, prop.housenumber].filter(Boolean).join(' ');
-                                addPoiItem(item.cat, item.icon, pName, item.label, pStreet, pLat, pLon);
-                            });
-                        }
-                    } catch (e) {}
-                }));
-                if (i + chunkSize < photonQueries.length) {
-                    await new Promise(r => setTimeout(r, 80));
-                }
-            }
-
-            if (pois.length > 0) {
-                sourcesUsed.add('Photon OSM');
-                updateProgressiveView();
+                            const pName = prop.name || item.q;
+                            const pStreet = [prop.street, prop.housenumber].filter(Boolean).join(' ');
+                            addPoiItem(item.cat, item.icon, pName, item.label, pStreet, pLat, pLon);
+                        });
+                        sourcesUsed.add('Photon OSM');
+                        updateProgressiveView();
+                    }
+                } catch (e) {}
+                await new Promise(r => setTimeout(r, 90));
             }
         } catch (err) {}
     })();
