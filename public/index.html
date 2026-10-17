@@ -54,6 +54,43 @@
             height: 26px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.45);
         }
+        .tesla-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 12px;
+            background: #dc2626;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.85), 0 2px 6px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .tesla-marker-badge:hover {
+            transform: scale(1.18);
+        }
+        .weathercam-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            background: #0284c7;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 0 10px rgba(2, 132, 199, 0.7), 0 2px 6px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .weathercam-marker-badge:hover {
+            transform: scale(1.18);
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-white">
@@ -351,17 +388,51 @@
                     </div>
                 </div>
 
-                <!-- Lähin Liikenne- ja Tiesääkamera Live-kuvalla (1/3 leveys) -->
+                <!-- Lähialueen Liikenne- ja Tiesääkamerat Live-kuvilla (1/3 leveys) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <h2 class="font-bold text-white flex items-center gap-2">📹 Lähin Liikennekamera</h2>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <h2 class="font-bold text-white flex items-center gap-2">📹 Lähialueen Kelikamerat</h2>
                             <span id="weatherCamDistBadge" class="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-slate-700">-</span>
                         </div>
-                        <p id="weatherCamTitle" class="text-xs text-slate-400 mb-3">Haetaan lähintä Fintrafficin kelikameraa...</p>
 
-                        <div id="weatherCamBox" class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[210px] relative">
+                        <!-- Kamerapudotusvalikko (15 lähintä) -->
+                        <div class="mb-2">
+                            <label for="weatherCamSelect" class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Valitse kelikamera:</label>
+                            <select id="weatherCamSelect" onchange="onWeatherCamSelect(this.value)"
+                                    class="w-full bg-slate-950 border border-slate-700 hover:border-slate-600 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                <option value="">Etsitään lähimpiä kameroita...</option>
+                            </select>
+                        </div>
+
+                        <!-- Suuntavalitsimet (presets: esim. Helsinkiin, Turkuun, Tienpinta) -->
+                        <div id="weatherCamPresetContainer" class="mb-2 hidden">
+                            <div class="text-[10px] text-slate-400 mb-1 flex items-center justify-between">
+                                <span>Kameran kuvakulma / suunta:</span>
+                                <span id="weatherCamPresetNameLabel" class="text-[10px] text-slate-300 font-medium"></span>
+                            </div>
+                            <div id="weatherCamPresetButtons" class="flex flex-wrap gap-1"></div>
+                        </div>
+
+                        <!-- Kamerakuva & toiminnot -->
+                        <div id="weatherCamBox" class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[200px] relative">
                             <div class="text-xs text-slate-500 italic p-4">Ladataan kelikamerakuvaa...</div>
+                        </div>
+
+                        <!-- Toimintopainikkeet kameran alla -->
+                        <div class="grid grid-cols-2 gap-1.5 mt-2">
+                            <button id="weatherCamShowMapBtn" onclick="showSelectedCameraOnMap()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1">
+                                📍 Näytä kartalla
+                            </button>
+                            <button onclick="refreshWeatherCamImage()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1">
+                                🔄 Päivitä kuva
+                            </button>
+                        </div>
+
+                        <!-- Pikavalintanapit lähimmille kameroille -->
+                        <div class="mt-3">
+                            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Pikavalinta (lähimmät kamerat):</div>
+                            <div id="weatherCamQuickList" class="flex flex-wrap gap-1"></div>
                         </div>
                     </div>
 
@@ -444,8 +515,8 @@
                     </div>
                 </div>
 
-                <!-- Pikayhteenveto lähimmistä avainkohteista (6 pikalinjaa) -->
-                <div id="nearestHighlightsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-4"></div>
+                <!-- Pikayhteenveto lähimmistä avainkohteista (7 pikalinjaa ml. Tesla Supercharger) -->
+                <div id="nearestHighlightsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 mb-4"></div>
 
                 <!-- Varsinainen suodatettava kohdelista -->
                 <div id="poiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-80 overflow-y-auto pr-1 text-xs">
@@ -459,18 +530,71 @@
                 <!-- 12 kk Lämpötilahistoria, Ääriarvot & Kuukausikaavio + Lämmitys/Aurinkolaskuri (2/3 leveys) -->
                 <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                             <div>
                                 <h2 class="font-bold text-white flex items-center gap-2">
                                     🌡️ Osoitteen Lämpötila- & Ilmastohistoria, Lämmitystarve & Aurinkosähkö
                                 </h2>
                                 <p id="climateHistorySubtitle" class="text-xs text-slate-400">
-                                    Haetaan tarkan koordinaatin 365 vuorokauden säähistoriaa (Open-Meteo ERA5 Reanalysis)...
+                                    Haetaan monivuotista toteutunutta säähistoriaa (Open-Meteo ERA5 Reanalysis)...
                                 </p>
                             </div>
-                            <span id="climateYearBadge" class="text-[11px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2.5 py-1 rounded-full">
+                            <span id="climateYearBadge" class="text-[11px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2.5 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
                                 ERA5 Historiadata
                             </span>
+                        </div>
+
+                        <!-- Vuosivalitsinpalkki & Monivuotisen vertailutaulukon kytkin -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 mb-3 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-1.5" id="climateYearButtons">
+                                <span class="text-xs text-slate-400 font-medium mr-1">Tarkastele vuotta:</span>
+                                <!-- Dynaamiset vuosinapit lisätään JS:ssä (2025, 2024, 2023, 2022, 2021, 2020) -->
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select id="climateOlderYearsSelect" onchange="onClimateOlderYearSelect(this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded px-2 py-1 focus:outline-none focus:border-sky-500">
+                                    <option value="">Aiemmat vuodet...</option>
+                                    <option value="2019">2019</option>
+                                    <option value="2018">2018</option>
+                                    <option value="2017">2017</option>
+                                    <option value="2016">2016</option>
+                                    <option value="2015">2015</option>
+                                    <option value="2010">2010</option>
+                                </select>
+                                <button onclick="toggleMultiYearComparison()" id="toggleMultiYearBtn" class="bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-semibold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                                    📊 Monivuotinen vertailu & Trendi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Monivuotinen vertailutaulukko & Trendianalyysi (avautuva laatikko) -->
+                        <div id="multiYearComparisonBox" class="hidden bg-slate-950 border border-indigo-500/40 rounded-xl p-4 mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="font-bold text-white text-xs flex items-center gap-2">
+                                    <span>📊 Toteutuneet vuodet vertailussa (2020–2025)</span>
+                                    <span class="text-[10px] text-slate-400 font-normal">Kaikki arvot mitattuja ERA5-reanalyysin vuorokausidatoja</span>
+                                </div>
+                                <button onclick="toggleMultiYearComparison()" class="text-xs text-slate-400 hover:text-white px-2 py-0.5 rounded hover:bg-slate-800">✕ Sulje</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-800 text-slate-400 text-[11px]">
+                                            <th class="py-1.5 px-2">Vuosi</th>
+                                            <th class="py-1.5 px-2">Keskilämpö</th>
+                                            <th class="py-1.5 px-2">Ylin lämpö</th>
+                                            <th class="py-1.5 px-2">Alin pakkanen</th>
+                                            <th class="py-1.5 px-2">Hellepäivät (≥25°)</th>
+                                            <th class="py-1.5 px-2">Pakkaspäivät (<0°)</th>
+                                            <th class="py-1.5 px-2">Sademäärä</th>
+                                            <th class="py-1.5 px-2">HDD17 Lämmitys</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="multiYearTableBody" class="divide-y divide-slate-800/60">
+                                        <!-- Täytetään JS:ssä -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="multiYearInsightsText" class="mt-2.5 pt-2 border-t border-slate-800/80 text-[11px] text-slate-300"></div>
                         </div>
 
                         <!-- 6 Ilmastomittaria -->
@@ -783,6 +907,8 @@ let buildingLayerGroup = null;
 let postalAreaLayerGroup = null;
 let liveTransitLayerGroup = null;
 let poiLayerGroup = null;
+let teslaLayerGroup = null;
+let weatherCamLayerGroup = null;
 
 // Välimuistit, hakusäde ja ajastimet
 let searchRadiusMeters = 2500;
@@ -792,10 +918,16 @@ let allPois = [];
 let activePoiCategory = 'all';
 let foliStopsCache = null;
 let weatherCamStationsCache = null;
+let activeWeatherCamStation = null;
+let activeWeatherCamPresetId = null;
+let activeWeatherCamMarker = null;
 let transitTimer = null;
 let hslMqttClient = null;
 let hslVehiclesMap = new Map();
 let lastCalculatedHdd17 = 4100;
+let multiYearClimateCache = null;
+let selectedClimateYear = 2025;
+let multiYearStatsMap = {};
 
 // Asetetaan oletuspäivämääräksi tämä päivä
 window.addEventListener('DOMContentLoaded', () => {
@@ -1026,11 +1158,13 @@ function initOrUpdateMap() {
         liveTransitLayerGroup = L.layerGroup();
         poiLayerGroup = L.layerGroup();
         postalAreaLayerGroup = L.layerGroup();
+        teslaLayerGroup = L.layerGroup();
+        weatherCamLayerGroup = L.layerGroup();
 
         map = L.map('map', {
             center: [lat, lon],
             zoom: 15,
-            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup]
+            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup]
         });
 
         const baseMaps = {
@@ -1045,6 +1179,8 @@ function initOrUpdateMap() {
             "🏢 Rakennukset tontilla": buildingLayerGroup,
             "🚌 Live-joukkoliikenne (Bussit & Junat)": liveTransitLayerGroup,
             "🎯 Lähipalvelut, Harrastukset & Lataus": poiLayerGroup,
+            "⚡ Tesla Superchargerit": teslaLayerGroup,
+            "📹 Lähialueen Kelikamerat": weatherCamLayerGroup,
             "📮 Postinumeroalueen raja (Paavo)": postalAreaLayerGroup,
             "🪨 GTK Maaperäkartta (Savi/Kallio)": gtkMaapera,
             "🗺️ Turun seudun Asemakaava (WMS)": turunAsemakaava,
@@ -1432,11 +1568,15 @@ async function fetchFoliStopSchedules() {
     }
 }
 
-// 3. LÄHIN FINTRAFFIC LIIKENNE- JA KELIKAMERA (Digitraffic API)
+// 3. LÄHIALUEEN FINTRAFFIC LIIKENNE- JA KELIKAMERAT (Digitraffic API)
+window._nearbyCameras = [];
+window._weatherStationDetailsCache = {};
+
 async function fetchNearestWeatherCam() {
     const { lat, lon } = currentLoc;
+    const selectEl = document.getElementById('weatherCamSelect');
+    const quickListEl = document.getElementById('weatherCamQuickList');
     const box = document.getElementById('weatherCamBox');
-    const titleEl = document.getElementById('weatherCamTitle');
     const distEl = document.getElementById('weatherCamDistBadge');
 
     try {
@@ -1447,46 +1587,247 @@ async function fetchNearestWeatherCam() {
                 weatherCamStationsCache = data.features || [];
             }
         }
-        if (!weatherCamStationsCache || weatherCamStationsCache.length === 0) return;
+        if (!weatherCamStationsCache || weatherCamStationsCache.length === 0) {
+            box.innerHTML = `<div class="text-xs text-slate-500 p-4">Kelikameroita ei löytynyt.</div>`;
+            return;
+        }
 
-        let bestCam = null;
-        let bestDist = Infinity;
-
+        const validStations = [];
         weatherCamStationsCache.forEach(f => {
             const coords = f.geometry && f.geometry.coordinates;
             const presets = f.properties && f.properties.presets;
             if (!coords || !presets || presets.length === 0) return;
-            const d = haversineMeters(lat, lon, coords[1], coords[0]);
-            if (d < bestDist) {
-                bestDist = d;
-                bestCam = {
-                    id: f.properties.id,
-                    name: f.properties.name || 'Kelikamera',
-                    presetId: presets[0].id,
-                    lon: coords[0],
-                    lat: coords[1],
-                    dist: d
-                };
-            }
+            const d = Math.round(haversineMeters(lat, lon, coords[1], coords[0]));
+            validStations.push({
+                id: f.properties.id,
+                name: (f.properties.name || 'Kelikamera').replace(/_/g, ' '),
+                presets: presets,
+                lon: coords[0],
+                lat: coords[1],
+                dist: d
+            });
         });
 
-        if (bestCam) {
-            const distKm = (bestCam.dist / 1000).toFixed(1);
-            distEl.textContent = `${distKm} km päässä`;
-            titleEl.textContent = `Kamera: ${bestCam.name.replace(/_/g, ' ')}`;
-            const imgUrl = `https://weathercam.digitraffic.fi/${bestCam.presetId}.jpg?t=${Date.now()}`;
-            box.innerHTML = `
-                <a href="${imgUrl}" target="_blank" class="w-full block relative group">
-                    <img src="${imgUrl}" alt="${bestCam.name}" class="w-full h-[210px] object-cover">
-                    <div class="absolute bottom-2 right-2 bg-black/75 text-white text-[10px] px-2 py-1 rounded">
-                        🔍 Klikkaa suurentaaksesi
-                    </div>
-                </a>
-            `;
+        validStations.sort((a, b) => a.dist - b.dist);
+        window._nearbyCameras = validStations.slice(0, 15);
+
+        if (window._nearbyCameras.length === 0) {
+            box.innerHTML = `<div class="text-xs text-slate-500 p-4">Ei kelikameroita lähialueella.</div>`;
+            return;
         }
+
+        // Täytetään pudotusvalikko 15 lähimmällä kameralla
+        if (selectEl) {
+            selectEl.innerHTML = window._nearbyCameras.map(cam => {
+                const dKm = (cam.dist / 1000).toFixed(1);
+                return `<option value="${cam.id}">${cam.name} (${dKm} km)</option>`;
+            }).join('');
+        }
+
+        // Täytetään pikavalintanapit 5 lähimmälle kameralle
+        if (quickListEl) {
+            quickListEl.innerHTML = window._nearbyCameras.slice(0, 5).map((cam, idx) => {
+                const dKm = (cam.dist / 1000).toFixed(1);
+                const shortName = cam.name.replace(/vt\d+|kt\d+|Tie\s*\d+/gi, '').trim() || cam.name;
+                return `
+                    <button onclick="onWeatherCamSelect('${cam.id}')"
+                            id="quickCamBtn-${cam.id}"
+                            class="quick-cam-btn ${idx === 0 ? 'bg-sky-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} text-[11px] px-2 py-1 rounded transition border border-slate-700">
+                        ${shortName} <span class="opacity-75">(${dKm} km)</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Piirretään 15 lähintä kelikameraa kartalle omaan karttatasoon
+        renderWeatherCamMarkersOnMap();
+
+        // Valitaan oletuksena ensimmäinen eli lähin kamera
+        await onWeatherCamSelect(window._nearbyCameras[0].id);
+
     } catch (e) {
-        box.innerHTML = `<div class="text-xs text-slate-500 p-4">Kelikameran kuvaa ei saatu ladattua.</div>`;
+        console.warn('Kelikameravirhe:', e);
+        box.innerHTML = `<div class="text-xs text-slate-500 p-4">Kelikameroita ei saatu ladattua.</div>`;
     }
+}
+
+async function onWeatherCamSelect(stationId) {
+    if (!stationId) return;
+    const cam = (window._nearbyCameras || []).find(c => c.id === stationId);
+    if (!cam) return;
+
+    activeWeatherCamStation = cam;
+
+    const distEl = document.getElementById('weatherCamDistBadge');
+    const selectEl = document.getElementById('weatherCamSelect');
+    const presetContainer = document.getElementById('weatherCamPresetContainer');
+    const presetButtonsEl = document.getElementById('weatherCamPresetButtons');
+    const presetNameLabel = document.getElementById('weatherCamPresetNameLabel');
+
+    if (distEl) {
+        const dKm = (cam.dist / 1000).toFixed(1);
+        distEl.textContent = `${dKm} km päässä`;
+    }
+    if (selectEl && selectEl.value !== stationId) {
+        selectEl.value = stationId;
+    }
+
+    // Korostetaan valittu pikavalintanappi
+    document.querySelectorAll('.quick-cam-btn').forEach(btn => {
+        if (btn.id === `quickCamBtn-${stationId}`) {
+            btn.className = 'quick-cam-btn bg-sky-600 text-white text-[11px] px-2 py-1 rounded transition border border-sky-400';
+        } else {
+            btn.className = 'quick-cam-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-[11px] px-2 py-1 rounded transition border border-slate-700';
+        }
+    });
+
+    // Haetaan tarkemmat suuntatiedot (presets) kyseiselle asemalle
+    let presets = cam.presets || [];
+    try {
+        if (!window._weatherStationDetailsCache[stationId]) {
+            const res = await fetch(`https://tie.digitraffic.fi/api/weathercam/v1/stations/${stationId}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.properties && data.properties.presets) {
+                    window._weatherStationDetailsCache[stationId] = data.properties.presets;
+                }
+            }
+        }
+        if (window._weatherStationDetailsCache[stationId]) {
+            presets = window._weatherStationDetailsCache[stationId];
+        }
+    } catch (err) {}
+
+    // Näytetään suuntavalitsimet
+    if (presets && presets.length > 0) {
+        presetContainer.classList.remove('hidden');
+        presetButtonsEl.innerHTML = presets.map((p, idx) => {
+            const pName = p.presentationName || `Suunta ${idx + 1}`;
+            return `
+                <button onclick="onWeatherCamPresetSelect('${p.id}', '${pName.replace(/'/g, '')}')"
+                        id="presetBtn-${p.id}"
+                        class="preset-cam-btn ${idx === 0 ? 'bg-sky-600 text-white font-semibold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} text-[10px] px-2 py-1 rounded transition border border-slate-700">
+                    ${pName}
+                </button>
+            `;
+        }).join('');
+
+        const firstPreset = presets[0];
+        activeWeatherCamPresetId = firstPreset.id;
+        if (presetNameLabel) presetNameLabel.textContent = firstPreset.presentationName || '';
+        renderActiveWeatherCamImage(firstPreset.id, firstPreset.presentationName || cam.name);
+    } else {
+        presetContainer.classList.add('hidden');
+        const fallbackId = (cam.presets && cam.presets[0]) ? cam.presets[0].id : null;
+        if (fallbackId) {
+            activeWeatherCamPresetId = fallbackId;
+            renderActiveWeatherCamImage(fallbackId, cam.name);
+        }
+    }
+}
+
+function onWeatherCamPresetSelect(presetId, presetName) {
+    activeWeatherCamPresetId = presetId;
+    const presetNameLabel = document.getElementById('weatherCamPresetNameLabel');
+    if (presetNameLabel) presetNameLabel.textContent = presetName || '';
+
+    document.querySelectorAll('.preset-cam-btn').forEach(btn => {
+        if (btn.id === `presetBtn-${presetId}`) {
+            btn.className = 'preset-cam-btn bg-sky-600 text-white font-semibold text-[10px] px-2 py-1 rounded transition border border-sky-400';
+        } else {
+            btn.className = 'preset-cam-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-[10px] px-2 py-1 rounded transition border border-slate-700';
+        }
+    });
+
+    renderActiveWeatherCamImage(presetId, presetName);
+}
+
+function renderActiveWeatherCamImage(presetId, label) {
+    const box = document.getElementById('weatherCamBox');
+    if (!box || !presetId) return;
+
+    const imgUrl = `https://weathercam.digitraffic.fi/${presetId}.jpg?t=${Date.now()}`;
+    const camName = activeWeatherCamStation ? activeWeatherCamStation.name : 'Kelikamera';
+    const subLabel = label || camName;
+
+    box.innerHTML = `
+        <a href="${imgUrl}" target="_blank" class="w-full block relative group" title="Avaa täysikokoinen kuva uudessa välilehdessä">
+            <img src="${imgUrl}" alt="${camName}" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='<div class=\'text-xs text-slate-500 p-4\'>Kamerakuvaa ei saatu ladattua tai yhteys aikakatkaistiin.</div>';" class="w-full h-[200px] object-cover rounded-xl transition duration-200">
+            <div class="absolute bottom-2 left-2 bg-black/80 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded border border-white/20">
+                📹 ${subLabel}
+            </div>
+            <div class="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded border border-white/20 group-hover:bg-sky-600 transition">
+                🔍 Suurenna ↗
+            </div>
+        </a>
+    `;
+}
+
+function refreshWeatherCamImage() {
+    if (!activeWeatherCamPresetId) return;
+    renderActiveWeatherCamImage(activeWeatherCamPresetId);
+    showToast('Kelikameran live-kuva päivitetty!');
+}
+
+function showSelectedCameraOnMap() {
+    if (!map || !activeWeatherCamStation) return;
+    const { lat, lon, name, dist } = activeWeatherCamStation;
+    const dKm = (dist / 1000).toFixed(1);
+
+    map.setView([lat, lon], 14);
+
+    const imgUrl = activeWeatherCamPresetId
+        ? `https://weathercam.digitraffic.fi/${activeWeatherCamPresetId}.jpg?t=${Date.now()}`
+        : '';
+
+    const popupHtml = `
+        <div class="text-xs p-1" style="min-width: 220px; font-family: inherit;">
+            <div style="font-weight:bold; color:#0284c7; font-size:12px;">📹 ${name}</div>
+            <div style="color:#64748b; font-size:11px; margin-bottom:6px;">Etäisyys osoitteesta: <b>${dKm} km</b></div>
+            ${imgUrl ? `<img src="${imgUrl}" alt="${name}" style="width:100%; height:130px; object-fit:cover; border-radius:6px; margin-bottom:6px;">` : ''}
+            <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" style="color:#0284c7; text-decoration:underline; font-size:11px;">
+                Avaa Fintraffic Liikennetilanne ↗
+            </a>
+        </div>
+    `;
+
+    L.popup()
+        .setLatLng([lat, lon])
+        .setContent(popupHtml)
+        .openOn(map);
+
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function renderWeatherCamMarkersOnMap() {
+    if (!weatherCamLayerGroup || !window._nearbyCameras) return;
+    weatherCamLayerGroup.clearLayers();
+
+    window._nearbyCameras.forEach(cam => {
+        const icon = L.divIcon({
+            className: '',
+            html: `<div class="weathercam-marker-badge" title="${cam.name}">📹</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+
+        const dKm = (cam.dist / 1000).toFixed(1);
+        const presetId = (cam.presets && cam.presets[0]) ? cam.presets[0].id : '';
+        const imgUrl = presetId ? `https://weathercam.digitraffic.fi/${presetId}.jpg?t=${Date.now()}` : '';
+
+        const marker = L.marker([cam.lat, cam.lon], { icon }).addTo(weatherCamLayerGroup);
+        marker.bindPopup(`
+            <div class="text-xs p-1" style="min-width: 200px;">
+                <div style="font-weight:bold; color:#0284c7;">📹 ${cam.name}</div>
+                <div style="color:#64748b; font-size:11px; margin-bottom:6px;">Etäisyys: <b>${dKm} km</b></div>
+                ${imgUrl ? `<img src="${imgUrl}" alt="${cam.name}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:6px;">` : ''}
+                <button onclick="onWeatherCamSelect('${cam.id}'); document.getElementById('weatherCamBox').scrollIntoView({behavior:'smooth', block:'center'});"
+                        style="width:100%; background:#0284c7; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">
+                    Valitse tämä kamera
+                </button>
+            </div>
+        `);
+    });
 }
 
 // 4. SÄÄDETTÄVÄ HAKUSÄDEYMPYRÄ KARTALLA + MONILÄHTEINEN LÄHIPALVELU-, KOULU-, HARRASTUS- JA LATAUSTUTKA
@@ -1565,6 +1906,197 @@ function setSearchRadius(meters) {
     }
 }
 
+// TESLA SUPERCHARGER -VERKOSTO (Supercharge.info API + Varasetti)
+window._teslaSitesCache = null;
+
+function getFinnishSuperchargersFallback() {
+    return [
+        { id: 1, name: "Raisio, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Itäkaari 20", city: "Raisio" }, gps: { latitude: 60.494991, longitude: 22.225675 } },
+        { id: 2, name: "Espoo West, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Viskaalinkuja 1", city: "Espoo" }, gps: { latitude: 60.214613, longitude: 24.652946 } },
+        { id: 3, name: "Espoo Niittykumpu, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Niittykatu 2", city: "Espoo" }, gps: { latitude: 60.1712, longitude: 24.7709 } },
+        { id: 4, name: "Helsinki Itäkeskus, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Itäkatu 1-7", city: "Helsinki" }, gps: { latitude: 60.2114, longitude: 25.0818 } },
+        { id: 5, name: "Helsinki Kaari, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Kantelettarentie 1", city: "Helsinki" }, gps: { latitude: 60.2356, longitude: 24.8942 } },
+        { id: 6, name: "Vantaa Tammisto, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Valimotie 23", city: "Vantaa" }, gps: { latitude: 60.2785, longitude: 24.9702 } },
+        { id: 7, name: "Tampere Lahdesjärvi, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Tietotie 1", city: "Tampere" }, gps: { latitude: 61.4589, longitude: 23.7712 } },
+        { id: 8, name: "Lempäälä Ideapark, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Ideaparkinkatu 4", city: "Lempäälä" }, gps: { latitude: 61.3619, longitude: 23.7963 } },
+        { id: 9, name: "Hämeenlinna Tiiriö, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Tiiriönsuonkatu 2", city: "Hämeenlinna" }, gps: { latitude: 60.9998, longitude: 24.4173 } },
+        { id: 10, name: "Lahti Kärkkäinen, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Pasaasi 2", city: "Lahti" }, gps: { latitude: 60.9576, longitude: 25.6171 } },
+        { id: 11, name: "Salo Halikko, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Vaskiontie 2", city: "Salo" }, gps: { latitude: 60.3995, longitude: 23.0754 } },
+        { id: 12, name: "Pori, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Siltapuistokatu 14", city: "Pori" }, gps: { latitude: 61.494717, longitude: 21.797995 } },
+        { id: 13, name: "Jyväskylä Palokka, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Palokanorsi 1", city: "Jyväskylä" }, gps: { latitude: 62.2858, longitude: 25.7292 } },
+        { id: 14, name: "Kuopio Matkus, Finland", stallCount: 12, powerKilowatt: 250, otherEVs: true, address: { street: "Matkuksentie 60", city: "Kuopio" }, gps: { latitude: 62.8252, longitude: 27.6186 } },
+        { id: 15, name: "Mikkeli, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Graanintie 1", city: "Mikkeli" }, gps: { latitude: 61.6778, longitude: 27.2492 } },
+        { id: 16, name: "Lappeenranta, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Hiessillankatu 5", city: "Lappeenranta" }, gps: { latitude: 61.0371, longitude: 28.2435 } },
+        { id: 17, name: "Kouvola, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Tommolankatu 9", city: "Kouvola" }, gps: { latitude: 60.8732, longitude: 26.7329 } },
+        { id: 18, name: "Vaasa, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Liikekatu 3", city: "Vaasa" }, gps: { latitude: 63.0903, longitude: 21.7051 } },
+        { id: 19, name: "Seinäjoki, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Rengastie 2", city: "Seinäjoki" }, gps: { latitude: 62.7758, longitude: 22.8458 } },
+        { id: 20, name: "Oulu Kaakkuri, Finland", stallCount: 16, powerKilowatt: 250, otherEVs: true, address: { street: "Metsokankaantie 3", city: "Oulu" }, gps: { latitude: 64.9572, longitude: 25.5342 } },
+        { id: 21, name: "Rovaniemi, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Joulumaantie 1", city: "Rovaniemi" }, gps: { latitude: 66.5436, longitude: 25.8472 } },
+        { id: 22, name: "Levi, Finland", stallCount: 6, powerKilowatt: 250, otherEVs: true, address: { street: "Levintie 259", city: "Kittilä" }, gps: { latitude: 67.8052, longitude: 24.8082 } },
+        { id: 23, name: "Joensuu, Finland", stallCount: 8, powerKilowatt: 250, otherEVs: true, address: { street: "Voimatie 2", city: "Joensuu" }, gps: { latitude: 62.6012, longitude: 29.7634 } }
+    ];
+}
+
+async function fetchTeslaSuperchargers() {
+    if (window._teslaSitesCache && window._teslaSitesCache.length > 0) {
+        return window._teslaSitesCache;
+    }
+    try {
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 4500);
+        const res = await fetch('https://supercharge.info/service/supercharge/allSites', { signal: ctrl.signal });
+        clearTimeout(timeout);
+        if (res.ok) {
+            const data = await res.json();
+            const finnish = data.filter(s =>
+                s.address && (s.address.country === 'Finland' || s.address.countryId === 120 || s.address.countryId === 100) &&
+                s.status === 'OPEN'
+            );
+            if (finnish.length > 0) {
+                window._teslaSitesCache = finnish;
+                return finnish;
+            }
+        }
+    } catch (e) {
+        console.warn('Supercharge.info virhe tai timeout, käytetään varalistaa:', e);
+    }
+    const fallback = getFinnishSuperchargersFallback();
+    window._teslaSitesCache = fallback;
+    return fallback;
+}
+
+function findNearestTeslaSite() {
+    if (!window._teslaSitesCache || window._teslaSitesCache.length === 0) {
+        const fallback = getFinnishSuperchargersFallback();
+        window._teslaSitesCache = fallback;
+    }
+    const { lat, lon } = currentLoc;
+    let closest = null;
+    let minD = Infinity;
+
+    window._teslaSitesCache.forEach(s => {
+        const sLat = s.gps?.latitude;
+        const sLon = s.gps?.longitude;
+        if (!sLat || !sLon) return;
+        const d = Math.round(haversineMeters(lat, lon, sLat, sLon));
+        s.dist = d;
+        if (d < minD) {
+            minD = d;
+            closest = {
+                name: s.name.replace(', Finland', ''),
+                fullName: s.name,
+                street: s.address?.street || '',
+                city: s.address?.city || '',
+                stalls: s.stallCount || 0,
+                kw: s.powerKilowatt || 250,
+                otherEVs: s.otherEVs,
+                dist: d,
+                lat: sLat,
+                lon: sLon,
+                icon: '🔴',
+                isTesla: true,
+                typeLabel: `Tesla Supercharger (${s.stallCount || '?'} tolppaa, max ${s.powerKilowatt || 250} kW)`
+            };
+        }
+    });
+
+    return closest;
+}
+
+function renderTeslaSuperchargersOnMap() {
+    if (!teslaLayerGroup || !window._teslaSitesCache) return;
+    teslaLayerGroup.clearLayers();
+    const { lat, lon } = currentLoc;
+
+    const sortedSites = [...window._teslaSitesCache].map(s => {
+        const sLat = s.gps?.latitude;
+        const sLon = s.gps?.longitude;
+        const d = (sLat && sLon) ? Math.round(haversineMeters(lat, lon, sLat, sLon)) : 9999999;
+        return { ...s, distMeters: d };
+    }).sort((a, b) => a.distMeters - b.distMeters);
+
+    const visibleSites = sortedSites.filter((s, idx) => idx < 20 || s.distMeters < 150000);
+
+    visibleSites.forEach(s => {
+        const sLat = s.gps?.latitude;
+        const sLon = s.gps?.longitude;
+        if (!sLat || !sLon) return;
+
+        const dStr = s.distMeters >= 1000 ? `${(s.distMeters / 1000).toFixed(1)} km` : `${s.distMeters} m`;
+        const sName = s.name.replace(', Finland', '');
+        const isClosest = (s === sortedSites[0]);
+
+        const markerIcon = L.divIcon({
+            className: '',
+            html: `<div class="tesla-marker-badge ${isClosest ? 'ring-2 ring-yellow-400' : ''}" title="Tesla Supercharger ${sName}">⚡</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+
+        const popupContent = `
+            <div class="text-xs p-1" style="min-width: 220px; font-family: inherit;">
+                <div style="display:flex; align-items:center; gap:6px; color:#dc2626; font-weight:800; font-size:13px;">
+                    <span style="background:#dc2626; color:#fff; border-radius:9999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">⚡</span>
+                    <span>Tesla Supercharger</span>
+                </div>
+                <div style="font-size:14px; font-weight:bold; color:#0f172a; margin-top:4px;">${sName}</div>
+                <div style="color:#64748b; font-size:11px; margin-top:2px;">${s.address?.street || ''}, ${s.address?.city || ''}</div>
+
+                <div style="margin-top:8px; padding:6px 8px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; line-height:1.4;">
+                    <div>🔌 <b>Lataustolpat:</b> ${s.stallCount || '?'} kpl ${s.stalls?.v4 ? '(V4)' : s.stalls?.v3 ? '(V3)' : ''}</div>
+                    <div>⚡ <b>Huipputeho:</b> jopa ${s.powerKilowatt || 250} kW</div>
+                    <div>🚗 <b>Yhteensopivuus:</b> ${s.otherEVs ? '<span style="color:#16a34a; font-weight:bold;">Avoin kaikille (CCS2)</span>' : '<span style="color:#dc2626; font-weight:bold;">Vain Tesla</span>'}</div>
+                    <div>📍 <b>Etäisyys osoitteesta:</b> <b>${dStr}</b></div>
+                </div>
+
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${sLat},${sLon}" target="_blank"
+                   style="margin-top:8px; display:block; text-align:center; background:#dc2626; color:#ffffff; font-weight:bold; padding:5px 8px; border-radius:6px; text-decoration:none; font-size:11px;">
+                    🚗 Reittiohje Google Mapsissa ↗
+                </a>
+            </div>
+        `;
+
+        L.marker([sLat, sLon], { icon: markerIcon })
+            .bindPopup(popupContent)
+            .addTo(teslaLayerGroup);
+    });
+}
+
+function focusTeslaSupercharger(lat, lon, name) {
+    if (!map) return;
+    map.setView([lat, lon], 15);
+    const site = (window._teslaSitesCache || []).find(s => s.gps && Math.abs(s.gps.latitude - lat) < 0.001 && Math.abs(s.gps.longitude - lon) < 0.001);
+    const dStr = site && site.dist ? (site.dist >= 1000 ? `${(site.dist / 1000).toFixed(1)} km` : `${site.dist} m`) : '';
+
+    const popupHtml = `
+        <div class="text-xs p-1" style="min-width: 220px; font-family: inherit;">
+            <div style="display:flex; align-items:center; gap:6px; color:#dc2626; font-weight:800; font-size:13px;">
+                <span style="background:#dc2626; color:#fff; border-radius:9999px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">⚡</span>
+                <span>Tesla Supercharger</span>
+            </div>
+            <div style="font-size:14px; font-weight:bold; color:#0f172a; margin-top:4px;">${name}</div>
+            ${site?.address?.street ? `<div style="color:#64748b; font-size:11px; margin-top:2px;">${site.address.street}, ${site.address.city || ''}</div>` : ''}
+            <div style="margin-top:8px; padding:6px 8px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; line-height:1.4;">
+                <div>🔌 <b>Lataustolpat:</b> ${site?.stallCount || '?'} kpl ${site?.stalls?.v4 ? '(V4)' : site?.stalls?.v3 ? '(V3)' : ''}</div>
+                <div>⚡ <b>Huipputeho:</b> jopa ${site?.powerKilowatt || 250} kW</div>
+                <div>🚗 <b>Yhteensopivuus:</b> ${site?.otherEVs ? '<span style="color:#16a34a; font-weight:bold;">Avoin kaikille (CCS2)</span>' : '<span style="color:#dc2626; font-weight:bold;">Vain Tesla</span>'}</div>
+                ${dStr ? `<div>📍 <b>Etäisyys osoitteesta:</b> <b>${dStr}</b></div>` : ''}
+            </div>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank"
+               style="margin-top:8px; display:block; text-align:center; background:#dc2626; color:#ffffff; font-weight:bold; padding:5px 8px; border-radius:6px; text-decoration:none; font-size:11px;">
+                🚗 Reittiohje Google Mapsissa ↗
+            </a>
+        </div>
+    `;
+
+    L.popup()
+        .setLatLng([lat, lon])
+        .setContent(popupHtml)
+        .openOn(map);
+
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function filterAndRenderPoisByRadius() {
     allPois = rawFetchedPois.filter(p => p.dist <= searchRadiusMeters);
     allPois.sort((a, b) => a.dist - b.dist);
@@ -1603,7 +2135,7 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
     const seenKeys = new Set();
     const sourcesUsed = new Set();
 
-    const addPoiItem = (cat, icon, name, typeLabel, extra, elLat, elLon) => {
+    const addPoiItem = (cat, icon, name, typeLabel, extra, elLat, elLon, isTesla = false) => {
         if (!elLat || !elLon || !cat) return;
         const dist = Math.round(haversineMeters(lat, lon, elLat, elLon));
         if (dist > queryRadius) return;
@@ -1611,7 +2143,7 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
         const dedupKey = `${cat}_${cleanName.toLowerCase().slice(0, 18)}_${Math.round(elLat * 300)}_${Math.round(elLon * 300)}`;
         if (seenKeys.has(dedupKey)) return;
         seenKeys.add(dedupKey);
-        pois.push({ cat, icon, name: cleanName, typeLabel, extra: extra || '', lat: elLat, lon: elLon, dist });
+        pois.push({ cat, icon, name: cleanName, typeLabel, extra: extra || '', lat: elLat, lon: elLon, dist, isTesla });
     };
 
     const updateProgressiveView = () => {
@@ -1787,7 +2319,34 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
         } catch (err) {}
     })();
 
-    await Promise.allSettled([statSchoolsPromise, lipasPromise, photonPromise, overpassPromise]);
+    // 6. LÄHDE 5: Tesla Supercharger -verkosto Suomessa (Supercharge.info)
+    const teslaPromise = (async () => {
+        try {
+            const sites = await fetchTeslaSuperchargers();
+            if (sites && sites.length > 0) {
+                sites.forEach(s => {
+                    const sLat = s.gps && s.gps.latitude;
+                    const sLon = s.gps && s.gps.longitude;
+                    if (!sLat || !sLon) return;
+                    const d = Math.round(haversineMeters(lat, lon, sLat, sLon));
+                    s.dist = d;
+                    if (d <= queryRadius) {
+                        const sName = s.name.replace(', Finland', '');
+                        const stallsStr = `${s.stallCount || '?'} tolppaa`;
+                        const kwStr = s.powerKilowatt ? `max ${s.powerKilowatt} kW` : '250 kW';
+                        const openStr = s.otherEVs ? 'Avoin kaikille (CCS2)' : 'Vain Tesla';
+                        const extra = `${s.address?.street || ''}, ${s.address?.city || ''} • ${openStr}`;
+                        addPoiItem('auto', '🔴', `Tesla Supercharger ${sName}`, `Tesla Supercharger (${stallsStr}, ${kwStr})`, extra, sLat, sLon, true);
+                    }
+                });
+                sourcesUsed.add('Tesla Superchargers');
+                updateProgressiveView();
+                renderTeslaSuperchargersOnMap();
+            }
+        } catch (err) {}
+    })();
+
+    await Promise.allSettled([statSchoolsPromise, lipasPromise, photonPromise, overpassPromise, teslaPromise]);
 
     if (!isFoli && busStops.length > 0) {
         busStops.sort((a, b) => a.dist - b.dist);
@@ -1875,12 +2434,15 @@ function updatePoiCountsAndRender() {
 
     const radLabel = formatRadiusLabel(searchRadiusMeters);
     const findFirst = (fn) => allPois.find(fn);
+    const nearestTesla = findNearestTeslaSite();
+
     const highlights = [
         { label: 'Lähin päiväkoti', icon: '🧸', item: findFirst(p => p.typeLabel.includes('Päiväkoti')) },
         { label: 'Lähin koulu', icon: '🏫', item: findFirst(p => p.typeLabel.includes('Koulu')) },
         { label: 'Lähin ruokakauppa', icon: '🛒', item: findFirst(p => p.icon === '🛒' || p.icon === '🏪') },
         { label: 'Lähin kuntosali/liikunta', icon: '🏋️', item: findFirst(p => p.cat === 'sport') },
-        { label: 'Sähköauton lataus', icon: '⚡', item: findFirst(p => p.icon === '⚡') },
+        { label: 'Latausasema (Yleinen)', icon: '⚡', item: findFirst(p => p.icon === '⚡' && !p.isTesla) },
+        { label: 'Tesla Supercharger', icon: '🔴', item: nearestTesla, isTeslaBadge: true },
         { label: 'Lähin bensa-asema', icon: '⛽', item: findFirst(p => p.icon === '⛽') }
     ];
 
@@ -1895,6 +2457,21 @@ function updatePoiCountsAndRender() {
         }
         const dStr = h.item.dist >= 1000 ? `${(h.item.dist / 1000).toFixed(1)} km` : `${h.item.dist} m`;
         const safeName = h.item.name.replace(/'/g, '');
+
+        if (h.isTeslaBadge) {
+            return `
+                <div onclick="focusTeslaSupercharger(${h.item.lat}, ${h.item.lon}, '${safeName}')"
+                     class="bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 p-2.5 rounded-xl text-xs cursor-pointer transition shadow-sm">
+                    <div class="flex items-center justify-between text-[10px] text-red-300">
+                        <span class="font-bold flex items-center gap-1">🔴 Tesla Supercharger</span>
+                        <span class="text-red-400 font-extrabold">${dStr}</span>
+                    </div>
+                    <div class="font-bold text-white truncate mt-0.5">${h.item.name}</div>
+                    <div class="text-[10px] text-red-300/80 truncate">${h.item.stalls || '?'} tolppaa • ${h.item.kw || 250} kW</div>
+                </div>
+            `;
+        }
+
         return `
             <div onclick="focusMapPoint(${h.item.lat}, ${h.item.lon}, '${h.item.icon} ${safeName}', '${h.item.typeLabel} (${dStr})')"
                  class="bg-slate-950 hover:bg-slate-800/90 border border-slate-800 p-2.5 rounded-xl text-xs cursor-pointer transition">
@@ -1928,25 +2505,43 @@ function renderPoisOnMapAndGrid() {
         );
     }
 
-    // Piirretään kartalle enintään 75 lähintä valitun kategorian kohdetta
-    filtered.slice(0, 75).forEach(p => {
+    // Piirretään kartalle valitun kategorian kohteet
+    filtered.slice(0, 85).forEach(p => {
+        const isTesla = p.isTesla || p.icon === '🔴' || p.name.includes('Tesla Supercharger');
+        const iconHtml = isTesla
+            ? `<div class="tesla-marker-badge" title="${p.name}">⚡</div>`
+            : `<div class="poi-marker-badge">${p.icon}</div>`;
+
         const icon = L.divIcon({
             className: '',
-            html: `<div class="poi-marker-badge">${p.icon}</div>`,
-            iconSize: [26, 26],
-            iconAnchor: [13, 13]
+            html: iconHtml,
+            iconSize: isTesla ? [28, 28] : [26, 26],
+            iconAnchor: isTesla ? [14, 14] : [13, 13]
         });
 
         const dStr = p.dist >= 1000 ? `${(p.dist / 1000).toFixed(1)} km` : `${p.dist} m`;
+        const popupContent = isTesla ? `
+            <div class="text-xs p-1" style="min-width: 210px; font-family: inherit;">
+                <div style="color:#dc2626; font-weight:800; font-size:12px;">⚡ ${p.name}</div>
+                <div style="color:#64748b; font-size:11px; margin-top:2px;">${p.typeLabel}</div>
+                ${p.extra ? `<div style="color:#475569; font-size:11px; margin-top:4px;">${p.extra}</div>` : ''}
+                <div style="margin-top:6px; font-weight:bold; color:#0f172a;">Etäisyys: ${dStr}</div>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank"
+                   style="display:block; margin-top:6px; text-align:center; background:#dc2626; color:#fff; font-weight:bold; padding:4px 8px; border-radius:4px; text-decoration:none; font-size:11px;">
+                    Reittiohje Google Mapsissa ↗
+                </a>
+            </div>
+        ` : `
+            <div class="text-xs">
+                <b>${p.icon} ${p.name}</b><br>
+                ${p.typeLabel}<br>
+                ${p.extra ? `<span style="color:#059669">${p.extra}</span><br>` : ''}
+                Etäisyys: <b>${dStr}</b>
+            </div>
+        `;
+
         L.marker([p.lat, p.lon], { icon })
-            .bindPopup(`
-                <div class="text-xs">
-                    <b>${p.icon} ${p.name}</b><br>
-                    ${p.typeLabel}<br>
-                    ${p.extra ? `<span style="color:#059669">${p.extra}</span><br>` : ''}
-                    Etäisyys: <b>${dStr}</b>
-                </div>
-            `)
+            .bindPopup(popupContent)
             .addTo(poiLayerGroup);
     });
 
@@ -1955,37 +2550,52 @@ function renderPoisOnMapAndGrid() {
         return;
     }
 
-    gridEl.innerHTML = filtered.slice(0, 80).map(p => {
+    gridEl.innerHTML = filtered.slice(0, 90).map(p => {
         const dStr = p.dist >= 1000 ? `${(p.dist / 1000).toFixed(1)} km` : `${p.dist} m`;
         const safeName = p.name.replace(/'/g, '');
+        const isTesla = p.isTesla || p.icon === '🔴' || p.name.includes('Tesla Supercharger');
+        const clickFn = isTesla
+            ? `focusTeslaSupercharger(${p.lat}, ${p.lon}, '${safeName}')`
+            : `focusMapPoint(${p.lat}, ${p.lon}, '${p.icon} ${safeName}', '${p.typeLabel} • ${dStr}')`;
+
+        const badgeClass = isTesla
+            ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+
+        const rowBorder = isTesla
+            ? 'border-red-500/40 bg-red-950/25 hover:bg-red-900/40'
+            : 'border-slate-800/90 bg-slate-950 hover:bg-slate-800/90';
+
         return `
-            <div onclick="focusMapPoint(${p.lat}, ${p.lon}, '${p.icon} ${safeName}', '${p.typeLabel} • ${dStr}')"
-                 class="flex items-center justify-between bg-slate-950 hover:bg-slate-800/90 p-2.5 rounded-lg border border-slate-800/90 cursor-pointer transition">
+            <div onclick="${clickFn}"
+                 class="flex items-center justify-between ${rowBorder} p-2.5 rounded-lg border cursor-pointer transition">
                 <div class="flex items-center gap-2.5 min-w-0 pr-2">
                     <span class="text-base">${p.icon}</span>
                     <div class="truncate">
-                        <div class="font-semibold text-slate-200 truncate">${p.name}</div>
+                        <div class="font-semibold text-slate-200 truncate ${isTesla ? 'text-red-200 font-bold' : ''}">${p.name}</div>
                         <div class="text-[10px] text-slate-400 truncate">${p.typeLabel}${p.extra ? ' • ' + p.extra : ''}</div>
                     </div>
                 </div>
-                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold whitespace-nowrap">${dStr}</span>
+                <span class="${badgeClass} px-2 py-0.5 rounded font-semibold whitespace-nowrap">${dStr}</span>
             </div>
         `;
     }).join('');
 }
 
-// 4B. ILMASTO- JA LÄMPÖTILAHISTORIA (365 VRK ERA5), KUUKAUSIKAAVIO, LÄMMITYSTARVELUKU & AURINKOSÄHKÖ
+// 4B. ILMASTO- JA LÄMPÖTILAHISTORIA (MONIVUOTINEN ERA5 REANALYSIS 2020-2025+), KUUKAUSIKAAVIO, LÄMMITYSTARVELUKU & AURINKOSÄHKÖ
 async function fetchClimateHistoryAndHeating() {
     const { lat, lon } = currentLoc;
-    const lastFullYear = new Date().getFullYear() - 1;
-    const startDate = `${lastFullYear}-01-01`;
-    const endDate = `${lastFullYear}-12-31`;
+    const badgeEl = document.getElementById('climateYearBadge');
+    const subTitleEl = document.getElementById('climateHistorySubtitle');
 
-    document.getElementById('climateYearBadge').textContent = `Vuosi ${lastFullYear} (ERA5)`;
-    document.getElementById('climateHistorySubtitle').textContent = `Haetaan vuoden ${lastFullYear} toteutuneita vuorokausilämpötiloja, sademääriä ja säteilyenergiaa...`;
+    if (badgeEl) badgeEl.textContent = 'Ladataan ERA5...';
+    if (subTitleEl) subTitleEl.textContent = 'Haetaan monivuotista toteutunutta säähistoriaa (2020–2025, Open-Meteo ERA5 Reanalysis)...';
 
     try {
-        const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,snowfall_sum,shortwave_radiation_sum&timezone=Europe%2FHelsinki`;
+        const startYear = 2020;
+        const endYear = 2025;
+        const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startYear}-01-01&end_date=${endYear}-12-31&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,snowfall_sum,shortwave_radiation_sum&timezone=Europe%2FHelsinki`;
+
         const res = await fetch(url);
         if (!res.ok) throw new Error('Archive API virhe');
         const data = await res.json();
@@ -2000,110 +2610,406 @@ async function fetchClimateHistoryAndHeating() {
 
         if (times.length === 0) return;
 
-        let sumMean = 0, validMeanCount = 0;
-        let maxVal = -999, maxDate = '';
-        let minVal = 999, minDate = '';
-        let frostDays = 0, heatDays = 0, rainDays = 0, snowDays = 0;
-        let totalPrecip = 0, totalRadMj = 0;
-        let hdd17 = 0;
+        multiYearStatsMap = {};
 
-        const months = Array.from({ length: 12 }, () => ({
-            min: 999,
-            max: -999,
-            sumMean: 0,
-            count: 0,
-            precip: 0
-        }));
-
+        // Ryhmitellään ja analysoidaan tiedot vuosittain
         for (let i = 0; i < times.length; i++) {
             const dt = times[i];
+            const y = parseInt(dt.slice(0, 4), 10);
             const mIdx = parseInt(dt.slice(5, 7), 10) - 1;
+
+            if (!multiYearStatsMap[y]) {
+                multiYearStatsMap[y] = {
+                    year: y,
+                    times: [],
+                    sumMean: 0,
+                    validMeanCount: 0,
+                    maxVal: -999,
+                    maxDate: '',
+                    minVal: 999,
+                    minDate: '',
+                    frostDays: 0,
+                    heatDays: 0,
+                    rainDays: 0,
+                    snowDays: 0,
+                    totalPrecip: 0,
+                    totalRadMj: 0,
+                    hdd17: 0,
+                    months: Array.from({ length: 12 }, () => ({
+                        min: 999,
+                        max: -999,
+                        sumMean: 0,
+                        count: 0,
+                        precip: 0
+                    }))
+                };
+            }
+
+            const yStat = multiYearStatsMap[y];
+            yStat.times.push(dt);
+
             const mx = tMax[i], mn = tMin[i], me = tMean[i];
             const pr = precip[i] || 0, sn = snow[i] || 0, rd = rad[i] || 0;
 
             if (mx !== null && mx !== undefined) {
-                if (mx > maxVal) { maxVal = mx; maxDate = dt; }
-                if (mx >= 25.0) heatDays++;
-                if (mx > months[mIdx].max) months[mIdx].max = mx;
+                if (mx > yStat.maxVal) { yStat.maxVal = mx; yStat.maxDate = dt; }
+                if (mx >= 25.0) yStat.heatDays++;
+                if (mx > yStat.months[mIdx].max) yStat.months[mIdx].max = mx;
             }
             if (mn !== null && mn !== undefined) {
-                if (mn < minVal) { minVal = mn; minDate = dt; }
-                if (mn < 0.0) frostDays++;
-                if (mn < months[mIdx].min) months[mIdx].min = mn;
+                if (mn < yStat.minVal) { yStat.minVal = mn; yStat.minDate = dt; }
+                if (mn < 0.0) yStat.frostDays++;
+                if (mn < yStat.months[mIdx].min) yStat.months[mIdx].min = mn;
             }
             if (me !== null && me !== undefined) {
-                sumMean += me;
-                validMeanCount++;
-                months[mIdx].sumMean += me;
-                months[mIdx].count++;
-                // Suomalainen lämmitystarveluku (HDD17): kun vuorokauden keskilämpötila < 12 °C (tai kevät < 10 °C), lasketaan (17 - T_mean)
+                yStat.sumMean += me;
+                yStat.validMeanCount++;
+                yStat.months[mIdx].sumMean += me;
+                yStat.months[mIdx].count++;
+
+                // Suomalainen lämmitystarveluku (HDD17)
                 const threshold = (mIdx >= 0 && mIdx <= 4) ? 10.0 : 12.0;
                 if (me < threshold) {
-                    hdd17 += (17.0 - me);
+                    yStat.hdd17 += (17.0 - me);
                 }
             }
-            totalPrecip += pr;
-            months[mIdx].precip += pr;
-            if (pr >= 1.0) rainDays++;
-            if (sn >= 0.5) snowDays++;
-            totalRadMj += rd;
+
+            yStat.totalPrecip += pr;
+            yStat.months[mIdx].precip += pr;
+            if (pr >= 1.0) yStat.rainDays++;
+            if (sn >= 0.5) yStat.snowDays++;
+            yStat.totalRadMj += rd;
         }
 
-        const annualMean = validMeanCount > 0 ? (sumMean / validMeanCount) : 0;
-        // 1 MJ/m² = 0.27778 kWh/m². 5 kWp järjestelmän vuosituotto (performance ratio ~0.82, kulmakerroin ~1.12)
-        const horizontalKwhM2 = totalRadMj * 0.27778;
-        const solar5kWpYield = Math.round(horizontalKwhM2 * 5 * 0.82 * 1.12);
+        // Lasketaan vuosikohtaiset johdetut luvut
+        Object.keys(multiYearStatsMap).forEach(yKey => {
+            const s = multiYearStatsMap[yKey];
+            s.annualMean = s.validMeanCount > 0 ? (s.sumMean / s.validMeanCount) : 0;
+            s.horizontalKwhM2 = s.totalRadMj * 0.27778;
+            s.solarYield5kWp = Math.round(s.horizontalKwhM2 * 5 * 0.82 * 1.12);
+        });
 
-        const fmtDateFi = (iso) => {
-            if (!iso) return '-';
-            const p = iso.split('-');
-            return `${parseInt(p[2], 10)}.${parseInt(p[1], 10)}.${p[0]}`;
-        };
+        // Luodaan dynaamiset vuosinapit
+        renderYearSelectorButtons();
 
-        document.getElementById('climateHistorySubtitle').textContent = `Toteutunut ilmastohistoria (${times.length} vrk, vuosi ${lastFullYear}) osoitteen koordinaateissa`;
-        document.getElementById('climMeanTemp').textContent = `${annualMean >= 0 ? '+' : ''}${annualMean.toFixed(1)} °C`;
-        document.getElementById('climHeatDays').textContent = `Hellepäiviä (>25°C): ${heatDays} pv`;
+        // Luodaan monivuotinen vertailutaulukko
+        renderMultiYearTable();
 
-        document.getElementById('climMaxTemp').textContent = `+${maxVal.toFixed(1)} °C`;
-        document.getElementById('climMaxDate').textContent = `Mitattu ${fmtDateFi(maxDate)}`;
+        // Valitaan oletukseksi uusin kokonainen vuosi (2025)
+        selectedClimateYear = 2025;
+        if (!multiYearStatsMap[selectedClimateYear]) {
+            const availableYears = Object.keys(multiYearStatsMap).sort((a,b) => b - a);
+            selectedClimateYear = parseInt(availableYears[0], 10);
+        }
 
-        document.getElementById('climMinTemp').textContent = `${minVal.toFixed(1)} °C`;
-        document.getElementById('climMinDate').textContent = `Mitattu ${fmtDateFi(minDate)}`;
-
-        document.getElementById('climFrostDays').textContent = `${frostDays} pv`;
-        document.getElementById('climSnowDays').textContent = `Lumipäiviä: ${snowDays} pv`;
-
-        document.getElementById('climPrecipSum').textContent = `${Math.round(totalPrecip)} mm`;
-        document.getElementById('climRainDays').textContent = `Sadepäiviä (≥1 mm): ${rainDays} pv`;
-
-        document.getElementById('climSolarYield').textContent = `~${solar5kWpYield.toLocaleString('fi-FI')} kWh/v`;
-        document.getElementById('climSolarRad').textContent = `Säteily: ${Math.round(horizontalKwhM2)} kWh/m²`;
-
-        // Piirretään kuukausikaavio (Tammi - Joulu)
-        const monthNames = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'];
-        document.getElementById('monthlyClimateChart').innerHTML = months.map((m, idx) => {
-            const mMean = m.count > 0 ? (m.sumMean / m.count) : 0;
-            const meanColor = mMean >= 15 ? 'text-amber-300' : mMean >= 0 ? 'text-emerald-300' : 'text-sky-300';
-            return `
-                <div class="bg-slate-900/90 border border-slate-800/90 rounded-lg p-2 text-center flex flex-col justify-between">
-                    <div class="text-[10px] font-bold text-slate-400 uppercase">${monthNames[idx]}</div>
-                    <div class="my-1.5 space-y-0.5">
-                        <div class="text-[10px] text-orange-400 font-medium" title="Kuukauden ylin lämpötila">▲ ${m.max > -900 ? (m.max >= 0 ? '+' : '') + m.max.toFixed(0) + '°' : '-'}</div>
-                        <div class="text-xs font-extrabold ${meanColor}" title="Kuukauden keskilämpötila">${mMean >= 0 ? '+' : ''}${mMean.toFixed(1)}°</div>
-                        <div class="text-[10px] text-sky-400 font-medium" title="Kuukauden alin lämpötila">▼ ${m.min < 900 ? m.min.toFixed(0) + '°' : '-'}</div>
-                    </div>
-                    <div class="text-[9px] text-blue-300/80 border-t border-slate-800 pt-1" title="Kuukauden sademäärä">💧 ${Math.round(m.precip)} mm</div>
-                </div>
-            `;
-        }).join('');
-
-        lastCalculatedHdd17 = Math.round(hdd17);
-        document.getElementById('hddValueText').textContent = lastCalculatedHdd17.toLocaleString('fi-FI');
-        recalcHeatingCosts();
+        renderClimateYear(selectedClimateYear);
 
     } catch (e) {
         console.warn('Ilmastohistorian virhe:', e);
-        document.getElementById('climateHistorySubtitle').textContent = 'Ilmastohistorian lataus epäonnistui tilapäisesti.';
+        if (subTitleEl) subTitleEl.textContent = 'Ilmastohistorian lataus epäonnistui tilapäisesti.';
+    }
+}
+
+function renderYearSelectorButtons() {
+    const container = document.getElementById('climateYearButtons');
+    if (!container) return;
+
+    const years = Object.keys(multiYearStatsMap).map(y => parseInt(y, 10)).sort((a, b) => b - a);
+
+    container.innerHTML = `
+        <span class="text-xs text-slate-400 font-medium mr-1">Tarkastele vuotta:</span>
+        ${years.map(y => `
+            <button onclick="setClimateYear(${y})"
+                    id="climYearBtn-${y}"
+                    class="clim-year-btn ${y === selectedClimateYear ? 'bg-sky-600 text-white font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'} text-xs px-2.5 py-1 rounded-lg transition border border-slate-700">
+                ${y}
+            </button>
+        `).join('')}
+    `;
+}
+
+function setClimateYear(year) {
+    selectedClimateYear = parseInt(year, 10);
+
+    // Päivitetään nappien ulkoasu
+    document.querySelectorAll('.clim-year-btn').forEach(btn => {
+        if (btn.id === `climYearBtn-${selectedClimateYear}`) {
+            btn.className = 'clim-year-btn bg-sky-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg transition border border-sky-400';
+        } else {
+            btn.className = 'clim-year-btn bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs px-2.5 py-1 rounded-lg transition border border-slate-700';
+        }
+    });
+
+    renderClimateYear(selectedClimateYear);
+
+    // Päivitetään aktiivinen rivi vertailutaulukossa jos taulukko on auki
+    renderMultiYearTable();
+}
+
+function renderClimateYear(year) {
+    const s = multiYearStatsMap[year];
+    if (!s) return;
+
+    const fmtDateFi = (iso) => {
+        if (!iso) return '-';
+        const p = iso.split('-');
+        return `${parseInt(p[2], 10)}.${parseInt(p[1], 10)}.${p[0]}`;
+    };
+
+    const badgeEl = document.getElementById('climateYearBadge');
+    const subTitleEl = document.getElementById('climateHistorySubtitle');
+
+    if (badgeEl) badgeEl.textContent = `Vuosi ${year} (ERA5)`;
+    if (subTitleEl) subTitleEl.textContent = `Toteutunut ilmastohistoria (${s.times.length} vrk, vuosi ${year}) osoitteen koordinaateissa`;
+
+    document.getElementById('climMeanTemp').textContent = `${s.annualMean >= 0 ? '+' : ''}${s.annualMean.toFixed(1)} °C`;
+    document.getElementById('climHeatDays').textContent = `Hellepäiviä (>25°C): ${s.heatDays} pv`;
+
+    document.getElementById('climMaxTemp').textContent = `+${s.maxVal.toFixed(1)} °C`;
+    document.getElementById('climMaxDate').textContent = `Mitattu ${fmtDateFi(s.maxDate)}`;
+
+    document.getElementById('climMinTemp').textContent = `${s.minVal.toFixed(1)} °C`;
+    document.getElementById('climMinDate').textContent = `Mitattu ${fmtDateFi(s.minDate)}`;
+
+    document.getElementById('climFrostDays').textContent = `${s.frostDays} pv`;
+    document.getElementById('climSnowDays').textContent = `Lumipäiviä: ${s.snowDays} pv`;
+
+    document.getElementById('climPrecipSum').textContent = `${Math.round(s.totalPrecip)} mm`;
+    document.getElementById('climRainDays').textContent = `Sadepäiviä (≥1 mm): ${s.rainDays} pv`;
+
+    document.getElementById('climSolarYield').textContent = `~${s.solarYield5kWp.toLocaleString('fi-FI')} kWh/v`;
+    document.getElementById('climSolarRad').textContent = `Säteily: ${Math.round(s.horizontalKwhM2)} kWh/m²`;
+
+    // Piirretään kuukausikaavio (Tammi - Joulu) kyseiselle vuodelle
+    const monthNames = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'];
+    document.getElementById('monthlyClimateChart').innerHTML = s.months.map((m, idx) => {
+        const mMean = m.count > 0 ? (m.sumMean / m.count) : 0;
+        const meanColor = mMean >= 15 ? 'text-amber-300' : mMean >= 0 ? 'text-emerald-300' : 'text-sky-300';
+        return `
+            <div class="bg-slate-900/90 border border-slate-800/90 rounded-lg p-2 text-center flex flex-col justify-between">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">${monthNames[idx]}</div>
+                <div class="my-1.5 space-y-0.5">
+                    <div class="text-[10px] text-orange-400 font-medium" title="Kuukauden ylin lämpötila">▲ ${m.max > -900 ? (m.max >= 0 ? '+' : '') + m.max.toFixed(0) + '°' : '-'}</div>
+                    <div class="text-xs font-extrabold ${meanColor}" title="Kuukauden keskilämpötila">${mMean >= 0 ? '+' : ''}${mMean.toFixed(1)}°</div>
+                    <div class="text-[10px] text-sky-400 font-medium" title="Kuukauden alin lämpötila">▼ ${m.min < 900 ? m.min.toFixed(0) + '°' : '-'}</div>
+                </div>
+                <div class="text-[9px] text-blue-300/80 border-t border-slate-800 pt-1" title="Kuukauden sademäärä">💧 ${Math.round(m.precip)} mm</div>
+            </div>
+        `;
+    }).join('');
+
+    lastCalculatedHdd17 = Math.round(s.hdd17);
+    document.getElementById('hddValueText').textContent = lastCalculatedHdd17.toLocaleString('fi-FI');
+    recalcHeatingCosts();
+}
+
+function toggleMultiYearComparison() {
+    const box = document.getElementById('multiYearComparisonBox');
+    const btn = document.getElementById('toggleMultiYearBtn');
+    if (!box) return;
+
+    if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        if (btn) btn.innerHTML = '✕ Piilota vertailu';
+        renderMultiYearTable();
+    } else {
+        box.classList.add('hidden');
+        if (btn) btn.innerHTML = '📊 Monivuotinen vertailu & Trendi';
+    }
+}
+
+function renderMultiYearTable() {
+    const tbody = document.getElementById('multiYearTableBody');
+    const insightsEl = document.getElementById('multiYearInsightsText');
+    if (!tbody) return;
+
+    const years = Object.keys(multiYearStatsMap).map(y => parseInt(y, 10)).sort((a, b) => b - a);
+    if (years.length === 0) return;
+
+    let highestMean = -999, lowestMean = 999;
+    let highestHeat = -1, highestFrost = -1;
+    let highestPrecip = -1, lowestPrecip = 99999;
+    let highestHdd = -1, lowestHdd = 99999;
+    let sumOfMeans = 0;
+
+    years.forEach(y => {
+        const s = multiYearStatsMap[y];
+        if (s.annualMean > highestMean) highestMean = s.annualMean;
+        if (s.annualMean < lowestMean) lowestMean = s.annualMean;
+        if (s.heatDays > highestHeat) highestHeat = s.heatDays;
+        if (s.frostDays > highestFrost) highestFrost = s.frostDays;
+        if (s.totalPrecip > highestPrecip) highestPrecip = s.totalPrecip;
+        if (s.totalPrecip < lowestPrecip) lowestPrecip = s.totalPrecip;
+        if (s.hdd17 > highestHdd) highestHdd = s.hdd17;
+        if (s.hdd17 < lowestHdd) lowestHdd = s.hdd17;
+        sumOfMeans += s.annualMean;
+    });
+
+    const avgPeriodMean = (sumOfMeans / years.length).toFixed(1);
+
+    tbody.innerHTML = years.map(y => {
+        const s = multiYearStatsMap[y];
+        const isWarmest = (s.annualMean === highestMean);
+        const isColdest = (s.annualMean === lowestMean);
+        const isSelected = (y === selectedClimateYear);
+
+        return `
+            <tr class="hover:bg-slate-900/80 transition cursor-pointer ${isSelected ? 'bg-indigo-950/40 font-semibold' : ''}" onclick="setClimateYear(${y})">
+                <td class="py-2 px-2 font-bold ${isSelected ? 'text-sky-300' : 'text-white'}">
+                    ${y} ${isSelected ? '📍' : ''}
+                </td>
+                <td class="py-2 px-2 font-bold ${isWarmest ? 'text-amber-400' : isColdest ? 'text-sky-400' : 'text-slate-200'}">
+                    ${s.annualMean >= 0 ? '+' : ''}${s.annualMean.toFixed(1)} °C
+                </td>
+                <td class="py-2 px-2 text-rose-400 font-medium">
+                    +${s.maxVal.toFixed(1)} °C
+                </td>
+                <td class="py-2 px-2 text-sky-400 font-medium">
+                    ${s.minVal.toFixed(1)} °C
+                </td>
+                <td class="py-2 px-2 text-amber-300">
+                    ${s.heatDays} pv
+                </td>
+                <td class="py-2 px-2 text-cyan-300">
+                    ${s.frostDays} pv
+                </td>
+                <td class="py-2 px-2 text-blue-300">
+                    ${Math.round(s.totalPrecip)} mm
+                </td>
+                <td class="py-2 px-2 font-bold text-emerald-400">
+                    ${Math.round(s.hdd17).toLocaleString('fi-FI')} °Cd
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    const hddDiffPercent = lowestHdd > 0 ? Math.round(((highestHdd - lowestHdd) / lowestHdd) * 100) : 0;
+
+    if (insightsEl) {
+        insightsEl.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 py-1">
+                <div class="bg-slate-900 p-2 rounded border border-slate-800">
+                    <span class="text-slate-400">📊 6v Keskilämpötila:</span>
+                    <b class="text-white ml-1">+${avgPeriodMean} °C</b>
+                </div>
+                <div class="bg-slate-900 p-2 rounded border border-slate-800">
+                    <span class="text-slate-400">☀️ Lämpimin vuosi:</span>
+                    <b class="text-amber-400 ml-1">${highestMean >= 0 ? '+' : ''}${highestMean.toFixed(1)} °C</b>
+                </div>
+                <div class="bg-slate-900 p-2 rounded border border-slate-800">
+                    <span class="text-slate-400">❄️ Lämmitystarpeen vaihtelu:</span>
+                    <b class="text-emerald-400 ml-1">jopa ${hddDiffPercent} % erot talvien välillä</b>
+                </div>
+            </div>
+            <p class="text-slate-400 text-[10px] mt-1.5 leading-relaxed">
+                💡 <b>Monivuotinen havainto:</b> Leutona talvena lämmityskulut ovat osoitteessa merkittävästi alhaisemmat kuin ankarana pakkastalvena. Klikkaa taulukosta mitä tahansa vuotta nähdäksesi kyseisen vuoden kuukausikaavion ja lämmityslaskurin!
+            </p>
+        `;
+    }
+}
+
+async function onClimateOlderYearSelect(yearStr) {
+    if (!yearStr) return;
+    const year = parseInt(yearStr, 10);
+    if (!year) return;
+
+    if (multiYearStatsMap[year]) {
+        setClimateYear(year);
+        return;
+    }
+
+    const { lat, lon } = currentLoc;
+    const badgeEl = document.getElementById('climateYearBadge');
+    const subTitleEl = document.getElementById('climateHistorySubtitle');
+
+    if (badgeEl) badgeEl.textContent = `Ladataan ${year}...`;
+    if (subTitleEl) subTitleEl.textContent = `Haetaan vuoden ${year} toteutunutta säähistoriaa (Open-Meteo ERA5)...`;
+
+    try {
+        const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${year}-01-01&end_date=${year}-12-31&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,precipitation_sum,snowfall_sum,shortwave_radiation_sum&timezone=Europe%2FHelsinki`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Virhe ladattaessa vuotta ' + year);
+        const data = await res.json();
+        const d = data.daily || {};
+        const times = d.time || [];
+        const tMax = d.temperature_2m_max || [];
+        const tMin = d.temperature_2m_min || [];
+        const tMean = d.temperature_2m_mean || [];
+        const precip = d.precipitation_sum || [];
+        const snow = d.snowfall_sum || [];
+        const rad = d.shortwave_radiation_sum || [];
+
+        if (times.length === 0) return;
+
+        const yStat = {
+            year,
+            times: [],
+            sumMean: 0,
+            validMeanCount: 0,
+            maxVal: -999,
+            maxDate: '',
+            minVal: 999,
+            minDate: '',
+            frostDays: 0,
+            heatDays: 0,
+            rainDays: 0,
+            snowDays: 0,
+            totalPrecip: 0,
+            totalRadMj: 0,
+            hdd17: 0,
+            months: Array.from({ length: 12 }, () => ({
+                min: 999,
+                max: -999,
+                sumMean: 0,
+                count: 0,
+                precip: 0
+            }))
+        };
+
+        for (let i = 0; i < times.length; i++) {
+            const dt = times[i];
+            const mIdx = parseInt(dt.slice(5, 7), 10) - 1;
+            yStat.times.push(dt);
+
+            const mx = tMax[i], mn = tMin[i], me = tMean[i];
+            const pr = precip[i] || 0, sn = snow[i] || 0, rd = rad[i] || 0;
+
+            if (mx !== null && mx !== undefined) {
+                if (mx > yStat.maxVal) { yStat.maxVal = mx; yStat.maxDate = dt; }
+                if (mx >= 25.0) yStat.heatDays++;
+                if (mx > yStat.months[mIdx].max) yStat.months[mIdx].max = mx;
+            }
+            if (mn !== null && mn !== undefined) {
+                if (mn < yStat.minVal) { yStat.minVal = mn; yStat.minDate = dt; }
+                if (mn < 0.0) yStat.frostDays++;
+                if (mn < yStat.months[mIdx].min) yStat.months[mIdx].min = mn;
+            }
+            if (me !== null && me !== undefined) {
+                yStat.sumMean += me;
+                yStat.validMeanCount++;
+                yStat.months[mIdx].sumMean += me;
+                yStat.months[mIdx].count++;
+                const threshold = (mIdx >= 0 && mIdx <= 4) ? 10.0 : 12.0;
+                if (me < threshold) yStat.hdd17 += (17.0 - me);
+            }
+            yStat.totalPrecip += pr;
+            yStat.months[mIdx].precip += pr;
+            if (pr >= 1.0) yStat.rainDays++;
+            if (sn >= 0.5) yStat.snowDays++;
+            yStat.totalRadMj += rd;
+        }
+
+        yStat.annualMean = yStat.validMeanCount > 0 ? (yStat.sumMean / yStat.validMeanCount) : 0;
+        yStat.horizontalKwhM2 = yStat.totalRadMj * 0.27778;
+        yStat.solarYield5kWp = Math.round(yStat.horizontalKwhM2 * 5 * 0.82 * 1.12);
+
+        multiYearStatsMap[year] = yStat;
+        renderYearSelectorButtons();
+        setClimateYear(year);
+        showToast(`Vuoden ${year} toteutunut säähistoria ladattu!`);
+
+    } catch (e) {
+        showToast(`Vuoden ${year} tietojen haku epäonnistui.`);
     }
 }
 
