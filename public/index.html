@@ -450,7 +450,7 @@
                             <button onclick="refreshLiveTransit()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition">
                                 🔄 Päivitä sijainnit
                             </button>
-                            <a id="transitRoutePlannerLink" href="https://opas.matkahuolto.fi/" target="_blank" class="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-lg transition">
+                            <a id="transitRoutePlannerLink" href="https://www.matkahuolto.fi/matkustajat/reittiopas" target="_blank" class="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-lg transition">
                                 🗺️ Avaa Reittiopas ↗
                             </a>
                         </div>
@@ -1038,17 +1038,24 @@
 
                             <div class="md:col-span-2 bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 flex flex-col justify-between">
                                 <div>
-                                    <div class="text-xs font-bold text-rose-300 mb-2 flex items-center justify-between">
-                                        <span>🚨 Tuoreimmat poliisi- & hälytystiedotteet</span>
+                                    <div class="flex items-center justify-between gap-2 mb-2">
+                                        <span class="text-xs font-bold text-rose-300 flex items-center gap-1">
+                                            🚨 Tilannehuone & Hälytykset lähellä
+                                        </span>
+                                        <button id="btnToggleTilannehuoneMap" onclick="toggleTilannehuoneMapMarkers()" class="text-[10px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded font-semibold transition">
+                                            📍 Näytä kartalla
+                                        </button>
                                     </div>
-                                    <div id="crimeNewsFeed" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-[11px]">
-                                        <div class="text-slate-500 italic">Haetaan alueen poliisi- ja rikosuutisia...</div>
+                                    <div id="crimeNewsFeed" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-[11px]">
+                                        <div class="text-slate-500 italic">Haetaan Tilannehuoneen ja Fintrafficin lähihälytyksiä...</div>
                                     </div>
                                 </div>
-                                <div class="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap gap-2 text-[11px]">
-                                    <a href="https://poliisi.fi/uutiset" target="_blank" class="text-emerald-400 hover:underline">Poliisi.fi tiedotteet ↗</a>
+                                <div id="crimePoliceLinksFooter" class="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap gap-2 text-[11px]">
+                                    <a href="https://poliisi.fi/uutishuone" target="_blank" class="text-emerald-400 hover:underline font-medium">🚓 Poliisi.fi Uutishuone ↗</a>
                                     <span>•</span>
-                                    <a href="https://www.tilannehuone.fi/halytys.php" target="_blank" class="text-amber-400 hover:underline">Tilannehuone hälytykset ↗</a>
+                                    <a href="https://www.tilannehuone.fi/halytys.php" target="_blank" class="text-amber-400 hover:underline font-medium">🚨 Tilannehuone lista ↗</a>
+                                    <span>•</span>
+                                    <a href="https://www.tilannehuone.fi/halytysmap.php" target="_blank" class="text-sky-400 hover:underline font-medium">🗺️ Hälytyskartta ↗</a>
                                 </div>
                             </div>
                         </div>
@@ -1540,17 +1547,21 @@
                     </div>
                 </div>
 
-                <!-- 4. Alueen Uutiset & Poliisitiedotteet (Live RSS + Linkit) -->
-                <div data-collapsible-card="news" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <h3 class="font-bold text-white flex items-center gap-1.5">📰 Alueen uutiset verkossa</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Tuoreimmat paikallisuutiset & poliisitiedotteet</p>
+                <!-- 4. Paikallislehdet, Pääotsikot & Poliisitiedotteet (Live RSS + Linkit) -->
+                <div data-collapsible-card="news" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-white flex items-center gap-1.5">📰 Paikallislehdet & Pääotsikot</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Alueen lehdet, tuoreimmat pääotsikot & poliisi</p>
+                        </div>
+                        <span id="localPaperBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold">Live RSS</span>
                     </div>
                     <div class="collapsible-body mt-4">
-                        <p class="text-xs text-slate-400 mb-3">Tuoreimmat uutisotsikot kaupunginosasta ja kadulta:</p>
+                        <div id="localNewspapersList" class="flex flex-wrap gap-1.5 mb-3"></div>
+                        <p class="text-[11px] text-slate-400 mb-2 font-semibold">🔥 Tuoreimmat pääotsikot alueelta ja paikallislehdistä:</p>
                         <!-- Live uutislista -->
-                        <div id="newsFeedContainer" class="space-y-2.5 max-h-56 overflow-y-auto pr-1 text-xs mb-3">
-                            <div class="text-slate-500 italic">Haetaan uutisia...</div>
+                        <div id="newsFeedContainer" class="space-y-2 max-h-72 overflow-y-auto pr-1 text-xs mb-3">
+                            <div class="text-slate-500 italic">Haetaan paikallislehtien pääotsikoita...</div>
                         </div>
                         <div id="newsLinks" class="space-y-1.5 text-xs pt-2 border-t border-slate-800"></div>
                     </div>
@@ -2099,7 +2110,7 @@ function startLiveTransitTracking() {
         plannerLink.href = `https://reittiopas.tampere.fi/`;
         plannerLink.textContent = `🚌 Nysse Reittiopas ↗`;
     } else {
-        plannerLink.href = `https://opas.matkahuolto.fi/`;
+        plannerLink.href = `https://www.matkahuolto.fi/matkustajat/reittiopas`;
         plannerLink.textContent = `🚌 Matkahuolto Reittiopas ↗`;
     }
 
@@ -4552,9 +4563,154 @@ function copyAddress() {
     showToast(`Osoite kopioitu leikepöydälle: ${full}`);
 }
 
+function getPoliceDepartmentForCity(city) {
+    const c = (city || '').trim().toLowerCase();
+    if (c === 'helsinki') return { name: 'Helsingin poliisilaitos', url: 'https://poliisi.fi/helsingin-poliisilaitos' };
+    if (['espoo', 'kauniainen', 'kirkkonummi', 'lohja', 'vihti', 'raasepori', 'hanko', 'siuntio', 'inkoo'].includes(c)) return { name: 'Länsi-Uudenmaan poliisilaitos', url: 'https://poliisi.fi/lansi-uudenmaan-poliisilaitos' };
+    if (['vantaa', 'kerava', 'järvenpää', 'tuusula', 'nurmijärvi', 'hyvinkää', 'porvoo', 'sipoo', 'mäntsälä', 'loviisa'].includes(c)) return { name: 'Itä-Uudenmaan poliisilaitos', url: 'https://poliisi.fi/ita-uudenmaan-poliisilaitos' };
+    if (['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'masku', 'parainen', 'paimio', 'salo', 'uusikaupunki', 'loimaa', 'pori', 'rauma', 'ulvila', 'kankaanpää', 'harjavalta', 'huittinen'].includes(c)) return { name: 'Lounais-Suomen poliisilaitos', url: 'https://poliisi.fi/lounais-suomen-poliisilaitos' };
+    if (['tampere', 'nokia', 'pirkkala', 'ylöjärvi', 'kangasala', 'lempäälä', 'valkeakoski', 'sastamala', 'jyväskylä', 'muurame', 'laukaa', 'äänekoski', 'jämsä', 'keuruu'].includes(c)) return { name: 'Sisä-Suomen poliisilaitos', url: 'https://poliisi.fi/sisa-suomen-poliisilaitos' };
+    if (['lahti', 'hollola', 'heinola', 'orimattila', 'hämeenlinna', 'riihimäki', 'forssa', 'janakkala'].includes(c)) return { name: 'Hämeen poliisilaitos', url: 'https://poliisi.fi/hameen-poliisilaitos' };
+    if (['kouvola', 'kotka', 'hamina', 'lappeenranta', 'imatra'].includes(c)) return { name: 'Kaakkois-Suomen poliisilaitos', url: 'https://poliisi.fi/kaakkois-suomen-poliisilaitos' };
+    if (['kuopio', 'siilinjärvi', 'iisalmi', 'varkaus', 'joensuu', 'kontiolahti', 'liperi', 'mikkeli', 'savonlinna', 'pieksämäki'].includes(c)) return { name: 'Itä-Suomen poliisilaitos', url: 'https://poliisi.fi/ita-suomen-poliisilaitos' };
+    if (['vaasa', 'mustasaari', 'seinäjoki', 'ilmajoki', 'lapua', 'kurikka', 'kauhajoki', 'kokkola', 'pietarsaari'].includes(c)) return { name: 'Pohjanmaan poliisilaitos', url: 'https://poliisi.fi/pohjanmaan-poliisilaitos' };
+    if (['oulu', 'kempele', 'liminka', 'muhos', 'ii', 'raahe', 'kalajoki', 'ylivieska', 'kuusamo', 'kajaani', 'sotkamo'].includes(c)) return { name: 'Oulun poliisilaitos', url: 'https://poliisi.fi/oulun-poliisilaitos' };
+    if (['rovaniemi', 'tornio', 'kemi', 'kemijärvi', 'sodankylä', 'inari', 'kittilä'].includes(c)) return { name: 'Lapin poliisilaitos', url: 'https://poliisi.fi/lapin-poliisilaitos' };
+    return { name: 'Poliisin uutishuone', url: 'https://poliisi.fi/uutishuone' };
+}
+
+function getLocalNewspapersForCity(city) {
+    const c = (city || '').trim().toLowerCase();
+    if (['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'masku', 'parainen', 'paimio', 'salo', 'uusikaupunki', 'loimaa'].includes(c)) {
+        return {
+            regionLabel: 'Varsinais-Suomi',
+            papers: [
+                { name: 'Turun Sanomat', url: 'https://www.ts.fi/uutiset/paikalliset', badge: 'Päälehti' },
+                { name: 'Turkulainen', url: 'https://www.turkulainen.fi/paikalliset', badge: 'Kaupunkilehti' },
+                { name: 'Yle Turku', url: 'https://yle.fi/t/18-135629/fi', badge: 'Alueuutiset' },
+                { name: 'IS Turun seutu', url: 'https://www.is.fi/turun-seutu/', badge: 'Seutu' }
+            ],
+            feeds: [
+                { source: 'Turun Sanomat', type: 'rss2json', url: 'https://www.ts.fi/rss.xml' },
+                { source: 'IS Turun seutu', type: 'xml', url: 'https://www.is.fi/rss/turun-seutu.xml' }
+            ]
+        };
+    }
+    if (['tampere', 'nokia', 'pirkkala', 'ylöjärvi', 'kangasala', 'lempäälä', 'valkeakoski'].includes(c)) {
+        const extraXml = c === 'nokia' ? { source: 'Nokian Uutiset', type: 'xml', url: 'https://www.nokianuutiset.fi/rss/tuoreimmat.xml' }
+            : c === 'valkeakoski' ? { source: 'Valkeakosken Sanomat', type: 'xml', url: 'https://www.valkeakoskensanomat.fi/rss/tuoreimmat.xml' }
+            : { source: 'Aamulehti Tampere', type: 'xml', url: 'https://www.aamulehti.fi/rss/tampere.xml' };
+        return {
+            regionLabel: 'Pirkanmaa',
+            papers: [
+                { name: 'Aamulehti', url: 'https://www.aamulehti.fi/pirkanmaa/', badge: 'Päälehti' },
+                { name: 'Tamperelainen', url: 'https://www.tamperelainen.fi/paikalliset', badge: 'Kaupunkilehti' },
+                { name: 'Nokian Uutiset', url: 'https://www.nokianuutiset.fi/', badge: 'Paikallislehti' },
+                { name: 'Yle Tampere', url: 'https://yle.fi/t/18-146831/fi', badge: 'Alueuutiset' }
+            ],
+            feeds: [
+                extraXml,
+                { source: 'Aamulehti Pirkanmaa', type: 'xml', url: 'https://www.aamulehti.fi/rss/pirkanmaa.xml' },
+                { source: 'IS Tampereen seutu', type: 'xml', url: 'https://www.is.fi/rss/tampereen-seutu.xml' }
+            ]
+        };
+    }
+    if (['helsinki', 'espoo', 'vantaa', 'kauniainen', 'kirkkonummi', 'kerava', 'tuusula', 'järvenpää', 'sipoo', 'nurmijärvi', 'hyvinkää', 'porvoo', 'lohja'].includes(c)) {
+        return {
+            regionLabel: 'Uusimaa & Pääkaupunkiseutu',
+            papers: [
+                { name: 'HS Kaupunki', url: 'https://www.hs.fi/kaupunki/', badge: 'Päälehti' },
+                { name: 'Helsingin Uutiset', url: 'https://www.helsinginuutiset.fi/paikalliset', badge: 'Kaupunkilehti' },
+                { name: 'Länsiväylä (Espoo)', url: 'https://www.lansivayla.fi/paikalliset', badge: 'Kaupunkilehti' },
+                { name: 'Vantaan Sanomat', url: 'https://www.vantaansanomat.fi/paikalliset', badge: 'Kaupunkilehti' },
+                { name: 'Keski-Uusimaa', url: 'https://www.keski-uusimaa.fi/paikalliset', badge: 'Aluelehti' }
+            ],
+            feeds: [
+                { source: 'HS Kaupunki & Seutu', type: 'xml', url: 'https://www.hs.fi/rss/helsinki.xml' },
+                { source: 'HS Suomi', type: 'xml', url: 'https://www.hs.fi/rss/suomi.xml' }
+            ]
+        };
+    }
+    if (['pori', 'rauma', 'ulvila', 'kankaanpää', 'harjavalta', 'kokemäki', 'eurajoki', 'nakkila'].includes(c)) {
+        return {
+            regionLabel: 'Satakunta',
+            papers: [
+                { name: 'Satakunnan Kansa Länsi-Suomi', url: 'https://www.satakunnankansa.fi/satakunta/', badge: 'Päälehti' },
+                { name: 'Kankaanpään Seutu', url: 'https://www.kankaanpaanseutu.fi/', badge: 'Paikallislehti' },
+                { name: 'Yle Satakunta', url: 'https://yle.fi/t/18-139913/fi', badge: 'Alueuutiset' }
+            ],
+            feeds: [
+                { source: 'Satakunnan Kansa', type: 'xml', url: 'https://www.satakunnankansa.fi/rss/satakunta.xml' },
+                { source: 'Kankaanpään Seutu', type: 'xml', url: 'https://www.kankaanpaanseutu.fi/rss/tuoreimmat.xml' }
+            ]
+        };
+    }
+    if (['oulu', 'kempele', 'liminka', 'muhos', 'ii', 'raahe', 'kalajoki', 'ylivieska', 'kuusamo', 'kajaani'].includes(c)) {
+        return {
+            regionLabel: 'Pohjois-Pohjanmaa & Kainuu',
+            papers: [
+                { name: 'Kaleva', url: 'https://www.kaleva.fi/paikalliset', badge: 'Päälehti' },
+                { name: 'Raahen Seutu', url: 'https://www.raahenseutu.fi/', badge: 'Paikallislehti' },
+                { name: 'Kainuun Sanomat', url: 'https://www.kainuunsanomat.fi/', badge: 'Maakuntalehti' },
+                { name: 'IS Oulun seutu', url: 'https://www.is.fi/oulun-seutu/', badge: 'Seutu' }
+            ],
+            feeds: [
+                { source: 'IS Oulun seutu', type: 'xml', url: 'https://www.is.fi/rss/oulun-seutu.xml' },
+                { source: 'Yle Oulu & Pohjois-Suomi', type: 'rss2json', url: 'https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET&concepts=18-148149' }
+            ]
+        };
+    }
+    if (['jyväskylä', 'muurame', 'laukaa', 'äänekoski', 'jämsä', 'keuruu'].includes(c)) {
+        return {
+            regionLabel: 'Keski-Suomi',
+            papers: [
+                { name: 'Keskisuomalainen', url: 'https://www.ksml.fi/paikalliset', badge: 'Päälehti' },
+                { name: 'Jämsän Seutu', url: 'https://www.jamsanseutu.fi/', badge: 'Paikallislehti' },
+                { name: 'Suur-Keuruu', url: 'https://www.suurkeuruu.fi/', badge: 'Paikallislehti' },
+                { name: 'Yle Jyväskylä', url: 'https://yle.fi/t/18-146311/fi', badge: 'Alueuutiset' }
+            ],
+            feeds: [
+                { source: 'Keskisuomalainen', type: 'rss2json', url: 'https://www.ksml.fi/feed/rss/' },
+                { source: 'Jämsän Seutu', type: 'xml', url: 'https://www.jamsanseutu.fi/rss/tuoreimmat.xml' },
+                { source: 'Suur-Keuruu', type: 'xml', url: 'https://www.suurkeuruu.fi/rss/tuoreimmat.xml' }
+            ]
+        };
+    }
+    if (['lahti', 'hollola', 'heinola', 'orimattila', 'hämeenlinna', 'riihimäki', 'forssa', 'janakkala'].includes(c)) {
+        return {
+            regionLabel: 'Päijät-Häme & Kanta-Häme',
+            papers: [
+                { name: 'Etelä-Suomen Sanomat (ESS)', url: 'https://www.ess.fi/paikalliset', badge: 'Maakuntalehti' },
+                { name: 'Hämeen Sanomat', url: 'https://www.hameensanomat.fi/paikalliset', badge: 'Maakuntalehti' },
+                { name: 'Janakkalan Sanomat', url: 'https://www.janakkalansanomat.fi/', badge: 'Paikallislehti' },
+                { name: 'Aamuposti', url: 'https://www.aamuposti.fi/paikalliset', badge: 'Paikallislehti' }
+            ],
+            feeds: [
+                { source: 'Janakkalan Sanomat (Häme)', type: 'xml', url: 'https://www.janakkalansanomat.fi/rss/tuoreimmat.xml' },
+                { source: 'HS Suomi & Alueet', type: 'xml', url: 'https://www.hs.fi/rss/suomi.xml' }
+            ]
+        };
+    }
+    return {
+        regionLabel: city || 'Alueellinen seuranta',
+        papers: [
+            { name: 'Yle Alueuutiset', url: 'https://yle.fi/uutiset', badge: 'Valtakunnallinen & Alueet' },
+            { name: 'HS Suomi', url: 'https://www.hs.fi/suomi/', badge: 'Kotimaa' },
+            { name: 'IS Kotimaa', url: 'https://www.is.fi/kotimaa/', badge: 'Kotimaa' },
+            { name: `Google News (${city || 'Alue'})`, url: `https://news.google.com/search?q=${encodeURIComponent(city || 'Suomi')}&hl=fi&gl=FI&ceid=FI:fi`, badge: 'Paikallishaku' }
+        ],
+        feeds: [
+            { source: 'HS Suomi', type: 'xml', url: 'https://www.hs.fi/rss/suomi.xml' },
+            { source: 'IS Kotimaa', type: 'xml', url: 'https://www.is.fi/rss/kotimaa.xml' },
+            { source: 'Yle Pääuutiset', type: 'rss2json', url: 'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss' }
+        ]
+    };
+}
+
 function renderAllLinks() {
     const { lat, lon, street, num, zip, city, suburb } = currentLoc;
     const areaName = suburb || street;
+    const policeDept = getPoliceDepartmentForCity(city);
 
     const btnClass = "flex items-center justify-between bg-slate-950 hover:bg-slate-800 border border-slate-800 px-3 py-2 rounded-lg text-slate-200 hover:text-emerald-400 transition text-xs font-medium";
 
@@ -4565,8 +4721,8 @@ function renderAllLinks() {
         <a href="https://www.telia.fi/kauppa/kodin-netti/netti-kotiin" target="_blank" class="${btnClass}">
             <span>⚡ Telia Avoin Kuitu & Kiinteä netti</span><span>↗</span>
         </a>
-        <a href="https://www.dna.fi/netti/kuitu" target="_blank" class="${btnClass}">
-            <span>⚡ DNA Valokuitu saatavuushaku</span><span>↗</span>
+        <a href="https://www.dna.fi/netti" target="_blank" class="${btnClass}">
+            <span>⚡ DNA Valokuitu & Kotinetti saatavuus</span><span>↗</span>
         </a>
         <a href="https://www.valokuitunen.fi/" target="_blank" class="${btnClass}">
             <span>⚡ Valokuitunen saatavuustarkistus</span><span>↗</span>
@@ -4611,53 +4767,149 @@ function renderAllLinks() {
         <a href="https://vanhatkartat.fi/#15/${lat}/${lon}" target="_blank" class="${btnClass}">
             <span>📜 VanhatKartat.fi (Tontin historia 1800–1990)</span><span>↗</span>
         </a>
-        <a href="https://stat.fi/tup/paavo/index.html" target="_blank" class="${btnClass}">
+        <a href="https://pxdata.stat.fi/PxWeb/pxweb/fi/Postinumeroalueittainen_avoin_tieto/" target="_blank" class="${btnClass}">
             <span>📊 Tilastokeskus Paavo (Alueen tulotaso & väestö)</span><span>↗</span>
         </a>
     `;
 
     document.getElementById('newsLinks').innerHTML = `
         <a href="https://news.google.com/search?q=${encodeURIComponent(areaName + ' ' + city)}&hl=fi&gl=FI&ceid=FI:fi" target="_blank" class="text-emerald-400 hover:underline block">
-            👉 Kaikki Google News -uutiset alueelta (${areaName}) ↗
+            👉 Kaikki Google News -uutiset alueelta (${areaName}, ${city}) ↗
         </a>
-        <a href="https://poliisi.fi/uutiset?q=${encodeURIComponent(city)}" target="_blank" class="text-emerald-400 hover:underline block">
-            🚓 Poliisin tiedotteet (${city}) ↗
+        <a href="${policeDept.url}" target="_blank" class="text-emerald-400 hover:underline block">
+            🚓 ${policeDept.name} – tiedotteet (${city}) ↗
+        </a>
+        <a href="https://poliisi.fi/haku?q=${encodeURIComponent(city)}" target="_blank" class="text-sky-400 hover:underline block">
+            🔍 Poliisi.fi tiedotehaku: "${city}" ↗
+        </a>
+        <a href="https://www.tilannehuone.fi/halytys.php?keskus=${encodeURIComponent(city)}&etaisyys=50" target="_blank" class="text-amber-400 hover:underline block">
+            🚨 Tilannehuone.fi hälytykset (${city} 50 km) ↗
         </a>
     `;
 }
 
+function parseRssXmlItems(xmlText, defaultSource) {
+    const items = [];
+    const matches = [...xmlText.matchAll(/<item>([\s\S]*?)<\/item>/gi)];
+    for (const m of matches) {
+        const block = m[1];
+        const rawTitle = ((block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)) || [])[1]
+            || ((block.match(/<title>([\s\S]*?)<\/title>/i)) || [])[1] || '';
+        const rawLink = ((block.match(/<link><!\[CDATA\[([\s\S]*?)\]\]><\/link>/i)) || [])[1]
+            || ((block.match(/<link>([\s\S]*?)<\/link>/i)) || [])[1] || '';
+        const rawPub = ((block.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)) || [])[1] || '';
+        const rawCat = ((block.match(/<category><!\[CDATA\[([\s\S]*?)\]\]><\/category>/i)) || [])[1]
+            || ((block.match(/<category>([\s\S]*?)<\/category>/i)) || [])[1] || '';
+        const title = rawTitle.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&shy;/g, '').trim();
+        if (title && rawLink) {
+            items.push({
+                title,
+                link: rawLink.trim(),
+                pubDate: rawPub.trim(),
+                category: rawCat.trim(),
+                source: defaultSource
+            });
+        }
+    }
+    return items;
+}
+
 async function fetchLocalNews() {
     const container = document.getElementById('newsFeedContainer');
-    container.innerHTML = `<div class="text-slate-400 animate-pulse">Haetaan uutisotsikoita alueelle...</div>`;
+    const papersListEl = document.getElementById('localNewspapersList');
+    const badgeEl = document.getElementById('localPaperBadge');
+    const { city, suburb, street } = currentLoc;
 
-    const query = currentLoc.suburb 
-        ? `${currentLoc.suburb} ${currentLoc.city}` 
-        : `${currentLoc.street} ${currentLoc.city}`;
+    container.innerHTML = `<div class="text-slate-400 animate-pulse">Haetaan paikallislehtien tuoreimpia pääotsikoita...</div>`;
 
-    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=fi&gl=FI&ceid=FI:fi`;
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    const cfg = getLocalNewspapersForCity(city);
+    if (badgeEl) badgeEl.textContent = cfg.regionLabel;
 
-    try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        if (!data.items || data.items.length === 0) {
-            container.innerHTML = `<div class="text-slate-500">Ei suoria uutisosumia hakusanalla "${query}". Kokeile alla olevia suoria hakulinkkejä.</div>`;
-            return;
-        }
-
-        container.innerHTML = data.items.slice(0, 6).map(item => {
-            const pubDate = new Date(item.pubDate).toLocaleDateString('fi-FI');
-            return `
-                <a href="${item.link}" target="_blank" class="block bg-slate-950 hover:bg-slate-800/80 p-2.5 rounded-lg border border-slate-800/80 transition">
-                    <div class="font-medium text-slate-200 line-clamp-2 leading-snug">${item.title}</div>
-                    <div class="text-[10px] text-emerald-400 mt-1">${pubDate}</div>
-                </a>
-            `;
-        }).join('');
-    } catch (e) {
-        container.innerHTML = `<div class="text-slate-500">Uutissyötteen automaattinen lataus estyi selaimessa. Käytä alla olevaa suoraa Google News -linkkiä.</div>`;
+    // 1. Renderöidään alueen paikallis- ja maakuntalehtien suorat linkkipillerit
+    if (papersListEl) {
+        papersListEl.innerHTML = cfg.papers.map(p => `
+            <a href="${p.url}" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 rounded-lg px-2.5 py-1 text-[11px] text-slate-200 flex items-center gap-1.5 transition">
+                <span class="font-bold text-emerald-300">🗞️ ${p.name}</span>
+                <span class="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">${p.badge}</span>
+                <span class="text-slate-500">↗</span>
+            </a>
+        `).join('');
     }
+
+    // 2. Haetaan pääotsikot paikallis- ja aluemedioiden RSS-syötteistä (suora CORS * XML + rss2json)
+    const allHeadlines = [];
+    await Promise.all(cfg.feeds.map(async (f) => {
+        try {
+            if (f.type === 'xml') {
+                const res = await fetchWithTimeout(f.url, {}, 7500);
+                if (res.ok) {
+                    const xml = await res.text();
+                    const parsed = parseRssXmlItems(xml, f.source);
+                    allHeadlines.push(...parsed.slice(0, 12));
+                }
+            } else if (f.type === 'rss2json') {
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(f.url)}`;
+                const res = await fetchWithTimeout(apiUrl, {}, 7500);
+                if (res.ok) {
+                    const data = await res.json();
+                    (data.items || []).slice(0, 10).forEach(it => {
+                        allHeadlines.push({
+                            title: (it.title || '').replace(/&shy;/g, ''),
+                            link: it.link,
+                            pubDate: it.pubDate,
+                            category: (it.categories && it.categories[0]) || '',
+                            source: f.source
+                        });
+                    });
+                }
+            }
+        } catch (e) {}
+    }));
+
+    // Järjestetään siten, että haetun kaupungin / kaupunginosan mainitsevat otsikot nousevat kärkeen, sen jälkeen tuoreusjärjestyksessä
+    const cityKey = (city || '').toLowerCase().slice(0, 5);
+    const suburbKey = (suburb || '').toLowerCase();
+    allHeadlines.sort((a, b) => {
+        const aLocal = (cityKey && a.title.toLowerCase().includes(cityKey)) || (suburbKey && suburbKey.length > 3 && a.title.toLowerCase().includes(suburbKey)) ? 1 : 0;
+        const bLocal = (cityKey && b.title.toLowerCase().includes(cityKey)) || (suburbKey && suburbKey.length > 3 && b.title.toLowerCase().includes(suburbKey)) ? 1 : 0;
+        if (aLocal !== bLocal) return bLocal - aLocal;
+        const tA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        const tB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return tB - tA;
+    });
+
+    // Poistetaan duplikaattiotsikot
+    const seen = new Set();
+    const uniqueHeadlines = allHeadlines.filter(it => {
+        const k = it.title.toLowerCase().slice(0, 45);
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+    }).slice(0, 10);
+
+    if (uniqueHeadlines.length === 0) {
+        container.innerHTML = `<div class="text-slate-400">Valitse yltä paikallislehti lukeaksesi tuoreimmat paikallisuutiset.</div>`;
+        return;
+    }
+
+    container.innerHTML = uniqueHeadlines.map(item => {
+        let pubStr = '';
+        if (item.pubDate) {
+            const d = new Date(item.pubDate);
+            if (!isNaN(d.getTime())) {
+                pubStr = d.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+        }
+        return `
+            <a href="${item.link}" target="_blank" class="block bg-slate-950 hover:bg-slate-800/80 p-2.5 rounded-lg border border-slate-800/80 transition">
+                <div class="flex items-center justify-between gap-2 text-[10px] mb-0.5">
+                    <span class="font-bold text-emerald-400">📰 ${item.source}</span>
+                    <span class="text-slate-400">${pubStr} ↗</span>
+                </div>
+                <div class="font-medium text-slate-100 line-clamp-2 leading-snug">${item.title}</div>
+            </a>
+        `;
+    }).join('');
 }
 
 // =========================================================================
@@ -4684,10 +4936,10 @@ const FINNISH_MUNICIPALITY_CENTERS = [
     { name: 'Kerava', lat: 60.4033, lon: 25.1050, region: 'Uusimaa', calUrl: 'https://tapahtumat.kerava.fi/' },
     { name: 'Tuusula', lat: 60.4028, lon: 25.0264, region: 'Uusimaa', calUrl: 'https://tapahtumat.tuusula.fi/' },
     { name: 'Järvenpää', lat: 60.4736, lon: 25.0894, region: 'Uusimaa', calUrl: 'https://tapahtumat.jarvenpaa.fi/' },
-    { name: 'Sipoo', lat: 60.3772, lon: 25.2622, region: 'Uusimaa', calUrl: 'https://www.sipoo.fi/tapahtumat/' },
+    { name: 'Sipoo', lat: 60.3772, lon: 25.2622, region: 'Uusimaa', calUrl: 'https://www.sipoo.fi/kulttuuri-ja-vapaa-aika/tapahtumat/' },
     { name: 'Nurmijärvi', lat: 60.4631, lon: 24.8072, region: 'Uusimaa', calUrl: 'https://www.nurmijarvi.fi/tapahtumat/' },
-    { name: 'Hyvinkää', lat: 60.6308, lon: 24.8597, region: 'Uusimaa', calUrl: 'https://www.hyvinkaa.fi/tapahtumat/' },
-    { name: 'Porvoo', lat: 60.3923, lon: 25.6651, region: 'Uusimaa', calUrl: 'https://tapahtumat.porvoo.fi/' },
+    { name: 'Hyvinkää', lat: 60.6308, lon: 24.8597, region: 'Uusimaa', calUrl: 'https://www.hyvinkaa.fi/' },
+    { name: 'Porvoo', lat: 60.3923, lon: 25.6651, region: 'Uusimaa', calUrl: 'https://www.porvoo.fi/' },
     { name: 'Lohja', lat: 60.2486, lon: 24.0653, region: 'Uusimaa', calUrl: 'https://tapahtumat.lohja.fi/' },
     { name: 'Tampere', lat: 61.4978, lon: 23.7610, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
     { name: 'Nokia', lat: 61.4778, lon: 23.5053, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
@@ -4708,10 +4960,10 @@ const FINNISH_MUNICIPALITY_CENTERS = [
     { name: 'Äänekoski', lat: 62.6042, lon: 25.7264, region: 'Keski-Suomi', calUrl: 'https://kalenteri.jyvaskyla.fi/' },
     { name: 'Kuopio', lat: 62.8924, lon: 27.6770, region: 'Pohjois-Savo', calUrl: 'https://www.kuopio.fi/tapahtumat/' },
     { name: 'Siilinjärvi', lat: 63.0750, lon: 27.6600, region: 'Pohjois-Savo', calUrl: 'https://www.siilinjarvi.fi/tapahtumat/' },
-    { name: 'Lahti', lat: 60.9827, lon: 25.6612, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
-    { name: 'Hollola', lat: 60.9886, lon: 25.5128, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
-    { name: 'Heinola', lat: 61.2056, lon: 26.0381, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
-    { name: 'Orimattila', lat: 60.8047, lon: 25.7300, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
+    { name: 'Lahti', lat: 60.9827, lon: 25.6612, region: 'Päijät-Häme', calUrl: 'https://www.lahti.fi/vapaa-aika/tapahtumat/' },
+    { name: 'Hollola', lat: 60.9886, lon: 25.5128, region: 'Päijät-Häme', calUrl: 'https://www.lahti.fi/vapaa-aika/tapahtumat/' },
+    { name: 'Heinola', lat: 61.2056, lon: 26.0381, region: 'Päijät-Häme', calUrl: 'https://www.lahti.fi/vapaa-aika/tapahtumat/' },
+    { name: 'Orimattila', lat: 60.8047, lon: 25.7300, region: 'Päijät-Häme', calUrl: 'https://www.lahti.fi/vapaa-aika/tapahtumat/' },
     { name: 'Pori', lat: 61.4851, lon: 21.7974, region: 'Satakunta', calUrl: 'https://tapahtumat.pori.fi/' },
     { name: 'Ulvila', lat: 61.4292, lon: 21.8833, region: 'Satakunta', calUrl: 'https://tapahtumat.pori.fi/' },
     { name: 'Rauma', lat: 61.1272, lon: 21.5113, region: 'Satakunta', calUrl: 'https://tapahtumat.rauma.fi/' },
@@ -4720,13 +4972,13 @@ const FINNISH_MUNICIPALITY_CENTERS = [
     { name: 'Hamina', lat: 60.5697, lon: 27.1981, region: 'Kymenlaakso', calUrl: 'https://kymenlaaksonyt.fi/' },
     { name: 'Lappeenranta', lat: 61.0587, lon: 28.1887, region: 'Etelä-Karjala', calUrl: 'https://tapahtumat.ekarjala.fi/' },
     { name: 'Imatra', lat: 61.1719, lon: 28.7764, region: 'Etelä-Karjala', calUrl: 'https://tapahtumat.ekarjala.fi/' },
-    { name: 'Hämeenlinna', lat: 60.9960, lon: 24.4643, region: 'Kanta-Häme', calUrl: 'https://tapahtumat.hameenlinna.fi/' },
-    { name: 'Riihimäki', lat: 60.7397, lon: 24.7772, region: 'Kanta-Häme', calUrl: 'https://www.riihimaki.fi/tapahtumat/' },
+    { name: 'Hämeenlinna', lat: 60.9960, lon: 24.4643, region: 'Kanta-Häme', calUrl: 'https://www.hameenlinna.fi/kulttuuri-ja-liikunta/tapahtumat/' },
+    { name: 'Riihimäki', lat: 60.7397, lon: 24.7772, region: 'Kanta-Häme', calUrl: 'https://www.hameenlinna.fi/kulttuuri-ja-liikunta/tapahtumat/' },
     { name: 'Vaasa', lat: 63.0951, lon: 21.6165, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
     { name: 'Mustasaari', lat: 63.1125, lon: 21.6778, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
-    { name: 'Seinäjoki', lat: 62.7903, lon: 22.8403, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
-    { name: 'Ilmajoki', lat: 62.7333, lon: 22.5833, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
-    { name: 'Lapua', lat: 62.9711, lon: 23.0067, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
+    { name: 'Seinäjoki', lat: 62.7903, lon: 22.8403, region: 'Etelä-Pohjanmaa', calUrl: 'https://www.seinajoki.fi/kulttuuri-ja-liikunta/tapahtumat/' },
+    { name: 'Ilmajoki', lat: 62.7333, lon: 22.5833, region: 'Etelä-Pohjanmaa', calUrl: 'https://www.seinajoki.fi/kulttuuri-ja-liikunta/tapahtumat/' },
+    { name: 'Lapua', lat: 62.9711, lon: 23.0067, region: 'Etelä-Pohjanmaa', calUrl: 'https://www.seinajoki.fi/kulttuuri-ja-liikunta/tapahtumat/' },
     { name: 'Joensuu', lat: 62.6010, lon: 29.7636, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
     { name: 'Kontiolahti', lat: 62.7667, lon: 29.8500, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
     { name: 'Liperi', lat: 62.5333, lon: 29.3833, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
@@ -4737,7 +4989,7 @@ const FINNISH_MUNICIPALITY_CENTERS = [
     { name: 'Pietarsaari', lat: 63.6749, lon: 22.7026, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
     { name: 'Mikkeli', lat: 61.6887, lon: 27.2721, region: 'Etelä-Savo', calUrl: 'https://tapahtumat.mikkeli.fi/' },
     { name: 'Savonlinna', lat: 61.8688, lon: 28.8799, region: 'Etelä-Savo', calUrl: 'https://www.savonlinna.fi/tapahtumat/' },
-    { name: 'Kajaani', lat: 64.2273, lon: 27.7285, region: 'Kainuu', calUrl: 'https://tapahtumat.kajaani.fi/' }
+    { name: 'Kajaani', lat: 64.2273, lon: 27.7285, region: 'Kainuu', calUrl: 'https://www.kajaani.fi/kulttuuri-ja-liikunta/tapahtumat/' }
 ];
 
 function getNearbyCitiesForAddress(lat, lon, currentCityName) {
@@ -5663,39 +5915,237 @@ async function fetchStatFinCrimeStats(kuntaRaw, paavoProps) {
         }
     })();
 
-    // 2. Haetaan alueen tuoreimmat poliisi- ja rikosuutiset (Google News RSS via rss2json, CORS: *)
-    (async () => {
-        try {
-            const q = encodeURIComponent(`poliisi ${city}`);
-            const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${q}&hl=fi&gl=FI&ceid=FI:fi`)}`;
-            const res = await fetchWithTimeout(rssUrl, {}, 8000);
-            if (!res.ok) throw new Error('RSS HTTP ' + res.status);
-            const data = await res.json();
-            const items = (data.items || []).slice(0, 6);
+    // 2. Haetaan Tilannehuoneen & Fintrafficin lähimmät hälytykset, onnettomuudet ja poliisitehtävät tarkalla etäisyydellä
+    fetchNearbyTilannehuoneAlerts(city);
+}
 
-            if (items.length === 0) {
-                newsFeed.innerHTML = `<div class="text-xs text-slate-500">Ei tuoreita poliisiuutisia hakusanalla "${city}".</div>`;
-                return;
-            }
+let tilannehuoneMarkersLayer = null;
+let lastTilannehuoneEvents = [];
+let tilannehuoneMapVisible = false;
 
-            newsFeed.innerHTML = items.map(item => {
-                const pub = item.pubDate ? new Date(item.pubDate).toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-                return `
-                    <a href="${item.link}" target="_blank" class="block bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 rounded-lg p-2 transition">
-                        <div class="text-xs font-semibold text-slate-200 hover:text-rose-300 line-clamp-2 leading-snug">${item.title}</div>
-                        <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                            <span>🚓 Poliisi / Uutisseuranta</span>
-                            <span>${pub} ↗</span>
-                        </div>
-                    </a>
-                `;
-            }).join('');
-        } catch (err) {
-            if (newsFeed) {
-                newsFeed.innerHTML = `<div class="text-xs text-slate-500">Paikallista poliisiuutissyötettä ei voitu ladata juuri nyt.</div>`;
-            }
+function toggleTilannehuoneMapMarkers() {
+    if (!map) return;
+    const btn = document.getElementById('btnToggleTilannehuoneMap');
+    if (tilannehuoneMarkersLayer && map.hasLayer(tilannehuoneMarkersLayer)) {
+        map.removeLayer(tilannehuoneMarkersLayer);
+        tilannehuoneMapVisible = false;
+        if (btn) btn.innerHTML = '📍 Näytä kartalla';
+    } else {
+        renderTilannehuoneMarkersOnMap();
+        tilannehuoneMapVisible = true;
+        if (btn) btn.innerHTML = '✅ Näkyy kartalla';
+        if (lastTilannehuoneEvents.length > 0 && lastTilannehuoneEvents[0].lat) {
+            showToast(`Näytetään ${lastTilannehuoneEvents.filter(e => e.lat).length} lähintä hälytystä kartalla!`);
         }
+    }
+}
+
+function renderTilannehuoneMarkersOnMap() {
+    if (!map) return;
+    if (tilannehuoneMarkersLayer) {
+        map.removeLayer(tilannehuoneMarkersLayer);
+    }
+    tilannehuoneMarkersLayer = L.layerGroup();
+    lastTilannehuoneEvents.filter(ev => ev.lat && ev.lon).slice(0, 25).forEach(ev => {
+        const iconHtml = `<div style="background:rgba(225,29,72,0.92);border:2px solid #fff;border-radius:9999px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.6);">${ev.emoji || '🚨'}</div>`;
+        const marker = L.marker([ev.lat, ev.lon], {
+            icon: L.divIcon({
+                className: 'tilannehuone-custom-marker',
+                html: iconHtml,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            })
+        });
+        marker.bindPopup(`
+            <div class="text-xs space-y-1 max-w-xs">
+                <div class="font-bold text-rose-600">${ev.emoji || '🚨'} ${ev.type}</div>
+                <div class="font-semibold text-slate-800">${ev.place} (${ev.distKm.toFixed(1)} km)</div>
+                <div class="text-slate-600 text-[11px]">${ev.time || ''}</div>
+                ${ev.desc ? `<div class="text-slate-700 text-[11px] pt-1 border-t border-slate-200">${ev.desc}</div>` : ''}
+                ${ev.url ? `<div class="pt-1"><a href="${ev.url}" target="_blank" class="text-blue-600 underline font-semibold">Avaa Tilannehuoneessa / tiedotteessa ↗</a></div>` : ''}
+            </div>
+        `);
+        tilannehuoneMarkersLayer.addLayer(marker);
+    });
+    tilannehuoneMarkersLayer.addTo(map);
+}
+
+async function fetchNearbyTilannehuoneAlerts(city) {
+    const newsFeed = document.getElementById('crimeNewsFeed');
+    const footerEl = document.getElementById('crimePoliceLinksFooter');
+    const { lat, lon } = currentLoc;
+    const policeDept = getPoliceDepartmentForCity(city);
+
+    if (footerEl) {
+        footerEl.innerHTML = `
+            <a href="${policeDept.url}" target="_blank" class="text-emerald-400 hover:underline font-medium">🚓 ${policeDept.name} ↗</a>
+            <span>•</span>
+            <a href="https://poliisi.fi/uutishuone" target="_blank" class="text-emerald-300 hover:underline">Poliisi Uutishuone ↗</a>
+            <span>•</span>
+            <a href="https://www.tilannehuone.fi/halytys.php?keskus=${encodeURIComponent(city || 'Turku')}&etaisyys=50" target="_blank" class="text-amber-400 hover:underline font-medium">🚨 Tilannehuone (${city || 'Alue'} 50 km) ↗</a>
+            <span>•</span>
+            <a href="https://www.tilannehuone.fi/halytysmap.php" target="_blank" class="text-sky-400 hover:underline">Hälytyskartta ↗</a>
+        `;
+    }
+
+    if (!newsFeed) return;
+    newsFeed.innerHTML = `<div class="text-xs text-slate-400 animate-pulse">Haetaan Tilannehuoneen ja Fintrafficin lähimpiä hälytyksiä...</div>`;
+
+    const events = [];
+
+    // A) Haetaan Fintraffic Digitrafficin reaaliaikaiset onnettomuus- ja liikennetiedotteet (natiivi CORS: *, sisältää tarkat koordinaatit)
+    const finPromise = (async () => {
+        try {
+            const url = 'https://tie.digitraffic.fi/api/traffic-message/v1/messages?inactiveHours=0&includeAreaGeometry=false&situationType=TRAFFIC_ANNOUNCEMENT';
+            const res = await fetchWithTimeout(url, {}, 7500);
+            if (!res.ok) return;
+            const data = await res.json();
+            (data.features || []).forEach(f => {
+                const ann = f.properties && f.properties.announcements && f.properties.announcements[0];
+                if (!ann) return;
+                let eLat = null, eLon = null;
+                if (f.geometry && f.geometry.coordinates) {
+                    if (f.geometry.type === 'Point') {
+                        eLon = f.geometry.coordinates[0];
+                        eLat = f.geometry.coordinates[1];
+                    } else if (f.geometry.type === 'MultiPoint' || f.geometry.type === 'LineString') {
+                        eLon = f.geometry.coordinates[0][0];
+                        eLat = f.geometry.coordinates[0][1];
+                    } else if (f.geometry.type === 'MultiLineString' && f.geometry.coordinates[0] && f.geometry.coordinates[0][0]) {
+                        eLon = f.geometry.coordinates[0][0][0];
+                        eLat = f.geometry.coordinates[0][0][1];
+                    }
+                }
+                if (!eLat || !eLon) return;
+                const distKm = haversineKm(lat, lon, eLat, eLon);
+                const title = ann.title || 'Liikennehälytys / Onnettomuus';
+                const desc = (ann.locationDetails && ann.locationDetails.roadAddressLocation && ann.locationDetails.roadAddressLocation.primaryPoint && ann.locationDetails.roadAddressLocation.primaryPoint.municipalityName) || city || 'Tieliikenne';
+                const comment = (ann.comment || (ann.features && ann.features.map(x => x.name).join(', ')) || '').trim();
+                const relTime = f.properties.releaseTime ? new Date(f.properties.releaseTime).toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                events.push({
+                    emoji: '🚑',
+                    place: desc,
+                    type: title,
+                    desc: comment,
+                    time: relTime,
+                    lat: eLat,
+                    lon: eLon,
+                    distKm,
+                    source: 'Fintraffic / Hätäkeskus',
+                    url: `https://liikennetilanne.fintraffic.fi/?lat=${eLat}&lon=${eLon}&zoom=12`
+                });
+            });
+        } catch (e) {}
     })();
+
+    // B) Haetaan Tilannehuone.fi Hälytyskartan (halytysmap.php) reaaliaikaiset pelastus- ja poliisitehtävät koordinaatteineen
+    const thPromise = (async () => {
+        try {
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.tilannehuone.fi/halytysmap.php');
+            const res = await fetchWithTimeout(proxyUrl, {}, 11000);
+            if (!res.ok) return;
+            const html = await res.text();
+            const transMatch = html.match(/var\s+halytrans\s*=\s*(\[[\s\S]*?\]);/);
+            const halytMatch = html.match(/var\s+halytykset\s*=\s*(\[[\s\S]*?\]);/);
+            if (!transMatch || !halytMatch) return;
+            const halytrans = JSON.parse(transMatch[1]);
+            const halytykset = JSON.parse(halytMatch[1]);
+
+            halytykset.forEach(h => {
+                if (!h.pos || h.pos.length < 2) return;
+                const eLat = Number(h.pos[0]);
+                const eLon = Number(h.pos[1]);
+                if (!eLat || !eLon) return;
+                const place = halytrans[h.p] || 'Suomi';
+                const typeRaw = (halytrans[h.t] || 'Pelastustehtävä').replace(/\*+$/g, '').trim();
+                const distKm = haversineKm(lat, lon, eLat, eLon);
+                const cleanTxt = (h.txt || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                const isPolice = /poliisi/i.test(typeRaw) || (h.icon && h.icon.includes('poliisi'));
+                const isFire = /palo/i.test(typeRaw);
+                const emoji = isPolice ? '🚓' : isFire ? '🔥' : '🚨';
+                const taskUrl = h.h ? `https://www.tilannehuone.fi/tehtava.php?hash=${h.h}` : `https://www.tilannehuone.fi/halytys.php?keskus=${encodeURIComponent(place)}&etaisyys=50`;
+
+                events.push({
+                    emoji,
+                    place,
+                    type: typeRaw,
+                    desc: cleanTxt.slice(0, 140),
+                    time: h.d || '',
+                    lat: eLat,
+                    lon: eLon,
+                    distKm,
+                    source: 'Tilannehuone.fi',
+                    url: taskUrl
+                });
+            });
+        } catch (e) {}
+    })();
+
+    await Promise.all([finPromise, thPromise]);
+
+    // Järjestetään etäisyyden mukaan lähimmästä alkaen ja poistetaan mahdolliset tuplat
+    events.sort((a, b) => a.distKm - b.distKm);
+    const seen = new Set();
+    const uniqueEvents = events.filter(ev => {
+        const key = `${ev.place}_${ev.type.slice(0, 20)}_${Math.round(ev.distKm)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    lastTilannehuoneEvents = uniqueEvents;
+    if (tilannehuoneMapVisible) {
+        renderTilannehuoneMarkersOnMap();
+    }
+
+    if (uniqueEvents.length === 0) {
+        newsFeed.innerHTML = `
+            <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-3 text-xs text-slate-300 space-y-2">
+                <div>Ei aktiivisia hätäkeskus- tai tieliikennehälytyksiä lähialueella juuri tällä hetkellä.</div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="https://www.tilannehuone.fi/halytys.php?keskus=${encodeURIComponent(city || 'Turku')}&etaisyys=50" target="_blank" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded font-semibold">
+                        🚨 Avaa Tilannehuone (${city || 'Alue'} 50 km) ↗
+                    </a>
+                    <a href="${policeDept.url}" target="_blank" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded font-semibold">
+                        🚓 ${policeDept.name} ↗
+                    </a>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    newsFeed.innerHTML = uniqueEvents.slice(0, 10).map(ev => {
+        const distBadgeClass = ev.distKm <= 15
+            ? 'bg-rose-500/25 text-rose-300 border-rose-500/40'
+            : ev.distKm <= 50
+            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+            : 'bg-slate-800 text-slate-300 border-slate-700';
+        const safePlace = (ev.place || '').replace(/'/g, '');
+        const safeType = (ev.type || '').replace(/'/g, '');
+        return `
+            <div class="bg-slate-900/90 hover:bg-slate-800/90 border border-slate-800 rounded-lg p-2.5 transition">
+                <div class="flex items-center justify-between gap-2">
+                    <button onclick="focusMapPoint(${ev.lat}, ${ev.lon}, '${ev.emoji} ${safePlace}: ${safeType}', '${ev.distKm.toFixed(1)} km haetusta osoitteesta')"
+                            class="text-left font-bold text-slate-100 hover:text-rose-300 text-xs flex items-center gap-1 truncate">
+                        <span>${ev.emoji}</span>
+                        <span class="truncate">${ev.place}: ${ev.type}</span>
+                    </button>
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0 ${distBadgeClass}">
+                        ${ev.distKm.toFixed(1)} km
+                    </span>
+                </div>
+                ${ev.desc ? `<div class="text-[10px] text-slate-400 line-clamp-2 mt-1 leading-snug">${ev.desc}</div>` : ''}
+                <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1.5 pt-1 border-t border-slate-800/80">
+                    <span>🕒 ${ev.time || 'Äskettäin'} • ${ev.source}</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="focusMapPoint(${ev.lat}, ${ev.lon}, '${ev.emoji} ${safePlace}: ${safeType}', '${ev.distKm.toFixed(1)} km')" class="text-sky-400 hover:underline font-medium">Kartalle 📍</button>
+                        <a href="${ev.url}" target="_blank" class="text-amber-300 hover:underline font-semibold">Tiedote ↗</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // =========================================================
@@ -5712,7 +6162,7 @@ const CITY_WATER_UTILITIES = {
     'jyväskylä': { name: 'Alva-yhtiöt Oy (Jyväskylän vesihuolto)', url: 'https://www.alva.fi/', mapUrl: 'https://kartta.jkl.fi/' },
     'kuopio': { name: 'Kuopion Vesi Oy', url: 'https://www.kuopionvesi.fi/', mapUrl: 'https://kartta.kuopio.fi/' },
     'lahti': { name: 'Lahti Aqua Oy', url: 'https://lahtiaqua.fi/', mapUrl: 'https://kartta.lahti.fi/' },
-    'pori': { name: 'Porin Vesi', url: 'https://www.pori.fi/porin-vesi/', mapUrl: 'https://kartta.pori.fi/' },
+    'pori': { name: 'Porin Vesi', url: 'https://www.pori.fi/asuminen-ja-ymparisto/vesihuolto-ja-energia/porin-vesi/', mapUrl: 'https://kartta.pori.fi/' },
     'lappeenranta': { name: 'Lappeenrannan Energiaverkot / Vesihuolto', url: 'https://www.lappeenrannanenergia.fi/', mapUrl: 'https://kartta.lappeenranta.fi/' },
     'vaasa': { name: 'Vaasan Vesi', url: 'https://www.vaasanvesi.fi/', mapUrl: 'https://kartta.vaasa.fi/' },
     'rovaniemi': { name: 'Neve Oy (Napapiirin Energia ja Vesi)', url: 'https://www.neve.fi/', mapUrl: 'https://kartta.rovaniemi.fi/' }
@@ -6461,10 +6911,10 @@ async function fetchMarineAndWaterProximity(manualRefresh = false) {
 // =========================================================
 const CITY_SCHOOL_CATCHMENT_LINKS = {
     'helsinki': { label: 'Helsingin Palvelukartta & Oppilaaksiottoalueet (Asti)', url: 'https://palvelukartta.hel.fi/fi/search?q=peruskoulu', mapUrl: 'https://kartta.hel.fi/' },
-    'espoo': { label: 'Espoon oppilaaksiottoalueet ja lähikoulun osoittaminen', url: 'https://www.espoo.fi/fi/kasvatus-ja-opetus/perusopetus/kouluun-ilmoittautuminen-ja-hakeminen/oppilaaksiottoalueet', mapUrl: 'https://kartat.espoo.fi/' },
+    'espoo': { label: 'Espoon oppilaaksiottoalueet ja lähikoulun osoittaminen', url: 'https://www.espoo.fi/fi/kasvatus-ja-opetus/perusopetus', mapUrl: 'https://kartat.espoo.fi/' },
     'vantaa': { label: 'Vantaan lähikoulualueet karttapalvelussa', url: 'https://kartta.vantaa.fi/', mapUrl: 'https://kartta.vantaa.fi/' },
-    'turku': { label: 'Turun oppilaaksiottoalueet (Opaskartta)', url: 'https://www.turku.fi/paivahoito-ja-koulutus/perusopetus/peruskoulut/oppilaaksiottoalueet', mapUrl: 'https://opaskartta.turku.fi/' },
-    'tampere': { label: 'Tampereen koulupolut ja oppilaaksiottoalueet', url: 'https://www.tampere.fi/koulutus/perusopetus/koulupolut-ja-oppilaaksiottoalueet', mapUrl: 'https://kartat.tampere.fi/oskari/' },
+    'turku': { label: 'Turun oppilaaksiottoalueet (Opaskartta)', url: 'https://opaskartta.turku.fi/', mapUrl: 'https://opaskartta.turku.fi/' },
+    'tampere': { label: 'Tampereen koulupolut ja oppilaaksiottoalueet', url: 'https://www.tampere.fi/koulutus/perusopetus', mapUrl: 'https://kartat.tampere.fi/oskari/' },
     'oulu': { label: 'Oulun oppilaaksiottoalueet ja lähikoulut', url: 'https://www.ouka.fi/perusopetus', mapUrl: 'https://kartta.ouka.fi/' },
     'jyväskylä': { label: 'Jyväskylän oppilaaksiottoalueet kartalla', url: 'https://kartta.jkl.fi/', mapUrl: 'https://kartta.jkl.fi/' },
     'kuopio': { label: 'Kuopion lähikoulualueet (Karttapalvelu)', url: 'https://kartta.kuopio.fi/', mapUrl: 'https://kartta.kuopio.fi/' },
@@ -6752,7 +7202,7 @@ const CITY_PARKING_ZONES_INFO = {
     'turku': {
         zones: 'Vyöhyke 1 (Ydinkeskusta 3,60 €/h), Vyöhyke 2 (Keskusta 1,80 €/h), Vyöhyke 3 (0,60 €/h) sekä asukaspysäköinti A–J',
         norm: 'Turun kaavamääräys: keskustassa n. 1 ap / 110–130 k-m², muilla kerrostaloalueilla 1 ap / 75–95 k-m², pientaloissa 1,5–2 ap / asunto.',
-        url: 'https://www.turku.fi/asuminen-ja-ymparisto/liikenne/pysakointi'
+        url: 'https://www.turku.fi/pysakointi'
     },
     'tampere': {
         zones: 'Maksuvyöhykkeet 1 (3,40 €/h), 2 (2,00 €/h) ja 3 (1,20 €/h) sekä asukaspysäköintitunnukset',
@@ -6772,9 +7222,9 @@ const CITY_PARKING_ZONES_INFO = {
 };
 
 const REGIONAL_WASTE_COMPANIES = {
-    'helsinki': { name: 'HSY Sortti-asemat (Kivikko, Konala, Konalan pienjäte, Ruskeasanta, Ämmässuo)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, sähkölaitteet (SER), vaarallinen jäte, puutarhajäte, rakennus- ja sekajäte', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
-    'espoo': { name: 'HSY Sortti-asemat (Ämmässuo, Suomenoja / Kivenlahti)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, SER, vaarallinen jäte, risut, huonekalut ja remonttijäte', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
-    'vantaa': { name: 'HSY Sortti-asema Ruskeasanta & Kivikko', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Kaikki kodin remontti-, puutarha-, SER- ja vaaralliset jätteet', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
+    'helsinki': { name: 'HSY Sortti-asemat (Kivikko, Konala, Konalan pienjäte, Ruskeasanta, Ämmässuo)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, sähkölaitteet (SER), vaarallinen jäte, puutarhajäte, rakennus- ja sekajäte', url: 'https://www.hsy.fi/jatteet-ja-kierratys/' },
+    'espoo': { name: 'HSY Sortti-asemat (Ämmässuo, Suomenoja / Kivenlahti)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, SER, vaarallinen jäte, risut, huonekalut ja remonttijäte', url: 'https://www.hsy.fi/jatteet-ja-kierratys/' },
+    'vantaa': { name: 'HSY Sortti-asema Ruskeasanta & Kivikko', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Kaikki kodin remontti-, puutarha-, SER- ja vaaralliset jätteet', url: 'https://www.hsy.fi/jatteet-ja-kierratys/' },
     'turku': { name: 'Lounais-Suomen Jätehuolto (LSJH) – Topinojan jätekeskus & lajitteluasemat', hours: 'Ma–Pe 6.30–21, La 9–16', accepts: 'Vaarallinen jäte, SER, metalli, puu, kipsi, poistotekstiili, puutarhajäte (maksuton), lajiteltu jäte', url: 'https://lsjh.fi/lajitteluasemat/' },
     'kaarina': { name: 'LSJH Korvenmäen & Topinojan lajitteluasemat', hours: 'Ma–Pe 7–20, La 9–16', accepts: 'Vaarallinen jäte, SER, metalli, puu, puutarhajäte, rakennusjäte', url: 'https://lsjh.fi/lajitteluasemat/' },
     'raisio': { name: 'LSJH Isosuon jätekeskus (Raisio/Naantali) & Topinoja', hours: 'Ma–Pe 9–18, La 9–15', accepts: 'Risut, puutarhajäte, metalli, SER, vaarallinen jäte, lajiteltu rakennusjäte', url: 'https://lsjh.fi/lajitteluasemat/' },
@@ -7222,10 +7672,10 @@ async function fetchPropertyTaxStreetAndMobile() {
                 <a href="https://elisa.fi/kuuluvuus/" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-sky-300 font-semibold flex items-center justify-between transition">
                     <span>🔵 Elisa Kuuluvuuskartta</span><span>↗</span>
                 </a>
-                <a href="https://www.telia.fi/asiakastuki/verkko/verkko-ja-kuuluvuus/kuuluvuuskartta" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-purple-300 font-semibold flex items-center justify-between transition">
+                <a href="https://www.telia.fi/asiakastuki/verkko/kuuluvuuskartta" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-purple-300 font-semibold flex items-center justify-between transition">
                     <span>🟣 Telia Kuuluvuuskartta</span><span>↗</span>
                 </a>
-                <a href="https://www.dna.fi/tuki/kuuluvuus-ja-verkko/kuuluvuuskartta" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-pink-300 font-semibold flex items-center justify-between transition">
+                <a href="https://www.dna.fi/kuuluvuus" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-pink-300 font-semibold flex items-center justify-between transition">
                     <span>🔴 DNA Kuuluvuuskartta</span><span>↗</span>
                 </a>
                 <a href="https://www.cellmapper.net/map?latitude=${lat}&longitude=${lon}&zoom=15" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-emerald-300 font-semibold flex items-center justify-between transition">
@@ -7599,7 +8049,7 @@ async function fetchForestAndTrafficVolumes() {
 
         if (linksEl) {
             linksEl.innerHTML = `
-                <a href="https://asiointi.metsakeskus.fi/avoinmetsatieto" target="_blank" class="bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                <a href="https://www.metsakeskus.fi/fi/avoin-metsa-ja-luontotieto" target="_blank" class="bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-medium transition">
                     🌲 Metsäkeskus Avoin metsä- ja luontotieto ↗
                 </a>
                 <a href="https://kartta.paikkatietoikkuna.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
@@ -7751,11 +8201,11 @@ async function fetchForestAndTrafficVolumes() {
                     Lounais-Suomen, Uudenmaan ja Pirkanmaan valtateillä valkohäntäpeura- ja metsäkauriiskolarit painottuvat aamu- ja iltahämärään sekä loka–joulukuulle. Riistaonnettomuudesta ilmoitetaan aina hätänumeroon <b>112</b> (käytä 112 Suomi -sovellusta paikannukseen), joka hälyttää paikallisen riistanhoitoyhdistyksen SRVA-jäljestyksen.
                 </div>
                 <div class="flex flex-wrap gap-2 pt-1.5 text-[11px]">
-                    <a href="https://riista.fi/riistatalous/tietoa-riistasta/riistakolarit/" target="_blank" class="bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 px-2.5 py-1 rounded-lg font-medium transition">
-                        🦌 Suomen Riistakeskus: Riistakolarikartta (SRVA) ↗
+                    <a href="https://riista.fi/" target="_blank" class="bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                        🦌 Suomen Riistakeskus & SRVA ↗
                     </a>
-                    <a href="https://vayla.fi/vaylista/aineistot/kartat/liikennemaarakartat" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
-                        📊 Väyläviraston Liikennemääräkartta (KVL) ↗
+                    <a href="https://vayla.fi/vaylista/aineistot/kartat" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                        📊 Väyläviraston Liikennemääräkartat (KVL) ↗
                     </a>
                 </div>
             `;
