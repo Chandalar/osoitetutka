@@ -10,7 +10,7 @@ if (Test-Path "index.html") {
 
 # 1. Tallenna ja tyonna GitHubiin (main & gh-pages)
 git add .
-git commit -m "Paivita Osoitetutka PRO (Monivuotinen ilmastohistoria 2020-2025, kelikameravalitsin & Tesla Superchargerit)"
+git commit -m "Paivita Osoitetutka PRO (Alueen ja lahikaupunkien tapahtumat seka avattavat ja tiivistettavat tietolaatikot)"
 git push origin main
 git checkout -B gh-pages
 git merge main

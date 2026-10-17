@@ -91,6 +91,44 @@
         .weathercam-marker-badge:hover {
             transform: scale(1.18);
         }
+        .event-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            background: #c026d3;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 0 12px rgba(192, 38, 211, 0.8), 0 2px 6px rgba(0,0,0,0.55);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .event-marker-badge:hover {
+            transform: scale(1.18);
+        }
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.15s ease;
+        }
+        .collapsible-header:hover {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+        .collapsible-chevron {
+            transition: transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-collapsed .collapsible-chevron {
+            transform: rotate(-90deg);
+        }
+        .card-collapsed .collapsible-body {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-white">
@@ -230,17 +268,36 @@
                 </div>
             </div>
 
+            <!-- Käyttöliittymän näkymänhallinta: Avaa / Tiivistä laatikot + Pikanavigaatio -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <span class="text-emerald-400 font-bold">🗂️ Näkymän hallinta:</span>
+                    <span class="text-slate-400 hidden sm:inline">Jokainen tietolaatikko on avattavissa ja suljettavissa otsikosta klikkaamalla.</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="setAllCollapsibleCards(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                        <span>📂</span><span>Avaa kaikki laatikot</span>
+                    </button>
+                    <button onclick="setAllCollapsibleCards(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                        <span>📁</span><span>Tiivistä laatikot (Vain otsikot)</span>
+                    </button>
+                    <button onclick="resetDefaultCollapsibleState()" class="bg-slate-800/70 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg transition">
+                        🔄 Oletusnäkymä
+                    </button>
+                </div>
+            </div>
+
             <!-- Kartta & Aurinkosimulaattori -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 
                 <!-- Monitasokartta (2/3 leveys) -->
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div data-collapsible-card="map" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
-                                🗺️ Tonttikartta, Live-bussit, Lähipalvelut & Aurinkovektorit
+                                🗺️ Tonttikartta, Live-bussit, Tapahtumat, Lähipalvelut & Aurinkovektorit
                             </h2>
-                            <p class="text-xs text-slate-400">Kartalla näkyvät tontin rajat, reaaliaikaiset bussit/junat ja lähipalvelut. Vaihda tasoja oikeasta yläkulmasta.</p>
+                            <p class="text-xs text-slate-400">Kartalla näkyvät tontin rajat, reaaliaikaiset bussit/junat, tapahtumat, kelikamerat ja lähipalvelut.</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <button onclick="centerMapOnTarget()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
@@ -252,111 +309,118 @@
                         </div>
                     </div>
 
-                    <!-- Leaflet Kartta -->
-                    <div id="map" class="w-full h-[500px] rounded-lg border border-slate-800 z-0"></div>
+                    <div class="collapsible-body mt-3">
+                        <!-- Leaflet Kartta -->
+                        <div id="map" class="w-full h-[500px] rounded-lg border border-slate-800 z-0"></div>
 
-                    <!-- 3D ShadeMap Iframe (Piilotettu oletuksena, avataan napista) -->
-                    <div id="shadeMapContainer" class="hidden mt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-semibold text-amber-400">3D Rakennus- ja puustovarjot (ShadeMap)</span>
-                            <button onclick="toggle3DShadows()" class="text-xs text-slate-400 hover:text-white">Sulje ✕</button>
+                        <!-- 3D ShadeMap Iframe (Piilotettu oletuksena, avataan napista) -->
+                        <div id="shadeMapContainer" class="hidden mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-semibold text-amber-400">3D Rakennus- ja puustovarjot (ShadeMap)</span>
+                                <button onclick="toggle3DShadows()" class="text-xs text-slate-400 hover:text-white">Sulje ✕</button>
+                            </div>
+                            <iframe id="shadeMapFrame" class="w-full h-[420px] rounded-lg border border-slate-700" src=""></iframe>
                         </div>
-                        <iframe id="shadeMapFrame" class="w-full h-[420px] rounded-lg border border-slate-700" src=""></iframe>
-                    </div>
 
-                    <!-- Kartan värikoodit ja kiinteistöstatus -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mt-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
-                        <div class="flex flex-wrap gap-3">
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500/30 border-2 border-emerald-400 inline-block"></span> Haettu tontti</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 border border-white inline-block"></span> Live-bussi / ratikka</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-purple-600 border border-white inline-block"></span> Live-juna</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-amber-400 inline-block"></span> Auringonnousu</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-orange-600 inline-block"></span> Auringonlasku</span>
+                        <!-- Kartan värikoodit ja kiinteistöstatus -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 mt-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
+                            <div class="flex flex-wrap gap-3">
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500/30 border-2 border-emerald-400 inline-block"></span> Haettu tontti</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600 border border-white inline-block"></span> Live-bussi / ratikka</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-fuchsia-600 border border-white inline-block"></span> Tapahtuma</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-600 border border-white inline-block"></span> Tesla Supercharger</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-amber-400 inline-block"></span> Auringonnousu</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-orange-600 inline-block"></span> Auringonlasku</span>
+                            </div>
+                            <div id="parcelSourceBadge" class="text-[11px] text-slate-400"></div>
                         </div>
-                        <div id="parcelSourceBadge" class="text-[11px] text-slate-400"></div>
                     </div>
                 </div>
 
                 <!-- Interaktiivinen Aurinkoanalyysi (1/3 leveys) -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div data-collapsible-card="sun" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
                         <h2 class="font-bold text-white mb-1 flex items-center gap-2">☀️ Auringon kierto tontilla</h2>
-                        <p class="text-xs text-slate-400 mb-4">Liikuta liukusäädintä nähdäksesi mistä suunnasta aurinko paistaa pihalle tai parvekkeelle.</p>
-
-                        <!-- Päivämäärä & Kellonaika säätimet -->
-                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4 mb-4">
-                            <div>
-                                <label class="text-xs text-slate-400 block mb-1">Valitse päivämäärä:</label>
-                                <input type="date" id="sunDateInput" onchange="updateSunInteractive()"
-                                       class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white">
-                                <div class="flex gap-2 mt-2">
-                                    <button onclick="setPresetDate(5, 21)" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-amber-300">Kesäpäivänseisaus</button>
-                                    <button onclick="setPresetDate(11, 21)" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-sky-300">Talvipäivänseisaus</button>
-                                    <button onclick="setTodayDate()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Tänään</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="text-slate-400">Kellonaika:</span>
-                                    <span id="timeSliderLabel" class="font-bold text-amber-400 text-sm">12:00</span>
-                                </div>
-                                <input type="range" id="sunTimeSlider" min="0" max="1439" value="720" oninput="updateSunInteractive()"
-                                       class="w-full accent-amber-400 cursor-pointer">
-                                <div class="flex justify-between text-[10px] text-slate-500">
-                                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hetkellinen korkeus ja suunta -->
-                        <div class="bg-slate-950/60 p-3.5 rounded-lg border border-slate-800/80 mb-4 space-y-1.5 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-slate-400">Ilmansuunta (Azimuth):</span>
-                                <span id="sunAzimuthText" class="font-semibold text-white">-</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-400">Korkeuskulma horisontista:</span>
-                                <span id="sunAltitudeText" class="font-semibold text-white">-</span>
-                            </div>
-                        </div>
-
-                        <!-- Päivän avainajat -->
-                        <div id="sunDetailsList" class="space-y-2 text-xs text-slate-300"></div>
+                        <p class="text-xs text-slate-400">Liikuta liukusäädintä nähdäksesi mistä suunnasta aurinko paistaa pihalle tai parvekkeelle.</p>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        💡 <strong>Vinkki asunnonostajalle:</strong> Iltapäivä- ja ilta-aurinko (klo 15–20) paistaa lännen ja luoteen suunnalta. Tarkista kartan keltaisesta osoittimesta, osuuko se takapihalle.
+                    <div class="collapsible-body mt-4 flex flex-col justify-between flex-1">
+                        <div>
+                            <!-- Päivämäärä & Kellonaika säätimet -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4 mb-4">
+                                <div>
+                                    <label class="text-xs text-slate-400 block mb-1">Valitse päivämäärä:</label>
+                                    <input type="date" id="sunDateInput" onchange="updateSunInteractive()"
+                                           class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white">
+                                    <div class="flex gap-2 mt-2">
+                                        <button onclick="setPresetDate(5, 21)" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-amber-300">Kesäpäivänseisaus</button>
+                                        <button onclick="setPresetDate(11, 21)" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-sky-300">Talvipäivänseisaus</button>
+                                        <button onclick="setTodayDate()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Tänään</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Kellonaika:</span>
+                                        <span id="timeSliderLabel" class="font-bold text-amber-400 text-sm">12:00</span>
+                                    </div>
+                                    <input type="range" id="sunTimeSlider" min="0" max="1439" value="720" oninput="updateSunInteractive()"
+                                           class="w-full accent-amber-400 cursor-pointer">
+                                    <div class="flex justify-between text-[10px] text-slate-500">
+                                        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hetkellinen korkeus ja suunta -->
+                            <div class="bg-slate-950/60 p-3.5 rounded-lg border border-slate-800/80 mb-4 space-y-1.5 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Ilmansuunta (Azimuth):</span>
+                                    <span id="sunAzimuthText" class="font-semibold text-white">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Korkeuskulma horisontista:</span>
+                                    <span id="sunAltitudeText" class="font-semibold text-white">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Päivän avainajat -->
+                            <div id="sunDetailsList" class="space-y-2 text-xs text-slate-300"></div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            💡 <strong>Vinkki asunnonostajalle:</strong> Iltapäivä- ja ilta-aurinko (klo 15–20) paistaa lännen ja luoteen suunnalta. Tarkista kartan keltaisesta osoittimesta, osuuko se takapihalle.
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- RIVI 2: LIVE JOUKKOLIIKENNE, BUSSIAIKATAULUT & LIIKENNEKAMERA -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
                 <!-- Live-bussit, Junat & Lähimpien pysäkkien lähtöajat (2/3 leveys) -->
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                            <div>
-                                <h2 class="font-bold text-white flex items-center gap-2">
-                                    🚌 Reaaliaikainen Joukkoliikenne & Bussiaikataulut
-                                    <span id="liveTransitPulse" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span> LIVE
-                                    </span>
-                                </h2>
-                                <p id="transitSubtitle" class="text-xs text-slate-400">Seurataan lähialueen busseja, raitiovaunuja, junia ja pysäkkiaikatauluja...</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="refreshLiveTransit()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition">
-                                    🔄 Päivitä sijainnit
-                                </button>
-                                <a id="transitRoutePlannerLink" href="https://opas.matkahuolto.fi/" target="_blank" class="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-lg transition">
-                                    🗺️ Avaa Reittiopas ↗
-                                </a>
-                            </div>
+                <div data-collapsible-card="transit" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🚌 Reaaliaikainen Joukkoliikenne & Bussiaikataulut
+                                <span id="liveTransitPulse" class="inline-flex items-center gap-1 text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span> LIVE
+                                </span>
+                            </h2>
+                            <p id="transitSubtitle" class="text-xs text-slate-400">Seurataan lähialueen busseja, raitiovaunuja, junia ja pysäkkiaikatauluja...</p>
                         </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="refreshLiveTransit()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition">
+                                🔄 Päivitä sijainnit
+                            </button>
+                            <a id="transitRoutePlannerLink" href="https://opas.matkahuolto.fi/" target="_blank" class="text-xs bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-3 py-1.5 rounded-lg transition">
+                                🗺️ Avaa Reittiopas ↗
+                            </a>
+                        </div>
+                    </div>
 
+                    <div class="collapsible-body mt-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Vasen sarake: Lähimmät pysäkit & Seuraavat lähdöt (Aikataulut) -->
                             <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
@@ -380,22 +444,22 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-3 pt-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap justify-between gap-2">
-                        <span>💡 Klikkaa mitä tahansa bussia tai pysäkkiä listasta kohdistaaksesi kartan suoraan siihen.</span>
-                        <span>Lähteet: Föli SIRI, HSL HFP MQTT, Tampere Nysse, Fintraffic Digitraffic & OSM</span>
+                        <div class="mt-3 pt-2.5 border-t border-slate-800 text-[11px] text-slate-400 flex flex-wrap justify-between gap-2">
+                            <span>💡 Klikkaa mitä tahansa bussia tai pysäkkiä listasta kohdistaaksesi kartan suoraan siihen.</span>
+                            <span>Lähteet: Föli SIRI, HSL HFP MQTT, Tampere Nysse, Fintraffic Digitraffic & OSM</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Lähialueen Liikenne- ja Tiesääkamerat Live-kuvilla (1/3 leveys) -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <h2 class="font-bold text-white flex items-center gap-2">📹 Lähialueen Kelikamerat</h2>
-                            <span id="weatherCamDistBadge" class="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-slate-700">-</span>
-                        </div>
+                <div data-collapsible-card="weathercam" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-bold text-white flex items-center gap-2">📹 Lähialueen Kelikamerat</h2>
+                        <span id="weatherCamDistBadge" class="text-xs bg-slate-800 text-emerald-400 px-2 py-0.5 rounded border border-slate-700">-</span>
+                    </div>
 
+                    <div class="collapsible-body mt-3">
                         <!-- Kamerapudotusvalikko (15 lähintä) -->
                         <div class="mb-2">
                             <label for="weatherCamSelect" class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Valitse kelikamera:</label>
@@ -434,19 +498,19 @@
                             <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1.5">Pikavalinta (lähimmät kamerat):</div>
                             <div id="weatherCamQuickList" class="flex flex-wrap gap-1"></div>
                         </div>
-                    </div>
 
-                    <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                        <span>Lähde: Fintraffic / Digitraffic Tie</span>
-                        <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="text-emerald-400 hover:underline">Liikennetilanne ↗</a>
+                        <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Lähde: Fintraffic / Digitraffic Tie</span>
+                            <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="text-emerald-400 hover:underline">Liikennetilanne ↗</a>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
             <!-- RIVI 3: KATTAVA LÄHIPALVELU-, KOULU-, HARRASTUS- JA LATAUSTUTKA + SÄÄDETTÄVÄ SÄDEYMPYRÄ -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+            <div data-collapsible-card="pois" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
                         <h2 class="font-bold text-white text-base flex flex-wrap items-center gap-2">
                             <span>🎯 Lähipalvelut, Koulut, Ulkoilu & Harrastukset sekä Sähköauton lataus</span>
@@ -454,13 +518,15 @@
                             <span id="poiSourceBadge" class="text-[11px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">Monilähdehaku</span>
                         </h2>
                         <p class="text-xs text-slate-400 mt-0.5">
-                            Yhdistetty haku (OpenStreetMap + Tilastokeskus Oppilaitosrekisteri + Nominatim). Säädä ympyrän sädettä alta ja klikkaa kohdetta näyttääksesi sen kartalla!
+                            Yhdistetty haku (OpenStreetMap + Tilastokeskus Oppilaitosrekisteri + Nominatim + Tesla Superchargers). Säädä ympyrän sädettä ja klikkaa kohdetta näyttääksesi sen kartalla!
                         </p>
                     </div>
+                </div>
 
+                <div class="collapsible-body mt-4">
                     <!-- Hakusäteen (ympyrän) säätö & karttaympyrä -->
-                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <div class="flex flex-col min-w-[210px]">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex flex-col min-w-[220px]">
                             <div class="flex items-center justify-between text-xs mb-1">
                                 <span class="text-slate-400 font-medium">⭕ Hakusäde (ympyrä kartalla):</span>
                                 <span id="radiusSliderValueLabel" class="font-bold text-emerald-400">2 500 m</span>
@@ -484,66 +550,114 @@
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Kategoriavälilehdet + vapaa tekstisuodatin -->
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <div class="flex flex-wrap gap-1.5" id="poiCategoryTabs">
-                        <button onclick="setPoiCategory('all')" data-cat="all" class="poi-tab bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-                            Kaikki (<span id="count-all">0</span>)
-                        </button>
-                        <button onclick="setPoiCategory('edu')" data-cat="edu" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-                            🏫 Koulut, Tarhat & Leikkipuistot (<span id="count-edu">0</span>)
-                        </button>
-                        <button onclick="setPoiCategory('daily')" data-cat="daily" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-                            🛒 Kaupat, Apteekit & Terveys (<span id="count-daily">0</span>)
-                        </button>
-                        <button onclick="setPoiCategory('sport')" data-cat="sport" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-                            🏃 Ulkoilu, Liikunta & Koirapuistot (<span id="count-sport">0</span>)
-                        </button>
-                        <button onclick="setPoiCategory('auto')" data-cat="auto" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
-                            ⚡ Latausasemat & Bensa-asemat (<span id="count-auto">0</span>)
-                        </button>
+                    <!-- Kategoriavälilehdet + vapaa tekstisuodatin -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                        <div class="flex flex-wrap gap-1.5" id="poiCategoryTabs">
+                            <button onclick="setPoiCategory('all')" data-cat="all" class="poi-tab bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                Kaikki (<span id="count-all">0</span>)
+                            </button>
+                            <button onclick="setPoiCategory('edu')" data-cat="edu" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                🏫 Koulut, Tarhat & Leikkipuistot (<span id="count-edu">0</span>)
+                            </button>
+                            <button onclick="setPoiCategory('daily')" data-cat="daily" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                🛒 Kaupat, Apteekit & Terveys (<span id="count-daily">0</span>)
+                            </button>
+                            <button onclick="setPoiCategory('sport')" data-cat="sport" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                🏃 Ulkoilu, Liikunta & Koirapuistot (<span id="count-sport">0</span>)
+                            </button>
+                            <button onclick="setPoiCategory('auto')" data-cat="auto" class="poi-tab bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                ⚡ Latausasemat & Bensa-asemat (<span id="count-auto">0</span>)
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="poiFilterInput" oninput="renderPoisOnMapAndGrid()" placeholder="Suodata nimellä (esim. Prisma, K-Market, koulu...)"
+                                   class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-56">
+                            <button onclick="fetchEverythingNearbyOverpass(true)" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg transition">
+                                🔄 Hae uudelleen
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <input type="text" id="poiFilterInput" oninput="renderPoisOnMapAndGrid()" placeholder="Suodata nimellä (esim. Prisma, K-Market, koulu...)"
-                               class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-56">
-                        <button onclick="fetchEverythingNearbyOverpass(true)" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg transition">
-                            🔄 Hae uudelleen
-                        </button>
+                    <!-- Pikayhteenveto lähimmistä avainkohteista (7 pikalinjaa ml. Tesla Supercharger) -->
+                    <div id="nearestHighlightsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 mb-4"></div>
+
+                    <!-- Varsinainen suodatettava kohdelista -->
+                    <div id="poiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-80 overflow-y-auto pr-1 text-xs">
+                        <div class="text-slate-500 italic col-span-full py-4">Etsitään lähipalveluita, kouluja, harrastuspaikkoja ja latausasemia...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIVI 3A: ALUEEN & LÄHIKAUPUNKIEN TAPAHTUMAT (LIVE-KALENTERIT & KARTTA) -->
+            <div data-collapsible-card="events" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="font-bold text-white text-base flex flex-wrap items-center gap-2">
+                            <span>🎪 Alueen & Lähikaupunkien Tapahtumat</span>
+                            <span id="eventsCountBadge" class="text-xs bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 px-2.5 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                            <span id="eventsRegionBadge" class="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">Kunta + lähikaupungit</span>
+                        </h2>
+                        <p id="eventsSubtitle" class="text-xs text-slate-400 mt-0.5">
+                            Tulevat konsertit, kulttuuri-, urheilu-, perhe- ja ulkoilutapahtumat haetussa kaupungissa sekä naapurikunnissa.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Pikayhteenveto lähimmistä avainkohteista (7 pikalinjaa ml. Tesla Supercharger) -->
-                <div id="nearestHighlightsBar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 mb-4"></div>
+                <div class="collapsible-body mt-4">
+                    <!-- Kuntasuodattimet (Haettu kaupunki + lähikaupungit) & aikavälisuodatin -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-1.5" id="eventCityFilterPills">
+                            <span class="text-xs text-slate-400 font-medium mr-1">📍 Paikkakunta:</span>
+                            <!-- Täytetään dynaamisesti: Kaikki lähikunnat, Haettu kunta, Naapurikunnat -->
+                        </div>
 
-                <!-- Varsinainen suodatettava kohdelista -->
-                <div id="poiGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 max-h-80 overflow-y-auto pr-1 text-xs">
-                    <div class="text-slate-500 italic col-span-full py-4">Etsitään lähipalveluita, kouluja, harrastuspaikkoja ja latausasemia...</div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800" id="eventTimeFilterBtns">
+                                <button onclick="setEventTimeFilter('all')" data-tf="all" class="evt-tf-btn bg-fuchsia-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md transition">Kaikki tulevat</button>
+                                <button onclick="setEventTimeFilter('today')" data-tf="today" class="evt-tf-btn text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-md transition">Tänään & Huomenna</button>
+                                <button onclick="setEventTimeFilter('week')" data-tf="week" class="evt-tf-btn text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-md transition">Seuraavat 7 pv</button>
+                                <button onclick="setEventTimeFilter('free')" data-tf="free" class="evt-tf-btn text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-md transition">Vapaa pääsy</button>
+                            </div>
+                            <input type="text" id="eventSearchInput" oninput="renderRegionalEvents()" placeholder="Etsi tapahtumaa (esim. konsertti, teatteri, lapset...)"
+                                   class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500 w-52">
+                        </div>
+                    </div>
+
+                    <!-- Tapahtumakorttien ruudukko -->
+                    <div id="eventsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1 text-xs">
+                        <div class="text-slate-500 italic col-span-full py-4">Haetaan alueen ja lähikaupunkien tapahtumia...</div>
+                    </div>
+
+                    <!-- Suorat linkit kaupungin ja lähikaupunkien virallisiin tapahtumakalentereihin -->
+                    <div class="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <span class="text-slate-400 font-medium">🔗 Alueen & lähikaupunkien viralliset tapahtumakalenterit:</span>
+                        <div id="regionalEventCalendarLinks" class="flex flex-wrap gap-1.5"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- RIVI 3B: ILMASTO- JA LÄMPÖTILAHISTORIA, LÄMMITYS- & AURINKOLASKURI, MAAPERÄTUNNISTUS & TIETYÖT -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
                 <!-- 12 kk Lämpötilahistoria, Ääriarvot & Kuukausikaavio + Lämmitys/Aurinkolaskuri (2/3 leveys) -->
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                            <div>
-                                <h2 class="font-bold text-white flex items-center gap-2">
-                                    🌡️ Osoitteen Lämpötila- & Ilmastohistoria, Lämmitystarve & Aurinkosähkö
-                                </h2>
-                                <p id="climateHistorySubtitle" class="text-xs text-slate-400">
-                                    Haetaan monivuotista toteutunutta säähistoriaa (Open-Meteo ERA5 Reanalysis)...
-                                </p>
-                            </div>
-                            <span id="climateYearBadge" class="text-[11px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2.5 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
-                                ERA5 Historiadata
-                            </span>
+                <div data-collapsible-card="climate" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🌡️ Osoitteen Lämpötila- & Ilmastohistoria, Lämmitystarve & Aurinkosähkö
+                            </h2>
+                            <p id="climateHistorySubtitle" class="text-xs text-slate-400">
+                                Haetaan monivuotista toteutunutta säähistoriaa (Open-Meteo ERA5 Reanalysis)...
+                            </p>
                         </div>
+                        <span id="climateYearBadge" class="text-[11px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2.5 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
+                            ERA5 Historiadata
+                        </span>
+                    </div>
 
+                    <div class="collapsible-body mt-4">
                         <!-- Vuosivalitsinpalkki & Monivuotisen vertailutaulukon kytkin -->
                         <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div class="flex flex-wrap items-center gap-1.5" id="climateYearButtons">
@@ -584,7 +698,7 @@
                                             <th class="py-1.5 px-2">Ylin lämpö</th>
                                             <th class="py-1.5 px-2">Alin pakkanen</th>
                                             <th class="py-1.5 px-2">Hellepäivät (≥25°)</th>
-                                            <th class="py-1.5 px-2">Pakkaspäivät (<0°)</th>
+                                            <th class="py-1.5 px-2">Pakkaspäivät (&lt;0°)</th>
                                             <th class="py-1.5 px-2">Sademäärä</th>
                                             <th class="py-1.5 px-2">HDD17 Lämmitys</th>
                                         </tr>
@@ -684,31 +798,33 @@
                 <!-- Oikea sarake (1/3 leveys): GTK Maaperä- & Kallioperätunnistus + Fintraffic Tietyöt & Häiriöt -->
                 <div class="space-y-6 flex flex-col justify-between">
                     <!-- GTK Maaperä, Kallioperä, Perustukset & Radon -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                        <div class="flex items-center justify-between mb-2">
+                    <div data-collapsible-card="soil" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                        <div class="flex items-center justify-between">
                             <h2 class="font-bold text-white flex items-center gap-2">🪨 Tontin Maaperä & Kallioperä</h2>
                             <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">GTK Live</span>
                         </div>
-                        <p class="text-xs text-slate-400 mb-3">Geologian tutkimuskeskuksen (GTK) paikkatietohaku tontin maaperästä, kivilajista ja perustamisolosuhteista:</p>
-                        <div id="gtkSoilDetailsBox" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2">
-                            <div class="text-slate-500 italic">Tunnistetaan tontin maaperää ja kallioperää (GTK)...</div>
+                        <div class="collapsible-body mt-3">
+                            <p class="text-xs text-slate-400 mb-3">Geologian tutkimuskeskuksen (GTK) paikkatietohaku tontin maaperästä, kivilajista ja perustamisolosuhteista:</p>
+                            <div id="gtkSoilDetailsBox" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2">
+                                <div class="text-slate-500 italic">Tunnistetaan tontin maaperää ja kallioperää (GTK)...</div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Fintraffic Lähialueen Tietyöt & Liikennetiedotteet -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <h2 class="font-bold text-white flex items-center gap-2">🚧 Lähialueen Tietyöt & Häiriöt</h2>
-                                <span id="roadworksCountBadge" class="text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">-</span>
-                            </div>
+                    <div data-collapsible-card="roadworks" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1 flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <h2 class="font-bold text-white flex items-center gap-2">🚧 Lähialueen Tietyöt & Häiriöt</h2>
+                            <span id="roadworksCountBadge" class="text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">-</span>
+                        </div>
+                        <div class="collapsible-body mt-3">
                             <p class="text-xs text-slate-400 mb-3">Fintrafficin aktiiviset tietyöt, kaistarajoitukset ja liikennetiedotteet lähistöllä:</p>
                             <div id="roadworksListContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-xs">
                                 <div class="text-slate-500 italic">Tarkistetaan Fintrafficin liikennetiedotteet...</div>
                             </div>
-                        </div>
-                        <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
-                            Lähde: Fintraffic Digitraffic Liikennetiedotteet (reaaliaikainen)
+                            <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+                                Lähde: Fintraffic Digitraffic Liikennetiedotteet (reaaliaikainen)
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -717,23 +833,23 @@
 
 
             <!-- RIVI 4: Tilastokeskus Paavo Live-tilastot & Kiinteistöanalyysi -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
                 <!-- Tilastokeskus Paavo -postinumeroalueen profiili (2/3 leveys) -->
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                            <div>
-                                <h2 class="font-bold text-white flex items-center gap-2">
-                                    📊 Alueen sosioekonominen profiili (Tilastokeskus Paavo)
-                                </h2>
-                                <p id="paavoAreaTitle" class="text-xs text-slate-400">Haetaan postinumeroalueen virallisia tilastoja...</p>
-                            </div>
-                            <span class="text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                                Suora WFS/PxWeb-haku
-                            </span>
+                <div data-collapsible-card="paavo" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                📊 Alueen sosioekonominen profiili (Tilastokeskus Paavo)
+                            </h2>
+                            <p id="paavoAreaTitle" class="text-xs text-slate-400">Haetaan postinumeroalueen virallisia tilastoja...</p>
                         </div>
+                        <span class="text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                            Suora WFS/PxWeb-haku
+                        </span>
+                    </div>
 
+                    <div class="collapsible-body mt-4">
                         <!-- Paavo 4 päämittaria -->
                         <div id="paavoMetricsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                             <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl">
@@ -790,87 +906,100 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-                        <span>Lähde: Tilastokeskuksen avoin Paavo-tietokanta (postinumeroalueen rajat voit kytkeä päälle kartan tasovalikosta).</span>
-                        <span id="paavoFamilyShare" class="text-slate-300 font-medium"></span>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+                            <span>Lähde: Tilastokeskuksen avoin Paavo-tietokanta (postinumeroalueen rajat voit kytkeä päälle kartan tasovalikosta).</span>
+                            <span id="paavoFamilyShare" class="text-slate-300 font-medium"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tontin kiinteistö- ja naapurustoanalyysi (1/3 leveys) -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div data-collapsible-card="parcel" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <h2 class="font-bold text-white mb-1 flex items-center gap-2">📐 Tontin & Kiinteistön Tiedot</h2>
+                        <h2 class="font-bold text-white flex items-center gap-2">📐 Tontin & Kiinteistön Tiedot</h2>
+                    </div>
+
+                    <div class="collapsible-body mt-3">
                         <p class="text-xs text-slate-400 mb-3">Kiinteistörekisterin ja kantakartan mukaiset tiedot tontista ja sen välittömistä rajanaapureista:</p>
 
                         <div id="parcelDetailsBox" class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-300 space-y-2">
                             <div class="text-slate-500 italic">Haetaan kiinteistörajoja...</div>
                         </div>
-                    </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        Klikkaa mitä tahansa tonttia tai rakennusta yläkartalla nähdäksesi sen kiinteistötunnuksen ja pinta-alan.
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            Klikkaa mitä tahansa tonttia tai rakennusta yläkartalla nähdäksesi sen kiinteistötunnuksen ja pinta-alan.
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- RIVI 5: Alarivin kortit: Valokuitu, Rakennusluvat, Kartat, Uutiset -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- RIVI 5: Alarivin kortit: Valokuitu, Rakennusluvat, Kartat, Uutiset (Oletuksena siististi avattavia laatikoita) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
 
                 <!-- 1. Valokuitu, Sähkö & Infra -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-bold text-white">🌐 Valokuitu & Liittymät</h3>
-                            <button onclick="copyAddress()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded border border-slate-700 transition">
-                                📋 Kopioi osoite
-                            </button>
+                <div data-collapsible-card="fiber" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-white flex items-center gap-1.5">🌐 Valokuitu & Liittymät</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Elisa, Telia, DNA, Valokuitunen, Valoo (6 linkkiä)</p>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">Operaattorit estävät suorat ulkoiset API-kyselyt. Kopioi osoite yltä yhdellä klikkauksella ja tarkista saatavuus suoraan:</p>
-                        <div id="fiberLinks" class="space-y-2 text-sm"></div>
+                        <button onclick="copyAddress()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded border border-slate-700 transition whitespace-nowrap">
+                            📋 Kopioi
+                        </button>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        Tarkista myös taloyhtiön yhtiöjärjestyksestä ja isännöitsijäntodistuksesta yhtiövastikkeeseen kuuluva laajakaista.
+                    <div class="collapsible-body mt-4">
+                        <p class="text-xs text-slate-400 mb-3">Operaattorit estävät suorat ulkoiset API-kyselyt. Kopioi osoite yltä yhdellä klikkauksella ja tarkista saatavuus suoraan:</p>
+                        <div id="fiberLinks" class="space-y-2 text-sm"></div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            Tarkista myös taloyhtiön yhtiöjärjestyksestä ja isännöitsijäntodistuksesta yhtiövastikkeeseen kuuluva laajakaista.
+                        </div>
                     </div>
                 </div>
 
                 <!-- 2. Rakennusluvat, Kaavat & Naapurit -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div data-collapsible-card="permits" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-white mb-2">🏗️ Luvat, Kaavat & Päätökset</h3>
-                        <p class="text-xs text-slate-400 mb-4">Selvitä mitä naapuritontille rakennetaan, onko alueella vireillä kaavamuutoksia tai poikkeamislupia:</p>
-                        <div id="permitLinks" class="space-y-2 text-sm"></div>
+                        <h3 class="font-bold text-white flex items-center gap-1.5">🏗️ Luvat, Kaavat & Päätökset</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Lupapiste, julkipano & kaavamuutokset</p>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        Kunnan julkipanolistalta näet naapuruston tuoreimmat toimenpide- ja rakennusluvat.
+                    <div class="collapsible-body mt-4">
+                        <p class="text-xs text-slate-400 mb-3">Selvitä mitä naapuritontille rakennetaan, onko alueella vireillä kaavamuutoksia tai poikkeamislupia:</p>
+                        <div id="permitLinks" class="space-y-2 text-sm"></div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            Kunnan julkipanolistalta näet naapuruston tuoreimmat toimenpide- ja rakennusluvat.
+                        </div>
                     </div>
                 </div>
 
                 <!-- 3. Syväluotaavat Kartat & Asuntojen hinnat -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div data-collapsible-card="deepmaps" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-white mb-2">📊 Hintataso, Melu & Maaperä</h3>
-                        <p class="text-xs text-slate-400 mb-4">Toteutuneet kauppahinnat postinumerolla, kiinteistörajat, radonriski ja historialliset ilmakuvat:</p>
-                        <div id="deepMapLinks" class="space-y-2 text-sm"></div>
+                        <h3 class="font-bold text-white flex items-center gap-1.5">📊 Hintataso, Melu & Maaperä</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Kauppahinnat, VanhatKartat & Paikkatietoikkuna</p>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                        VanhatKartat.fi paljastaa, onko tontilla ollut aiemmin esim. teollisuutta, huoltoasema tai peltoa.
+                    <div class="collapsible-body mt-4">
+                        <p class="text-xs text-slate-400 mb-3">Toteutuneet kauppahinnat postinumerolla, kiinteistörajat, radonriski ja historialliset ilmakuvat:</p>
+                        <div id="deepMapLinks" class="space-y-2 text-sm"></div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                            VanhatKartat.fi paljastaa, onko tontilla ollut aiemmin esim. teollisuutta, huoltoasema tai peltoa.
+                        </div>
                     </div>
                 </div>
 
                 <!-- 4. Alueen Uutiset & Poliisitiedotteet (Live RSS + Linkit) -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                <div data-collapsible-card="news" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-white mb-2">📰 Alueen uutiset verkossa</h3>
+                        <h3 class="font-bold text-white flex items-center gap-1.5">📰 Alueen uutiset verkossa</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Tuoreimmat paikallisuutiset & poliisitiedotteet</p>
+                    </div>
+                    <div class="collapsible-body mt-4">
                         <p class="text-xs text-slate-400 mb-3">Tuoreimmat uutisotsikot kaupunginosasta ja kadulta:</p>
-                        
                         <!-- Live uutislista -->
                         <div id="newsFeedContainer" class="space-y-2.5 max-h-56 overflow-y-auto pr-1 text-xs mb-3">
                             <div class="text-slate-500 italic">Haetaan uutisia...</div>
                         </div>
-
                         <div id="newsLinks" class="space-y-1.5 text-xs pt-2 border-t border-slate-800"></div>
                     </div>
                 </div>
@@ -909,6 +1038,7 @@ let liveTransitLayerGroup = null;
 let poiLayerGroup = null;
 let teslaLayerGroup = null;
 let weatherCamLayerGroup = null;
+let eventLayerGroup = null;
 
 // Välimuistit, hakusäde ja ajastimet
 let searchRadiusMeters = 2500;
@@ -928,11 +1058,16 @@ let lastCalculatedHdd17 = 4100;
 let multiYearClimateCache = null;
 let selectedClimateYear = 2025;
 let multiYearStatsMap = {};
+let allRegionalEvents = [];
+let activeEventCityFilter = 'all';
+let activeEventTimeFilter = 'all';
+let nearbyCitiesList = [];
 
 // Asetetaan oletuspäivämääräksi tämä päivä
 window.addEventListener('DOMContentLoaded', () => {
     setTodayDate();
     updateMmlKeyBadge();
+    initCollapsibleCards();
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('mmlKey')) {
@@ -944,6 +1079,74 @@ window.addEventListener('DOMContentLoaded', () => {
         executeSearch();
     }
 });
+
+// AVATTAVAT LAATIKOT (COLLAPSIBLE / ACCORDION CARDS)
+function initCollapsibleCards() {
+    const cards = document.querySelectorAll('[data-collapsible-card]');
+    cards.forEach(card => {
+        if (card.dataset.collapsibleBound === '1') return;
+        const body = card.querySelector('.collapsible-body');
+        if (!body) return;
+        const header = body.previousElementSibling;
+        if (!header) return;
+
+        card.dataset.collapsibleBound = '1';
+        header.classList.add('collapsible-header', 'rounded-lg', 'p-1', '-m-1');
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'collapsible-toggle-btn inline-flex items-center gap-1.5 text-[11px] bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition ml-auto shrink-0';
+        toggleBtn.innerHTML = `<span class="collapsible-state-text">Sulje</span><span class="collapsible-chevron text-[10px]">▼</span>`;
+
+        // Jos header on flex-rivi, lisätään painike suoraan oikeaan reunaan
+        if (header.classList.contains('flex')) {
+            header.appendChild(toggleBtn);
+        } else {
+            header.classList.add('flex', 'items-center', 'justify-between', 'gap-2');
+            header.appendChild(toggleBtn);
+        }
+
+        const defaultOpen = card.getAttribute('data-default-open') !== 'false';
+        setCardOpenState(card, defaultOpen, false);
+
+        header.addEventListener('click', (e) => {
+            // Älä sulje laatikkoa jos klikattiin otsikon sisällä olevaa muuta toimintopainiketta, linkkiä tai syötekenttää
+            const interactive = e.target.closest('button:not(.collapsible-toggle-btn), a, input, select');
+            if (interactive) return;
+            const isCurrentlyCollapsed = card.classList.contains('card-collapsed');
+            setCardOpenState(card, isCurrentlyCollapsed, true);
+        });
+    });
+}
+
+function setCardOpenState(card, isOpen, refreshMapIfNeeded = true) {
+    const stateText = card.querySelector('.collapsible-state-text');
+    if (isOpen) {
+        card.classList.remove('card-collapsed');
+        if (stateText) stateText.textContent = 'Tiivistä';
+        if (refreshMapIfNeeded && card.getAttribute('data-collapsible-card') === 'map' && map) {
+            setTimeout(() => map.invalidateSize(), 150);
+        }
+    } else {
+        card.classList.add('card-collapsed');
+        if (stateText) stateText.textContent = 'Avaa laatikko';
+    }
+}
+
+function setAllCollapsibleCards(openAll) {
+    document.querySelectorAll('[data-collapsible-card]').forEach(card => {
+        setCardOpenState(card, openAll, true);
+    });
+    showToast(openAll ? 'Kaikki tietolaatikot avattu.' : 'Kaikki tietolaatikot tiivistetty otsikoiksi.');
+}
+
+function resetDefaultCollapsibleState() {
+    document.querySelectorAll('[data-collapsible-card]').forEach(card => {
+        const def = card.getAttribute('data-default-open') !== 'false';
+        setCardOpenState(card, def, true);
+    });
+    showToast('Palautettiin oletusnäkymä.');
+}
 
 function showToast(msg) {
     const t = document.getElementById('toast');
@@ -1006,7 +1209,11 @@ function centerMapOnTarget() {
 
 function focusMapPoint(lat, lon, title, subtitle) {
     if (!map) return;
-    map.setView([lat, lon], 17);
+    const mapCard = document.querySelector('[data-collapsible-card="map"]');
+    if (mapCard && mapCard.classList.contains('card-collapsed')) {
+        setCardOpenState(mapCard, true, true);
+    }
+    map.setView([lat, lon], 16);
     L.popup()
         .setLatLng([lat, lon])
         .setContent(`<div class="text-xs"><b>${title}</b><br>${subtitle || ''}</div>`)
@@ -1065,6 +1272,7 @@ async function executeSearch() {
 
         document.getElementById('emptyState').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
+        initCollapsibleCards();
 
         const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
         window.history.replaceState({}, '', newUrl);
@@ -1079,6 +1287,7 @@ async function executeSearch() {
         fetchPaavoStats();
         fetchElevationWeatherAndAir();
         fetchEverythingNearbyOverpass(true);
+        fetchRegionalEvents();
         fetchClimateHistoryAndHeating();
         fetchGtkSoilAndBedrock();
         fetchNearbyRoadworks();
@@ -1160,11 +1369,12 @@ function initOrUpdateMap() {
         postalAreaLayerGroup = L.layerGroup();
         teslaLayerGroup = L.layerGroup();
         weatherCamLayerGroup = L.layerGroup();
+        eventLayerGroup = L.layerGroup();
 
         map = L.map('map', {
             center: [lat, lon],
             zoom: 15,
-            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup]
+            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup, eventLayerGroup]
         });
 
         const baseMaps = {
@@ -1179,6 +1389,7 @@ function initOrUpdateMap() {
             "🏢 Rakennukset tontilla": buildingLayerGroup,
             "🚌 Live-joukkoliikenne (Bussit & Junat)": liveTransitLayerGroup,
             "🎯 Lähipalvelut, Harrastukset & Lataus": poiLayerGroup,
+            "🎪 Alueen & Lähikaupunkien Tapahtumat": eventLayerGroup,
             "⚡ Tesla Superchargerit": teslaLayerGroup,
             "📹 Lähialueen Kelikamerat": weatherCamLayerGroup,
             "📮 Postinumeroalueen raja (Paavo)": postalAreaLayerGroup,
@@ -3814,6 +4025,583 @@ async function fetchLocalNews() {
     } catch (e) {
         container.innerHTML = `<div class="text-slate-500">Uutissyötteen automaattinen lataus estyi selaimessa. Käytä alla olevaa suoraa Google News -linkkiä.</div>`;
     }
+}
+
+// =========================================================================
+// ALUEEN & LÄHIKAUPUNKIEN TAPAHTUMAT (Live Eventz.today + LinkedEvents + RSS)
+// =========================================================================
+const FINNISH_MUNICIPALITY_CENTERS = [
+    { name: 'Turku', lat: 60.4518, lon: 22.2666, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Kaarina', lat: 60.4072, lon: 22.3719, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Raisio', lat: 60.4861, lon: 22.1733, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Naantali', lat: 60.4675, lon: 22.0244, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Lieto', lat: 60.5050, lon: 22.4578, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Rusko', lat: 60.5414, lon: 22.2225, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Masku', lat: 60.5708, lon: 22.1000, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Parainen', lat: 60.3000, lon: 22.3000, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Paimio', lat: 60.4569, lon: 22.6869, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Salo', lat: 60.3831, lon: 23.1281, region: 'Varsinais-Suomi', calUrl: 'https://tapahtumat.salo.fi/' },
+    { name: 'Uusikaupunki', lat: 60.8000, lon: 21.4083, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Loimaa', lat: 60.8514, lon: 23.0583, region: 'Varsinais-Suomi', calUrl: 'https://kalenteri.turku.fi/' },
+    { name: 'Helsinki', lat: 60.1699, lon: 24.9384, region: 'Uusimaa', calUrl: 'https://tapahtumat.hel.fi/' },
+    { name: 'Espoo', lat: 60.2055, lon: 24.6559, region: 'Uusimaa', calUrl: 'https://www.espoo.fi/fi/tapahtumat' },
+    { name: 'Vantaa', lat: 60.2934, lon: 25.0378, region: 'Uusimaa', calUrl: 'https://tapahtumat.vantaa.fi/' },
+    { name: 'Kauniainen', lat: 60.2097, lon: 24.7272, region: 'Uusimaa', calUrl: 'https://tapahtumat.hel.fi/' },
+    { name: 'Kirkkonummi', lat: 60.1239, lon: 24.4386, region: 'Uusimaa', calUrl: 'https://www.kirkkonummi.fi/tapahtumat' },
+    { name: 'Kerava', lat: 60.4033, lon: 25.1050, region: 'Uusimaa', calUrl: 'https://tapahtumat.kerava.fi/' },
+    { name: 'Tuusula', lat: 60.4028, lon: 25.0264, region: 'Uusimaa', calUrl: 'https://tapahtumat.tuusula.fi/' },
+    { name: 'Järvenpää', lat: 60.4736, lon: 25.0894, region: 'Uusimaa', calUrl: 'https://tapahtumat.jarvenpaa.fi/' },
+    { name: 'Sipoo', lat: 60.3772, lon: 25.2622, region: 'Uusimaa', calUrl: 'https://www.sipoo.fi/tapahtumat/' },
+    { name: 'Nurmijärvi', lat: 60.4631, lon: 24.8072, region: 'Uusimaa', calUrl: 'https://www.nurmijarvi.fi/tapahtumat/' },
+    { name: 'Hyvinkää', lat: 60.6308, lon: 24.8597, region: 'Uusimaa', calUrl: 'https://www.hyvinkaa.fi/tapahtumat/' },
+    { name: 'Porvoo', lat: 60.3923, lon: 25.6651, region: 'Uusimaa', calUrl: 'https://tapahtumat.porvoo.fi/' },
+    { name: 'Lohja', lat: 60.2486, lon: 24.0653, region: 'Uusimaa', calUrl: 'https://tapahtumat.lohja.fi/' },
+    { name: 'Tampere', lat: 61.4978, lon: 23.7610, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Nokia', lat: 61.4778, lon: 23.5053, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Pirkkala', lat: 61.4664, lon: 23.6425, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Ylöjärvi', lat: 61.5567, lon: 23.5961, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Kangasala', lat: 61.4639, lon: 24.0750, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Lempäälä', lat: 61.3139, lon: 23.7528, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.lempaala.fi/' },
+    { name: 'Valkeakoski', lat: 61.2667, lon: 24.0306, region: 'Pirkanmaa', calUrl: 'https://tapahtumat.tampere.fi/' },
+    { name: 'Oulu', lat: 65.0121, lon: 25.4651, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Kempele', lat: 64.9131, lon: 25.5033, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Liminka', lat: 64.8089, lon: 25.4144, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Muhos', lat: 64.8075, lon: 25.9931, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Ii', lat: 65.3169, lon: 25.3731, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Raahe', lat: 64.6844, lon: 24.4794, region: 'Pohjois-Pohjanmaa', calUrl: 'https://tapahtumat.munoulu.fi/' },
+    { name: 'Jyväskylä', lat: 62.2426, lon: 25.7473, region: 'Keski-Suomi', calUrl: 'https://kalenteri.jyvaskyla.fi/' },
+    { name: 'Muurame', lat: 62.1303, lon: 25.6725, region: 'Keski-Suomi', calUrl: 'https://kalenteri.jyvaskyla.fi/' },
+    { name: 'Laukaa', lat: 62.4142, lon: 25.9519, region: 'Keski-Suomi', calUrl: 'https://kalenteri.jyvaskyla.fi/' },
+    { name: 'Äänekoski', lat: 62.6042, lon: 25.7264, region: 'Keski-Suomi', calUrl: 'https://kalenteri.jyvaskyla.fi/' },
+    { name: 'Kuopio', lat: 62.8924, lon: 27.6770, region: 'Pohjois-Savo', calUrl: 'https://www.kuopio.fi/tapahtumat/' },
+    { name: 'Siilinjärvi', lat: 63.0750, lon: 27.6600, region: 'Pohjois-Savo', calUrl: 'https://www.siilinjarvi.fi/tapahtumat/' },
+    { name: 'Lahti', lat: 60.9827, lon: 25.6612, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
+    { name: 'Hollola', lat: 60.9886, lon: 25.5128, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
+    { name: 'Heinola', lat: 61.2056, lon: 26.0381, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
+    { name: 'Orimattila', lat: 60.8047, lon: 25.7300, region: 'Päijät-Häme', calUrl: 'https://tapahtumat.lahti.fi/' },
+    { name: 'Pori', lat: 61.4851, lon: 21.7974, region: 'Satakunta', calUrl: 'https://tapahtumat.pori.fi/' },
+    { name: 'Ulvila', lat: 61.4292, lon: 21.8833, region: 'Satakunta', calUrl: 'https://tapahtumat.pori.fi/' },
+    { name: 'Rauma', lat: 61.1272, lon: 21.5113, region: 'Satakunta', calUrl: 'https://tapahtumat.rauma.fi/' },
+    { name: 'Kouvola', lat: 60.8679, lon: 26.7042, region: 'Kymenlaakso', calUrl: 'https://tapahtumat.kouvola.fi/' },
+    { name: 'Kotka', lat: 60.4664, lon: 26.9458, region: 'Kymenlaakso', calUrl: 'https://kymenlaaksonyt.fi/' },
+    { name: 'Hamina', lat: 60.5697, lon: 27.1981, region: 'Kymenlaakso', calUrl: 'https://kymenlaaksonyt.fi/' },
+    { name: 'Lappeenranta', lat: 61.0587, lon: 28.1887, region: 'Etelä-Karjala', calUrl: 'https://tapahtumat.ekarjala.fi/' },
+    { name: 'Imatra', lat: 61.1719, lon: 28.7764, region: 'Etelä-Karjala', calUrl: 'https://tapahtumat.ekarjala.fi/' },
+    { name: 'Hämeenlinna', lat: 60.9960, lon: 24.4643, region: 'Kanta-Häme', calUrl: 'https://tapahtumat.hameenlinna.fi/' },
+    { name: 'Riihimäki', lat: 60.7397, lon: 24.7772, region: 'Kanta-Häme', calUrl: 'https://www.riihimaki.fi/tapahtumat/' },
+    { name: 'Vaasa', lat: 63.0951, lon: 21.6165, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
+    { name: 'Mustasaari', lat: 63.1125, lon: 21.6778, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
+    { name: 'Seinäjoki', lat: 62.7903, lon: 22.8403, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
+    { name: 'Ilmajoki', lat: 62.7333, lon: 22.5833, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
+    { name: 'Lapua', lat: 62.9711, lon: 23.0067, region: 'Etelä-Pohjanmaa', calUrl: 'https://tapahtumat.seinajoki.fi/' },
+    { name: 'Joensuu', lat: 62.6010, lon: 29.7636, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
+    { name: 'Kontiolahti', lat: 62.7667, lon: 29.8500, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
+    { name: 'Liperi', lat: 62.5333, lon: 29.3833, region: 'Pohjois-Karjala', calUrl: 'https://tapahtumat.joensuu.fi/' },
+    { name: 'Rovaniemi', lat: 66.5039, lon: 25.7294, region: 'Lappi', calUrl: 'https://tapahtumat.rovaniemi.fi/' },
+    { name: 'Tornio', lat: 65.8481, lon: 24.1466, region: 'Lappi', calUrl: 'https://tapahtumat.rovaniemi.fi/' },
+    { name: 'Kemi', lat: 65.7364, lon: 24.5633, region: 'Lappi', calUrl: 'https://tapahtumat.rovaniemi.fi/' },
+    { name: 'Kokkola', lat: 63.8385, lon: 23.1307, region: 'Keski-Pohjanmaa', calUrl: 'https://tapahtumat.kokkola.fi/' },
+    { name: 'Pietarsaari', lat: 63.6749, lon: 22.7026, region: 'Pohjanmaa', calUrl: 'https://events.osterbotten.fi/' },
+    { name: 'Mikkeli', lat: 61.6887, lon: 27.2721, region: 'Etelä-Savo', calUrl: 'https://tapahtumat.mikkeli.fi/' },
+    { name: 'Savonlinna', lat: 61.8688, lon: 28.8799, region: 'Etelä-Savo', calUrl: 'https://www.savonlinna.fi/tapahtumat/' },
+    { name: 'Kajaani', lat: 64.2273, lon: 27.7285, region: 'Kainuu', calUrl: 'https://tapahtumat.kajaani.fi/' }
+];
+
+function getNearbyCitiesForAddress(lat, lon, currentCityName) {
+    const withDist = FINNISH_MUNICIPALITY_CENTERS.map(m => ({
+        ...m,
+        distKm: haversineMeters(lat, lon, m.lat, m.lon) / 1000
+    })).sort((a, b) => a.distKm - b.distKm);
+
+    const nearby = withDist.filter(m => m.distKm <= 75).slice(0, 7);
+    if (nearby.length === 0 && withDist.length > 0) {
+        nearby.push(...withDist.slice(0, 5));
+    }
+
+    const curNorm = (currentCityName || '').trim().toLowerCase();
+    if (curNorm && !nearby.some(m => m.name.toLowerCase() === curNorm)) {
+        nearby.unshift({
+            name: currentCityName,
+            lat,
+            lon,
+            distKm: 0,
+            region: nearby[0] ? nearby[0].region : 'Lähialue',
+            calUrl: `https://www.google.com/search?q=${encodeURIComponent(currentCityName + ' tapahtumakalenteri')}`
+        });
+    }
+    return nearby;
+}
+
+function inferMunicipalityFromCoordsOrAddress(evLat, evLon, rawCityText, defaultCity) {
+    if (rawCityText && rawCityText.trim().length > 1) {
+        const cleaned = rawCityText.trim();
+        for (const m of FINNISH_MUNICIPALITY_CENTERS) {
+            if (cleaned.toLowerCase().includes(m.name.toLowerCase())) {
+                return m.name;
+            }
+        }
+    }
+    if (evLat && evLon) {
+        let best = null;
+        let bestDist = Infinity;
+        for (const m of FINNISH_MUNICIPALITY_CENTERS) {
+            const d = haversineMeters(evLat, evLon, m.lat, m.lon);
+            if (d < bestDist) {
+                bestDist = d;
+                best = m.name;
+            }
+        }
+        if (best && bestDist <= 35000) return best;
+    }
+    return defaultCity || currentLoc.city || 'Lähialue';
+}
+
+async function fetchRegionalEvents() {
+    const { lat, lon, city } = currentLoc;
+    const gridEl = document.getElementById('eventsGridContainer');
+    const countBadge = document.getElementById('eventsCountBadge');
+    const regionBadge = document.getElementById('eventsRegionBadge');
+    const subtitleEl = document.getElementById('eventsSubtitle');
+
+    activeEventCityFilter = 'all';
+    activeEventTimeFilter = 'all';
+    allRegionalEvents = [];
+
+    nearbyCitiesList = getNearbyCitiesForAddress(lat, lon, city);
+    const nearbyNames = nearbyCitiesList.map(c => c.name);
+    regionBadge.textContent = nearbyNames.slice(0, 5).join(', ') + (nearbyNames.length > 5 ? ` +${nearbyNames.length - 5}` : '');
+    subtitleEl.textContent = `Haetaan tapahtumia alueelle: ${nearbyNames.join(', ')}...`;
+    gridEl.innerHTML = `<div class="text-slate-400 animate-pulse col-span-full py-4">Haetaan alueen ja lähikaupunkien (${nearbyNames.slice(0, 4).join(', ')}) tapahtumia...</div>`;
+
+    renderRegionalCalendarLinks(nearbyCitiesList);
+
+    const events = [];
+    const seenTitles = new Set();
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Valitaan maantieteellisesti sopivat avoimet tapahtumarajapinnat:
+    // 1. Varsinais-Suomi / Turun seutu (Turku, Kaarina, Raisio, Naantali, Lieto, Parainen, Paimio, Rusko, Salo, Masku, Uusikaupunki, Loimaa)
+    const distTurkuKm = haversineMeters(lat, lon, 60.4518, 22.2666) / 1000;
+    // 2. Uusimaa / Pääkaupunkiseutu LinkedEvents (Helsinki, Espoo, Vantaa, Kauniainen, Kirkkonummi, Kerava, Tuusula, Järvenpää, Sipoo, Porvoo, Lohja)
+    const distHkiKm = haversineMeters(lat, lon, 60.1699, 24.9384) / 1000;
+    // 3. Oulun seutu & Pohjois-Pohjanmaa (Oulu, Kempele, Liminka, Muhos, Ii, Raahe)
+    const distOuluKm = haversineMeters(lat, lon, 65.0121, 25.4651) / 1000;
+    // 4. Keski-Pohjanmaa & Pohjanmaa (Kokkola, Pietarsaari)
+    const distKokkolaKm = haversineMeters(lat, lon, 63.8385, 23.1307) / 1000;
+    // 5. Lappi / Rovaniemen seutu
+    const distRoiKm = haversineMeters(lat, lon, 66.5039, 25.7294) / 1000;
+
+    const tasks = [];
+
+    const parseEventzCollection = async (baseUrl, colId, regionDefaultCity) => {
+        try {
+            const url = `${baseUrl}/api/collection/${colId}/content?lang=fi&country=FI&apiKey=${colId}&out=JSON&sort=startDate&strictSort=true`;
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const data = await res.json();
+            const pages = data.pages || [];
+            pages.forEach(p => {
+                const title = (p.name || '').trim();
+                if (!title) return;
+                const startStr = p.defaultStartDate || p.startDate;
+                const endStr = p.defaultEndDate || p.endDate || startStr;
+                const startDate = startStr ? new Date(startStr) : null;
+                const endDate = endStr ? new Date(endStr) : startDate;
+                if (endDate && endDate < todayStart) return;
+
+                let evLat = null, evLon = null, addressStr = '';
+                if (Array.isArray(p.locations) && p.locations.length > 0) {
+                    const loc = p.locations[0];
+                    if (loc.lat && loc.lng) {
+                        evLat = parseFloat(loc.lat);
+                        evLon = parseFloat(loc.lng);
+                    }
+                    addressStr = loc.address || '';
+                }
+
+                const distKm = (evLat && evLon) ? (haversineMeters(lat, lon, evLat, evLon) / 1000) : null;
+                if (distKm !== null && distKm > 110) return;
+
+                const muni = inferMunicipalityFromCoordsOrAddress(evLat, evLon, addressStr + ' ' + (p.ownerName || ''), regionDefaultCity);
+                const dedupKey = `${title.toLowerCase()}_${muni.toLowerCase()}`;
+                if (seenTitles.has(dedupKey)) return;
+                seenTitles.add(dedupKey);
+
+                const isFree = p.price && p.price.min === 0 && (!p.price.max || p.price.max === 0);
+                let priceText = 'Katso tiedot';
+                if (isFree) priceText = 'Vapaa pääsy';
+                else if (p.price && p.price.min > 0) {
+                    priceText = p.price.max && p.price.max > p.price.min ? `${p.price.min}–${p.price.max} €` : `${p.price.min} €`;
+                }
+
+                events.push({
+                    id: p._id,
+                    title,
+                    desc: p.descriptionShort || '',
+                    startDate: startDate || new Date(),
+                    endDate: endDate || startDate || new Date(),
+                    city: muni,
+                    venue: addressStr || p.ownerName || muni,
+                    lat: evLat,
+                    lon: evLon,
+                    distKm,
+                    isFree,
+                    priceText,
+                    url: `${baseUrl}/fi-FI/page/${p._id}`,
+                    source: 'Aluekalenteri'
+                });
+            });
+        } catch (e) {
+            console.warn('Eventz fetch error:', e);
+        }
+    };
+
+    if (distTurkuKm <= 110) {
+        tasks.push(parseEventzCollection('https://kalenteri.turku.fi', '64eb1340b3df576fc965b8a7', 'Turku'));
+    }
+    if (distOuluKm <= 120) {
+        tasks.push(parseEventzCollection('https://tapahtumat.munoulu.fi', '5dc549a38925dd23b5949a4d', 'Oulu'));
+    }
+    if (distKokkolaKm <= 110) {
+        tasks.push(parseEventzCollection('https://tapahtumat.kokkola.fi', '5cdd311f687f0d550a027fb1', 'Kokkola'));
+    }
+    if (distRoiKm <= 150) {
+        tasks.push(parseEventzCollection('https://tapahtumat.rovaniemi.fi', '5d53be9978cb0a2f5d1c58c5', 'Rovaniemi'));
+    }
+
+    // Pääkaupunkiseutu & Uusimaa LinkedEvents API (Helsinki, Espoo, Vantaa, Kauniainen, Kirkkonummi + lähikunnat)
+    if (distHkiKm <= 100) {
+        tasks.push((async () => {
+            try {
+                const bbox = `${(lon - 0.85).toFixed(3)},${(lat - 0.45).toFixed(3)},${(lon + 0.85).toFixed(3)},${(lat + 0.45).toFixed(3)}`;
+                const url = `https://api.hel.fi/linkedevents/v1/event/?start=today&sort=start_time&page_size=80&include=location&bbox=${bbox}`;
+                const res = await fetch(url);
+                if (!res.ok) return;
+                const d = await res.json();
+                (d.data || []).forEach(ev => {
+                    const title = (ev.name && (ev.name.fi || ev.name.sv || ev.name.en)) || '';
+                    if (!title) return;
+                    const loc = ev.location || {};
+                    const coords = loc.position && loc.position.coordinates;
+                    const evLon = coords ? coords[0] : null;
+                    const evLat = coords ? coords[1] : null;
+                    const rawLocality = (loc.address_locality && (loc.address_locality.fi || loc.address_locality.en)) || '';
+                    const venueName = (loc.name && (loc.name.fi || loc.name.en)) || '';
+                    const streetAddr = (loc.street_address && loc.street_address.fi) || '';
+                    const muni = inferMunicipalityFromCoordsOrAddress(evLat, evLon, rawLocality, city);
+
+                    const dedupKey = `${title.toLowerCase()}_${muni.toLowerCase()}`;
+                    if (seenTitles.has(dedupKey)) return;
+                    seenTitles.add(dedupKey);
+
+                    const startDate = ev.start_time ? new Date(ev.start_time) : new Date();
+                    const endDate = ev.end_time ? new Date(ev.end_time) : startDate;
+                    const distKm = (evLat && evLon) ? (haversineMeters(lat, lon, evLat, evLon) / 1000) : null;
+
+                    const offer = Array.isArray(ev.offers) && ev.offers[0] ? ev.offers[0] : null;
+                    const isFree = offer ? !!offer.is_free : false;
+                    const priceText = isFree ? 'Vapaa pääsy' : (offer && offer.price && offer.price.fi ? offer.price.fi : 'Katso liput');
+                    const infoUrl = (ev.info_url && (ev.info_url.fi || ev.info_url.en)) || `https://tapahtumat.hel.fi/fi/events/${ev.id}`;
+                    const shortDesc = (ev.short_description && ev.short_description.fi) || '';
+
+                    events.push({
+                        id: ev.id,
+                        title,
+                        desc: shortDesc,
+                        startDate,
+                        endDate,
+                        city: muni,
+                        venue: [venueName, streetAddr].filter(Boolean).join(', ') || muni,
+                        lat: evLat,
+                        lon: evLon,
+                        distKm,
+                        isFree,
+                        priceText,
+                        url: infoUrl,
+                        source: 'LinkedEvents'
+                    });
+                });
+            } catch (e) {
+                console.warn('LinkedEvents virhe:', e);
+            }
+        })());
+    }
+
+    // Haetaan lisäksi aina alueellinen & lähikaupunkien tapahtumasyöte (Google News RSS tapahtumahaku haetulle kunnalle + naapurikunnille),
+    // mikä takaa tuoreet tapahtumanostot myös Tampereen, Jyväskylän, Kuopion, Lahden, Porin, Vaasan, Seinäjoen ym. seuduille!
+    tasks.push((async () => {
+        try {
+            const topCities = nearbyCitiesList.slice(0, 4).map(c => `"${c.name}"`).join(' OR ');
+            const q = `(${topCities}) (tapahtumat OR konsertti OR festivaali OR teatteri OR näyttely OR viikonloppu OR menovinkit)`;
+            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=fi&gl=FI&ceid=FI:fi`;
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+            const res = await fetch(apiUrl);
+            if (!res.ok) return;
+            const d = await res.json();
+            (d.items || []).slice(0, 12).forEach((item, idx) => {
+                const title = (item.title || '').replace(/\s*-\s*[^-]+$/, '').trim();
+                if (!title) return;
+                let matchedCity = city;
+                for (const c of nearbyCitiesList) {
+                    if (title.toLowerCase().includes(c.name.toLowerCase()) || (item.description || '').toLowerCase().includes(c.name.toLowerCase())) {
+                        matchedCity = c.name;
+                        break;
+                    }
+                }
+                const cityObj = nearbyCitiesList.find(c => c.name.toLowerCase() === matchedCity.toLowerCase()) || nearbyCitiesList[0];
+                const dedupKey = `${title.toLowerCase()}_${matchedCity.toLowerCase()}`;
+                if (seenTitles.has(dedupKey)) return;
+                seenTitles.add(dedupKey);
+
+                // Pieni sivuaskel kuntakeskuksen koordinaattiin, jotta karttamerkki näkyy kyseisessä lähikaupungissa
+                const jitterLat = cityObj ? cityObj.lat + ((idx % 5) - 2) * 0.0025 : null;
+                const jitterLon = cityObj ? cityObj.lon + ((idx % 3) - 1) * 0.0035 : null;
+                const distKm = (jitterLat && jitterLon) ? (haversineMeters(lat, lon, jitterLat, jitterLon) / 1000) : null;
+
+                events.push({
+                    id: `rss_${idx}`,
+                    title,
+                    desc: 'Ajankohtainen tapahtumanosto alueen mediasta',
+                    startDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+                    endDate: new Date(Date.now() + 7 * 86400000),
+                    city: matchedCity,
+                    venue: `${matchedCity} (Alueellinen tapahtumanosto)`,
+                    lat: jitterLat,
+                    lon: jitterLon,
+                    distKm,
+                    isFree: false,
+                    priceText: 'Tapahtumanosto',
+                    url: item.link,
+                    source: 'Tapahtumauutiset'
+                });
+            });
+        } catch (e) {}
+    })());
+
+    await Promise.allSettled(tasks);
+
+    // Järjestetään ensisijaisesti alkamisajan ja etäisyyden mukaan
+    events.sort((a, b) => {
+        const da = a.startDate ? a.startDate.getTime() : 0;
+        const db = b.startDate ? b.startDate.getTime() : 0;
+        if (Math.abs(da - db) > 36 * 3600 * 1000) return da - db;
+        return (a.distKm ?? 999) - (b.distKm ?? 999);
+    });
+
+    allRegionalEvents = events;
+    renderEventCityPills();
+    renderRegionalEvents();
+}
+
+function renderRegionalCalendarLinks(nearbyList) {
+    const container = document.getElementById('regionalEventCalendarLinks');
+    if (!container) return;
+
+    const seenUrls = new Set();
+    const linksHtml = [];
+
+    nearbyList.forEach(c => {
+        const key = `${c.name}_${c.calUrl}`;
+        if (seenUrls.has(key)) return;
+        seenUrls.add(key);
+        linksHtml.push(`
+            <a href="${c.calUrl}" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-700/80 text-fuchsia-300 hover:text-fuchsia-200 px-2.5 py-1 rounded-lg text-[11px] font-medium transition inline-flex items-center gap-1">
+                <span>🗓️ ${c.name}</span><span>↗</span>
+            </a>
+        `);
+    });
+
+    const mainCity = currentLoc.city || 'Suomi';
+    linksHtml.push(`
+        <a href="https://www.lippu.fi/search/?affiliate=ADV&searchterm=${encodeURIComponent(mainCity)}" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-700/80 text-amber-300 px-2.5 py-1 rounded-lg text-[11px] font-medium transition inline-flex items-center gap-1">
+            <span>🎟️ Lippu.fi (${mainCity})</span><span>↗</span>
+        </a>
+        <a href="https://www.tiketti.fi/tapahtumat?q=${encodeURIComponent(mainCity)}" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-700/80 text-cyan-300 px-2.5 py-1 rounded-lg text-[11px] font-medium transition inline-flex items-center gap-1">
+            <span>🎫 Tiketti (${mainCity})</span><span>↗</span>
+        </a>
+    `);
+
+    container.innerHTML = linksHtml.join('');
+}
+
+function renderEventCityPills() {
+    const pillBox = document.getElementById('eventCityFilterPills');
+    if (!pillBox) return;
+
+    // Lasketaan tapahtumien määrä kunnittain + lisätään lähikaupungit
+    const cityCounts = new Map();
+    nearbyCitiesList.forEach(c => cityCounts.set(c.name, 0));
+    allRegionalEvents.forEach(ev => {
+        const c = ev.city || currentLoc.city;
+        cityCounts.set(c, (cityCounts.get(c) || 0) + 1);
+    });
+
+    let html = `<span class="text-xs text-slate-400 font-medium mr-1">📍 Paikkakunta:</span>`;
+    const isAll = activeEventCityFilter === 'all';
+    html += `
+        <button onclick="setEventCityFilter('all')" class="${isAll ? 'bg-fuchsia-600 text-white font-semibold' : 'bg-slate-900 hover:bg-slate-800 text-slate-300'} text-xs px-2.5 py-1 rounded-lg border border-slate-700/80 transition">
+            Kaikki lähikunnat (${allRegionalEvents.length})
+        </button>
+    `;
+
+    Array.from(cityCounts.entries()).forEach(([cityName, count]) => {
+        const active = activeEventCityFilter.toLowerCase() === cityName.toLowerCase();
+        const isSearchedCity = cityName.toLowerCase() === (currentLoc.city || '').toLowerCase();
+        html += `
+            <button onclick="setEventCityFilter('${cityName.replace(/'/g, "\\'")}')" class="${active ? 'bg-fuchsia-600 text-white font-semibold' : 'bg-slate-900 hover:bg-slate-800 text-slate-300'} text-xs px-2.5 py-1 rounded-lg border ${isSearchedCity ? 'border-emerald-500/50' : 'border-slate-800'} transition flex items-center gap-1">
+                <span>${isSearchedCity ? '🎯 ' : ''}${cityName}</span>
+                <span class="text-[10px] opacity-80">(${count})</span>
+            </button>
+        `;
+    });
+
+    pillBox.innerHTML = html;
+}
+
+function setEventCityFilter(cityVal) {
+    activeEventCityFilter = cityVal;
+    renderEventCityPills();
+    renderRegionalEvents();
+}
+
+function setEventTimeFilter(tf) {
+    activeEventTimeFilter = tf;
+    document.querySelectorAll('#eventTimeFilterBtns .evt-tf-btn').forEach(btn => {
+        if (btn.getAttribute('data-tf') === tf) {
+            btn.className = 'evt-tf-btn bg-fuchsia-600 text-white text-xs font-semibold px-2.5 py-1 rounded-md transition';
+        } else {
+            btn.className = 'evt-tf-btn text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-md transition';
+        }
+    });
+    renderRegionalEvents();
+}
+
+function renderRegionalEvents() {
+    const gridEl = document.getElementById('eventsGridContainer');
+    const countBadge = document.getElementById('eventsCountBadge');
+    const subtitleEl = document.getElementById('eventsSubtitle');
+    const searchVal = (document.getElementById('eventSearchInput')?.value || '').trim().toLowerCase();
+
+    if (eventLayerGroup) eventLayerGroup.clearLayers();
+
+    const now = new Date();
+    const tomorrowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2, 23, 59, 59);
+    const weekEnd = new Date(now.getTime() + 7 * 86400000);
+
+    const filtered = allRegionalEvents.filter(ev => {
+        if (activeEventCityFilter !== 'all' && (ev.city || '').toLowerCase() !== activeEventCityFilter.toLowerCase()) {
+            return false;
+        }
+        if (activeEventTimeFilter === 'today') {
+            if (ev.startDate > tomorrowEnd) return false;
+        } else if (activeEventTimeFilter === 'week') {
+            if (ev.startDate > weekEnd) return false;
+        } else if (activeEventTimeFilter === 'free') {
+            if (!ev.isFree) return false;
+        }
+        if (searchVal) {
+            const hay = `${ev.title} ${ev.desc} ${ev.city} ${ev.venue}`.toLowerCase();
+            if (!hay.includes(searchVal)) return false;
+        }
+        return true;
+    });
+
+    countBadge.textContent = `${filtered.length} tapahtumaa`;
+    const nearbyNames = nearbyCitiesList.map(c => c.name);
+    subtitleEl.textContent = `Näytetään ${filtered.length} tapahtumaa alueella: ${nearbyNames.join(', ')}.`;
+
+    // Piirretään tapahtumat myös kartalle (eventLayerGroup)
+    if (eventLayerGroup) {
+        filtered.slice(0, 60).forEach(ev => {
+            if (!ev.lat || !ev.lon) return;
+            const dateStr = ev.startDate ? ev.startDate.toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric' }) : '';
+            const icon = L.divIcon({
+                className: '',
+                html: `<div class="event-marker-badge" title="${ev.title} (${ev.city})">🎪</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            const m = L.marker([ev.lat, ev.lon], { icon });
+            m.bindPopup(`
+                <div class="text-xs space-y-1 max-w-[230px]">
+                    <div class="font-bold text-fuchsia-700">🎪 ${ev.title}</div>
+                    <div class="text-[11px] text-slate-600">📍 <b>${ev.city}</b> • ${ev.venue}</div>
+                    <div class="text-[11px] text-slate-600">🗓️ ${dateStr} • ${ev.priceText}</div>
+                    <a href="${ev.url}" target="_blank" class="inline-block mt-1 text-blue-600 font-semibold hover:underline">Avaa tapahtumasivu ↗</a>
+                </div>
+            `);
+            eventLayerGroup.addLayer(m);
+        });
+    }
+
+    if (filtered.length === 0) {
+        const selectedCityName = activeEventCityFilter === 'all' ? currentLoc.city : activeEventCityFilter;
+        const calObj = nearbyCitiesList.find(c => c.name.toLowerCase() === selectedCityName.toLowerCase()) || nearbyCitiesList[0];
+        gridEl.innerHTML = `
+            <div class="col-span-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-center space-y-2">
+                <div class="text-slate-300 font-medium">Valitulla suodattimella ei löytynyt suoria API-tapahtumia (${selectedCityName}).</div>
+                <div class="text-slate-400 text-xs">Voit avata suoraan paikkakunnan <strong class="text-white">${selectedCityName}</strong> ja lähikuntien virallisen tapahtumakalenterin alta:</div>
+                <div class="pt-1 flex flex-wrap justify-center gap-2">
+                    ${calObj ? `<a href="${calObj.calUrl}" target="_blank" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition">🗓️ Avaa ${calObj.name} tapahtumakalenteri ↗</a>` : ''}
+                    <button onclick="setEventCityFilter('all'); setEventTimeFilter('all');" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">Näytä kaikki lähikunnat</button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    gridEl.innerHTML = filtered.slice(0, 32).map(ev => {
+        const dateFormatted = ev.startDate
+            ? ev.startDate.toLocaleDateString('fi-FI', { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })
+            : '-';
+        const distBadge = ev.distKm !== null
+            ? `<span class="text-[10px] text-slate-400 font-mono">${ev.distKm < 1 ? (ev.distKm * 1000).toFixed(0) + ' m' : ev.distKm.toFixed(1) + ' km'}</span>`
+            : '';
+        const isLocalCity = (ev.city || '').toLowerCase() === (currentLoc.city || '').toLowerCase();
+        const cityBadgeClass = isLocalCity
+            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+            : 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40';
+
+        const safeTitle = (ev.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const safeVenue = (ev.venue || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+        return `
+            <div class="bg-slate-950 hover:bg-slate-900/90 border border-slate-800/90 rounded-xl p-3 flex flex-col justify-between transition">
+                <div>
+                    <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                        <span class="text-[10px] px-2 py-0.5 rounded-full border font-semibold ${cityBadgeClass}">
+                            📍 ${ev.city}
+                        </span>
+                        <div class="flex items-center gap-1.5">
+                            ${ev.isFree ? `<span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-700/50 px-1.5 py-0.5 rounded">Vapaa pääsy</span>` : `<span class="text-[10px] text-slate-400">${ev.priceText}</span>`}
+                            ${distBadge}
+                        </div>
+                    </div>
+                    <a href="${ev.url}" target="_blank" class="font-bold text-slate-100 hover:text-fuchsia-300 line-clamp-2 leading-snug block mb-1">
+                        ${ev.title}
+                    </a>
+                    ${ev.desc ? `<p class="text-[11px] text-slate-400 line-clamp-2 mb-2">${ev.desc}</p>` : ''}
+                </div>
+
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 text-[11px]">
+                    <div class="truncate text-slate-300" title="${safeVenue}">
+                        <span class="text-amber-300 font-medium">🗓️ ${dateFormatted}</span>
+                        <div class="text-[10px] text-slate-400 truncate">${ev.venue}</div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        ${ev.lat && ev.lon ? `
+                        <button onclick="focusMapPoint(${ev.lat}, ${ev.lon}, '🎪 ${safeTitle}', '${ev.city} • ${safeVenue}')" title="Näytä tapahtumapaikka kartalla" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded border border-slate-700 text-[10px] transition">
+                            📍 Kartta
+                        </button>` : ''}
+                        <a href="${ev.url}" target="_blank" class="bg-fuchsia-600/25 hover:bg-fuchsia-600/40 text-fuchsia-200 border border-fuchsia-500/40 px-2 py-1 rounded text-[10px] font-medium transition">
+                            Avaa ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 </script>
 </body>
