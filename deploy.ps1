@@ -10,7 +10,7 @@ if (Test-Path "index.html") {
 
 # 1. Tallenna ja tyonna GitHubiin (main & gh-pages)
 git add .
-git commit -m "Paivita Osoitetutka PRO (Ulkomaalaisvaeston osuus, Tilastokeskus rikostilastot ja asuntojen neliohinnat, lentoliikenne ja ylilennot, Fintraffic AIS laivaliikenne seka viemari- ja johtokartat)"
+git commit -m "Paivita Osoitetutka PRO (19 uutta ominaisuutta: koulualueet, muinaisjaannokset, pysakointi, jatehuolto, kiinteistovero, katukunnossapito, mobiilikuuluvuus, taloyhtiotiedot YTJ, yhteiset tilat, rakennusterveys, asbesti, STUK radon, Metsakeskus puusto, Fintraffic liikennemaarat, SRVA riista, valokuvat ja tunnetut henkilot)"
 git push origin main
 git checkout -B gh-pages
 git merge main

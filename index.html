@@ -1012,47 +1012,26 @@
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
                                 🚓 Rikostilastot & Alueen Turvallisuusindeksi (Tilastokeskus & Poliisi)
-                                <span id="crimeSafetyBadge" class="text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                                <span id="crimeStatsCityLabel" class="text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full font-semibold">Haetaan...</span>
                             </h2>
-                            <p id="crimeSubtitle" class="text-xs text-slate-400">
+                            <p class="text-xs text-slate-400">
                                 Viranomaisten tietoon tulleet rikokset rikosryhmittäin, selvitysprosentti sekä vertailu koko maan keskiarvoon (suora StatFin `rpk_13ex` -haku).
                             </p>
                         </div>
                     </div>
 
                     <div class="collapsible-body mt-4">
-                        <!-- 4 Päärikosmittaria (Kokonaisrikollisuus / 1000 as, Asuntomurrot, Omaisuusrikokset, Selvitys-%) -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
-                                <div class="text-[10px] text-slate-400">Rikokset / 1 000 asukasta</div>
-                                <div id="crimePer1000" class="text-base font-bold text-white mt-0.5">-</div>
-                                <div id="crimeVsNational" class="text-[10px] text-slate-400 mt-0.5">Koko maa: -</div>
-                            </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
-                                <div class="text-[10px] text-slate-400">Asuntomurrot (kunta/v)</div>
-                                <div id="crimeBurglary" class="text-base font-bold text-amber-400 mt-0.5">-</div>
-                                <div id="crimeBurglaryDetail" class="text-[10px] text-slate-400 mt-0.5">Asunto & vapaa-aika</div>
-                            </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
-                                <div class="text-[10px] text-slate-400">Omaisuus- & Vahingonteot</div>
-                                <div id="crimeProperty" class="text-base font-bold text-sky-300 mt-0.5">-</div>
-                                <div id="crimeDamageDetail" class="text-[10px] text-slate-400 mt-0.5">Ilkivalta: -</div>
-                            </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
-                                <div class="text-[10px] text-slate-400">Rikosten selvitysaste</div>
-                                <div id="crimeClearanceRate" class="text-base font-bold text-emerald-400 mt-0.5">-</div>
-                                <div id="crimeTotalCount" class="text-[10px] text-slate-400 mt-0.5">Yhteensä: - kpl/v</div>
-                            </div>
+                        <div id="crimeStatsKpiRow" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl col-span-4 text-xs text-slate-400 animate-pulse">Haetaan Tilastokeskuksen rikostilastoja...</div>
                         </div>
 
-                        <!-- Rikosryhmien erittelytaulukko + paikalliset poliisiuutiset -->
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div class="md:col-span-3 bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-xs font-bold text-slate-200">📋 Virallinen rikosjakauma kunnassa (Tilastokeskus RPK)</span>
-                                    <span id="crimeYearLabel" class="text-[10px] text-slate-400">Tilastovuosi 2025</span>
+                                    <span class="text-[10px] text-slate-400">Tilastovuosi 2025</span>
                                 </div>
-                                <div id="crimeBreakdownTable" class="space-y-1.5 text-xs">
+                                <div id="crimeStatsBreakdownList" class="space-y-1.5 text-xs">
                                     <div class="text-slate-500 italic py-3">Haetaan Tilastokeskuksen rikos- ja pakkokeinotilastoja...</div>
                                 </div>
                             </div>
@@ -1062,12 +1041,12 @@
                                     <div class="text-xs font-bold text-rose-300 mb-2 flex items-center justify-between">
                                         <span>🚨 Tuoreimmat poliisi- & hälytystiedotteet</span>
                                     </div>
-                                    <div id="policeLiveFeedBox" class="space-y-2 max-h-44 overflow-y-auto pr-1 text-[11px]">
+                                    <div id="crimeNewsFeed" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-[11px]">
                                         <div class="text-slate-500 italic">Haetaan alueen poliisi- ja rikosuutisia...</div>
                                     </div>
                                 </div>
                                 <div class="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap gap-2 text-[11px]">
-                                    <a id="policeDirectLink" href="https://poliisi.fi/uutiset" target="_blank" class="text-emerald-400 hover:underline">Poliisi.fi tiedotteet ↗</a>
+                                    <a href="https://poliisi.fi/uutiset" target="_blank" class="text-emerald-400 hover:underline">Poliisi.fi tiedotteet ↗</a>
                                     <span>•</span>
                                     <a href="https://www.tilannehuone.fi/halytys.php" target="_blank" class="text-amber-400 hover:underline">Tilannehuone hälytykset ↗</a>
                                 </div>
@@ -1078,9 +1057,9 @@
 
                 <!-- Viemäri-, Vesihuolto-, Hulevesi- & Johtokartat (1/3 leveys) -->
                 <div data-collapsible-card="sewer" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-2">
                         <h2 class="font-bold text-white flex items-center gap-2">🚰 Viemäri-, Vesi- & Johtokartat</h2>
-                        <span id="sewerStatusBadge" class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">Tarkistetaan...</span>
+                        <span id="sewerWaterAreaBadge" class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">Tarkistetaan...</span>
                     </div>
 
                     <div class="collapsible-body mt-3">
@@ -1088,32 +1067,29 @@
                             Jätevesiviemärin, talousveden ja hulevesiverkoston toiminta-alueet, pohjavesi/maalämpöpotentiaali sekä johtokarttapalvelut:
                         </p>
 
-                        <!-- Automaattinen verkostotarkistus (WFS / WMS) -->
-                        <div id="sewerNetworkStatusBox" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2 mb-3">
-                            <div class="text-slate-500 italic">Tarkistetaan tontin kuuluminen vesihuolto- ja viemäriverkostoon...</div>
+                        <div id="sewerStatusKpiRow" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 text-xs">
+                            <div class="col-span-3 text-slate-500 italic">Tarkistetaan vesihuolto- ja viemäriverkostoa...</div>
                         </div>
 
-                        <!-- Pikakytkimet karttatasoille (Viemäri / Vesihuolto / Hulevesi / Maalämpö WMS) -->
                         <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 mb-3">
                             <div class="text-[11px] font-bold text-slate-300 mb-2">🗺️ Kytke verkosto- ja vesitaso yläkartalle:</div>
                             <div class="grid grid-cols-1 gap-1.5 text-xs">
-                                <button onclick="toggleUtilityMapLayer('sewer')" id="btnLayerSewer" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                <button onclick="toggleUtilityMapLayer('hsy_sewer')" id="btnWmsHsySewer" class="text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition">
                                     <span>🚰 Vesihuolto- & Viemäriverkoston alueet</span>
-                                    <span class="text-[10px] text-cyan-400">Näytä kartalla</span>
+                                    <span class="text-[10px] text-cyan-400">Kytke kartalle</span>
                                 </button>
-                                <button onclick="toggleUtilityMapLayer('stormwater')" id="btnLayerStormwater" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                <button onclick="toggleUtilityMapLayer('stormwater')" id="btnWmsStormwater" class="text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition">
                                     <span>🌧️ Hulevesi- & Valumavesikartta (SYKE)</span>
-                                    <span class="text-[10px] text-sky-400">Näytä kartalla</span>
+                                    <span class="text-[10px] text-sky-400">Kytke kartalle</span>
                                 </button>
-                                <button onclick="toggleUtilityMapLayer('geoenergy')" id="btnLayerGeoenergy" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                <button onclick="toggleUtilityMapLayer('geoenergy')" id="btnWmsGeoenergy" class="text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition">
                                     <span>♨️ Pohjavesi & Maalämpöpotentiaali (GTK)</span>
-                                    <span class="text-[10px] text-emerald-400">Näytä kartalla</span>
+                                    <span class="text-[10px] text-emerald-400">Kytke kartalle</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Suorat linkit kaivulupa-, johtoselvitys- ja vesilaitoskarttoihin -->
-                        <div id="sewerUtilityLinks" class="space-y-1.5 text-xs"></div>
+                        <div id="sewerUtilityDetails" class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs"></div>
                     </div>
                 </div>
 
@@ -1128,9 +1104,8 @@
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
                                 ✈️ Lentoliikenne, Ylilennot & Lentomeluvyöhyke
-                                <span id="flightStatusBadge" class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
                             </h2>
-                            <p id="flightSubtitle" class="text-xs text-slate-400">
+                            <p class="text-xs text-slate-400">
                                 Tarkistetaan lentääkö osoitteen yli lentokoneita (kiitotie- ja lähestymislinjat + reaaliaikainen ilmatilatutka).
                             </p>
                         </div>
@@ -1140,18 +1115,15 @@
                     </div>
 
                     <div class="collapsible-body mt-4">
-                        <!-- Ylilentojen & Kiitotielinjan analyysilaatikko -->
-                        <div id="flightCorridorBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-3 text-xs space-y-2">
-                            <div class="text-slate-500 italic">Lasketaan etäisyyttä lähimpiin lentoasemiin, helikopterikenttiin ja kiitoteiden nousu-/laskulinjoihin...</div>
-                        </div>
+                        <div id="aviationKpiRow" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3"></div>
+                        <div id="aviationCorridorsList" class="space-y-1.5 mb-3 text-xs"></div>
 
-                        <!-- Reaaliaikaiset lentokoneet lähistöllä -->
                         <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">📡 Parhaillaan ilmassa lähialueella (Live ADS-B / OGN)</span>
                                 <span id="liveAircraftCountBadge" class="text-[10px] text-slate-400">Haetaan...</span>
                             </div>
-                            <div id="liveAircraftListContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                            <div id="liveAircraftList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
                                 <div class="text-slate-500 italic">Haetaan ilmatilan lentokoneita...</div>
                             </div>
                         </div>
@@ -1159,9 +1131,9 @@
                         <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-2 border-t border-slate-800">
                             <span>💡 Kiitoteiden jatkeet ja koneet näkyvät myös yläkartalla (`✈️ Lentoliikenne`).</span>
                             <div class="flex gap-2">
-                                <a id="fr24DirectLink" href="https://www.flightradar24.com/" target="_blank" class="text-amber-400 hover:underline font-medium">Flightradar24 kohdassa ↗</a>
+                                <a href="https://www.flightradar24.com/" target="_blank" class="text-amber-400 hover:underline font-medium">Flightradar24 ↗</a>
                                 <span>•</span>
-                                <a id="adsbDirectLink" href="https://globe.adsbexchange.com/" target="_blank" class="text-sky-400 hover:underline font-medium">ADS-B Tutka ↗</a>
+                                <a href="https://globe.adsbexchange.com/" target="_blank" class="text-sky-400 hover:underline font-medium">ADS-B Live Tutka ↗</a>
                             </div>
                         </div>
                     </div>
@@ -1173,9 +1145,8 @@
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
                                 🚢 Laivaliikenne, Vesistöetäisyys & Satamat (AIS Live)
-                                <span id="marineStatusBadge" class="text-xs bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2.5 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
                             </h2>
-                            <p id="marineSubtitle" class="text-xs text-slate-400">
+                            <p class="text-xs text-slate-400">
                                 Reaaliaikainen laiva- ja alusliikenne (Fintraffic AIS), etäisyys rantaan/vesistöön sekä lähimmät venesatamat.
                             </p>
                         </div>
@@ -1185,18 +1156,15 @@
                     </div>
 
                     <div class="collapsible-body mt-4">
-                        <!-- Rantaetäisyys & Vesistöanalyysi -->
-                        <div id="waterProximityBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-3 text-xs space-y-2">
-                            <div class="text-slate-500 italic">Tarkistetaan etäisyys mereen, järveen tai jokeen sekä laivaväyliin...</div>
-                        </div>
+                        <div id="marineKpiRow" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3"></div>
+                        <div id="waterBodiesList" class="space-y-1.5 mb-3 text-xs"></div>
 
-                        <!-- Reaaliaikaiset laivat ja alukset (Digitraffic Marine AIS) -->
                         <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 mb-3">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs font-bold text-sky-300 uppercase tracking-wider">⚓ Reaaliaikaiset laivat & alukset lähivesillä (AIS)</span>
                                 <span id="liveVesselCountBadge" class="text-[10px] text-slate-400">Haetaan...</span>
                             </div>
-                            <div id="liveVesselsListContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                            <div id="liveMarineVesselsList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
                                 <div class="text-slate-500 italic">Haetaan Fintrafficin AIS-laivaliikennettä...</div>
                             </div>
                         </div>
@@ -1204,7 +1172,7 @@
                         <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-2 border-t border-slate-800">
                             <span>Lähde: Fintraffic Meriliikenne AIS (reaaliaikainen) & OpenStreetMap</span>
                             <div class="flex gap-2">
-                                <a id="marinetrafficDirectLink" href="https://www.marinetraffic.com/" target="_blank" class="text-sky-400 hover:underline font-medium">MarineTraffic ↗</a>
+                                <a href="https://www.marinetraffic.com/" target="_blank" class="text-sky-400 hover:underline font-medium">MarineTraffic ↗</a>
                                 <span>•</span>
                                 <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="text-emerald-400 hover:underline">Fintraffic Meri ↗</a>
                             </div>
@@ -1213,6 +1181,311 @@
                 </div>
 
             </div>
+
+            <!-- RIVI 4D: KOULUJEN OPPILAAKSIOTTOALUEET & LÄHIKOULUT SEKÄ MUINAISJÄÄNNÖKSET & SUOJELUKOHTEET (MUSEOVIRASTO) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- 🎒 Koulujen oppilaaksiottoalueet & lähikoulut (1/2 leveys) -->
+                <div data-collapsible-card="schoolcatchment" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🎒 Koulujen Oppilaaksiottoalueet & Lähikoulut
+                                <span id="schoolCatchmentBadge" class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Kaupungin paikkatieto- ja oppilaaksiottoaluejako (1.–6. ja 7.–9. lk) sekä osoitteen lähimmät ala- ja yläkoulut ja lukiot.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="schoolCatchmentKpiBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="text-slate-500 italic">Tarkistetaan oppilaaksiottoaluetta kaupungin WFS-karttapalvelusta ja Tilastokeskuksen oppilaitosrekisteristä...</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                            <div class="font-bold text-indigo-300 mb-2">🏫 Osoitteen lähimmät koulut ja oppilaitokset:</div>
+                            <div id="schoolCatchmentNearestList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                        </div>
+                        <div id="schoolCatchmentCityLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+                <!-- 🏛️ Muinaisjäännökset, RKY & Rakennussuojelukohteet (Museovirasto & Kaava) (1/2 leveys) -->
+                <div data-collapsible-card="heritage" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🏛️ Muinaisjäännökset & Suojelukohteet (Museovirasto)
+                                <span id="heritageCountBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Kiinteät muinaisjäännökset, rakennetut kulttuuriympäristöt (RKY), asemakaavan suojelumerkinnät (sr) ja historialliset kohteet.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="heritageSummaryBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+                            <div class="text-slate-500 italic">Kartoitetaan suojelukohteita, muinaisjäännöksiä ja kulttuuriympäristöä...</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                            <div class="font-bold text-amber-300 mb-2">🏺 Lähialueen suojelu-, muinaisjäännös- ja kulttuurikohteet:</div>
+                            <div id="heritageSitesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                        </div>
+                        <div id="heritageDirectLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4E: PYSÄKÖINTIVYÖHYKKEET, KAAVAMÄÄRÄYKSET & PYSÄKÖINTITALOT SEKÄ JÄTEKERÄYSPISTEET, KIERRÄTYS & JÄTEASEMAT -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- 🅿️ Pysäköintivyöhykkeet, Kaavamääräykset & Pysäköintilaitokset (1/2 leveys) -->
+                <div data-collapsible-card="parking" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🅿️ Pysäköintivyöhykkeet, Kaavamääräykset & Parkkitalot
+                                <span id="parkingZoneBadge" class="text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Maksu- ja asukaspysäköintivyöhyke, autopaikkojen kaavanormi sekä lähimmät yleiset pysäköintialueet ja pysäköintihallit.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="parkingZoneKpiBox" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                            <div class="font-bold text-sky-300 mb-2">🚗 Lähimmät yleiset pysäköintipaikat ja pysäköintilaitokset (maksut & kapasiteetti):</div>
+                            <div id="parkingFacilitiesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                        </div>
+                        <div id="parkingRulesAndLinks" class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-300 space-y-1.5"></div>
+                    </div>
+                </div>
+
+                <!-- ♻️ Jätekeräyspisteet, Rinki-ekopisteet & Jäteasemat / Lajitteluasemat (1/2 leveys) -->
+                <div data-collapsible-card="recycling" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                ♻️ Jätekeräyspisteet, Kierrätys & Jäteasemat
+                                <span id="recyclingCountBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Lähimmät kierrätyspisteet (lasi, metalli, muovi, kartonki, vaatteet) sekä seudulliset jäteasemat, aukioloajat ja vastaanotettavat jätteet.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="wasteCenterHighlightBox" class="bg-slate-950 border border-emerald-500/30 rounded-xl p-3.5 space-y-1.5"></div>
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                            <div class="font-bold text-emerald-300 mb-2">🗑️ Lähimmät kierrätys- ja jätekeräyspisteet (kartalla & listalla):</div>
+                            <div id="recyclingSpotsList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+                        </div>
+                        <div id="recyclingExternalLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4F: KIINTEISTÖVERO & TONTTIVERO (LASKURI) + KATUJEN TALVIKUNNOSSAPITO & AURAUKSET + MOBIILIVERKKO (5G/4G) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+                <!-- 🏛️ Kiinteistövero & Tonttivero (Verotusperusteet & Laskuri) (1/3 leveys) -->
+                <div data-collapsible-card="propertytax" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="font-bold text-white flex items-center gap-2">💶 Kiinteistövero & Tonttivero</h2>
+                        <span id="propTaxMunicipalityBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold">Vero 2026</span>
+                    </div>
+                    <div class="collapsible-body mt-3 space-y-3 text-xs">
+                        <p class="text-slate-400">Kunnan viralliset kiinteistöveroprosentit (maapohja, vakituinen asuinrakennus, muu asuinrakennus ja rakentamaton tontti) sekä arvioitu vuosikustannus:</p>
+                        <div id="propTaxRatesGrid" class="grid grid-cols-2 gap-2"></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-300 font-semibold">🧮 Kiinteistöverolaskuri:</span>
+                                <select id="propTaxTypeSelect" onchange="recalcPropertyTaxEstimate()" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-[11px] text-white">
+                                    <option value="detached" selected>Omakotitalo + oma tontti</option>
+                                    <option value="housing_co">Asunto-osakeyhtiö (osakkaan osuus)</option>
+                                    <option value="leisure">Vapaa-ajan asunto / mökki</option>
+                                    <option value="vacant">Rakentamaton asuintontti</option>
+                                </select>
+                            </div>
+                            <div id="propTaxEstimateResult" class="bg-slate-900/90 border border-amber-500/30 rounded-lg p-2.5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ❄️ Katujen kunnossapito & Talvikunnossapitoluokat (1/3 leveys) -->
+                <div data-collapsible-card="wintermaint" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="font-bold text-white flex items-center gap-2">❄️ Katujen & Talvikunnossapito</h2>
+                        <span id="streetMaintClassBadge" class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
+                    </div>
+                    <div class="collapsible-body mt-3 space-y-3 text-xs">
+                        <p class="text-slate-400">Kadun kunnossapitoluokka, aurauskynnys, toimenpideaika sekä kaupungin ja tontinomistajan lakisääteinen vastuunjako:</p>
+                        <div id="streetMaintDetailsBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2"></div>
+                        <div id="streetMaintLinksBox" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+                <!-- 📶 Mobiiliverkon kuuluvuus & Operaattorien 5G/4G-peitto (1/3 leveys) -->
+                <div data-collapsible-card="mobilecov" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="font-bold text-white flex items-center gap-2">📶 Mobiiliverkko & Tukiasemat</h2>
+                        <span id="mobileCovBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold">5G / 4G LTE</span>
+                    </div>
+                    <div class="collapsible-body mt-3 space-y-3 text-xs">
+                        <p class="text-slate-400">Lähimmät matkapuhelintukiasemat ja mastot sekä suora kuuluvuustarkistus (Elisa, Telia, DNA & Traficom):</p>
+                        <div id="mobileTowersStatusBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2"></div>
+                        <div id="mobileOperatorLinksBox" class="grid grid-cols-2 gap-1.5 text-[11px]"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4G: TALOYHTIÖN PERUSTIEDOT (PRH YTJ), YHTEISET TILAT, TILAHISTORIA, ASBESTI- & STUK RADONTIEDOT -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- 🏢 Taloyhtiön perustiedot (PRH YTJ Live), Isännöinti & Yhteiset tilat (1/2 leveys) -->
+                <div data-collapsible-card="housingcompany" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🏢 Taloyhtiön Perustiedot (PRH) & Yhteiset Tilat
+                                <span id="housingCompanyBadge" class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-semibold">PRH Avoindata</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Patentti- ja rekisterihallituksen (PRH YTJ) viralliset asunto-osakeyhtiötiedot, c/o isännöitsijätoimisto, yhtiöjärjestys sekä taloyhtiön yhteiset tilat.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="housingCompanyPrhBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="text-slate-500 italic">Haetaan osoitteen asunto-osakeyhtiötä Patentti- ja rekisterihallituksen (PRH v3) rekisteristä...</div>
+                        </div>
+                        <div id="housingSharedSpacesBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 space-y-2"></div>
+                        <div id="housingCompanyDocsLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+                <!-- ☢️ Rakennuksen Tilahistoria, Asbestikartoitus, Sisäilma- & STUK Säteily-/Radonmittaukset (1/2 leveys) -->
+                <div data-collapsible-card="buildinghealth" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                ☢️ STUK Radon, Asbestikartoitus & Rakennusterveys
+                                <span id="buildingHealthBadge" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-semibold">STUK & Rakennusikä</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Säteilyturvakeskuksen (STUK) kuntakohtainen sisäilman radonpitoisuus (Bq/m³), asbestilainsäädännön mukainen kartoitusvelvoite sekä riskirakenne- ja vesivahinkoprofiili.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="stukRadonKpiBox" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+                        <div id="asbestosAndHistoryBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2"></div>
+                        <div id="buildingHealthLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4H: PUUSTO & METSÄVARATIEDOT (METSÄKESKUS WFS) SEKÄ RIISTA-/HIRVIELÄINKOLARIT (SRVA) & TIELIIKENNEMÄÄRÄT (LAM) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- 🌲 Puusto, Metsätyyppi & Kasvupaikkaluokka (Suomen metsäkeskus WFS) (1/2 leveys) -->
+                <div data-collapsible-card="forest" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🌲 Puusto, Metsätyyppi & Kasvupaikka (Metsäkeskus)
+                                <span id="forestStandBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold">Metsäkeskus Live</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Suomen metsäkeskuksen avoin metsävaratieto: pääpuulaji (mänty, kuusi, lehtipuut), kasvupaikkatyyppi (esim. tuore kangas MT), keski-ikä, pituus ja tilavuus (m³/ha).
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="forestStandKpiRow" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                        <div id="forestStandDetailsBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="text-slate-500 italic">Haetaan metsäkuvio- ja puustotietoja Metsäkeskuksen WFS-rajapinnasta...</div>
+                        </div>
+                        <div id="forestExternalLinks" class="flex flex-wrap gap-2 pt-2 border-t border-slate-800 text-[11px]"></div>
+                    </div>
+                </div>
+
+                <!-- 🦌 Riista- & Hirvieläinkolarit (SRVA / StatFin) sekä Tieliikenteen Liikennemäärät (Fintraffic LAM) (1/2 leveys) -->
+                <div data-collapsible-card="wildlife_traffic" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🦌 Riistakolarit (SRVA) & Tieliikenteen Liikennemäärät
+                                <span id="trafficVolumeBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold">Fintraffic LAM & StatFin</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Reaaliaikaiset liikennemäärät (ajoneuvoa/h & keskinopeus lähimmällä Fintraffic LAM -mittauspisteellä) sekä alueen hirvieläin- ja tieliikenneonnettomuustilastot.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="wildlifeAndTrafficKpiRow" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                        <div id="tmsTrafficStationsBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="text-slate-500 italic">Haetaan lähimpien Fintraffic LAM -liikennemittausasemien ajoneuvomääriä...</div>
+                        </div>
+                        <div id="srvaAccidentBreakdownBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 space-y-2"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4I: JULKISET VALOKUVAT, KATUNÄKYMÄ & HISTORIALLISET KUVAT (WIKIMEDIA + FINNA + STREET VIEW) SEKÄ PAIKALLISET VAIKUTTAJAT & TUNNETUT HENKILÖT -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- 📸 Julkiset valokuvat, Historialliset arkistokuvat & Katunäkymä (Wikimedia Commons + Museovirasto Finna + Street View) (1/2 leveys) -->
+                <div data-collapsible-card="photos" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                📸 Paikkasidonnaiset Valokuvat, Arkistokuvat & Katunäkymä
+                                <span id="geoPhotosBadge" class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 px-2 py-0.5 rounded-full font-semibold">Commons & Finna API</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Koordinaattien lähistöllä otetut julkiset valokuvat (Wikimedia Commons Geosearch), Museoviraston/Finnan historialliset valokuvat sekä suora Google Street View.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="streetViewActionRow" class="flex flex-wrap gap-2"></div>
+                        <div id="geoPhotosGalleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-80 overflow-y-auto pr-1">
+                            <div class="col-span-3 text-slate-500 italic py-4">Haetaan paikkasidonnaisia valokuvia ja historiallisia arkistokuvia...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🌟 Paikalliset vaikuttajat, Tunnetut henkilöt & Merkkihenkilöt (Wikidata + Wikipedia Geosearch) (1/2 leveys) -->
+                <div data-collapsible-card="notablepeople" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🌟 Paikalliset Vaikuttajat, Tunnetut Henkilöt & Historia
+                                <span id="notablePeopleBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold">Wikipedia & Wikidata</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">
+                                Alueelta kotoisin olevat ja siellä vaikuttaneet tunnetut henkilöt, muistolaatat, patsaat sekä lähikortteleiden Wikipedia-artikkelit.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="collapsible-body mt-4 space-y-3 text-xs">
+                        <div id="notablePeopleListBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="text-slate-500 italic">Haetaan paikkakunnan tunnettuja henkilöitä ja lähialueen historia-artikkeleita...</div>
+                        </div>
+                        <div id="nearbyWikipediaArticlesBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 space-y-1.5 max-h-52 overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+
+            </div>
+
 
             <!-- RIVI 5: Alarivin kortit: Valokuitu, Rakennusluvat, Kartat, Uutiset (Oletuksena siististi avattavia laatikoita) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
@@ -1347,9 +1620,12 @@ let allRegionalEvents = [];
 let activeEventCityFilter = 'all';
 let activeEventTimeFilter = 'all';
 let nearbyCitiesList = [];
-let marineVesselsMetaCache = null;
+let marineVesselsMetaCache = new Map();
+let marineVesselsMetaFetchedAt = 0;
 let turkuSewerWfsCache = null;
 let turkuWaterWfsCache = null;
+let tmsStationsCache = null;
+let lastPaavoProps = null;
 
 // Asetetaan oletuspäivämääräksi tämä päivä
 window.addEventListener('DOMContentLoaded', () => {
@@ -1585,6 +1861,12 @@ async function executeSearch() {
         fetchAviationAndOverflights();
         fetchMarineAndWaterProximity();
         fetchSewerAndWaterNetworks();
+        fetchSchoolCatchmentAndHeritage();
+        fetchParkingAndWasteRecycling();
+        fetchPropertyTaxStreetAndMobile();
+        fetchHousingCompanyAndBuildingHealth();
+        fetchForestAndTrafficVolumes();
+        fetchGeoPhotosAndNotablePeople();
 
     } catch (err) {
         errorBox.textContent = err.message;
@@ -4956,6 +5238,43 @@ function renderRegionalEvents() {
 }
 
 // =========================================================
+// APUFUNKTIOITA RAJAPINNOILLE (Timeout, Haversine km, Overpass Fallback)
+// =========================================================
+function haversineKm(lat1, lon1, lat2, lon2) {
+    return haversineMeters(lat1, lon1, lat2, lon2) / 1000;
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { ...options, signal: ctrl.signal });
+        clearTimeout(t);
+        return res;
+    } catch (e) {
+        clearTimeout(t);
+        throw e;
+    }
+}
+
+async function fetchOverpassWithFallback(query, timeoutMs = 9000) {
+    const endpoints = [
+        'https://overpass-api.de/api/interpreter',
+        'https://lz4.overpass-api.de/api/interpreter',
+        'https://overpass.kumi.systems/api/interpreter'
+    ];
+    for (const ep of endpoints) {
+        try {
+            const res = await fetchWithTimeout(`${ep}?data=${encodeURIComponent(query)}`, {}, timeoutMs);
+            if (res.ok) {
+                return await res.json();
+            }
+        } catch (e) {}
+    }
+    return { elements: [] };
+}
+
+// =========================================================
 // 11B. ULKOMAALAISVÄESTÖ & VANHOJEN OSAKEASUNTOJEN NELIÖHINNAT (StatFin + Aluesarjat)
 // =========================================================
 const CITY_TO_KUNTA_CODE = {
@@ -4982,11 +5301,16 @@ function resolveKuntaCode(paavoKunta, cityName) {
 }
 
 async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
-    const foreignContainer = document.getElementById('statfinForeignContainer');
-    const foreignSourceTag = document.getElementById('statfinForeignSourceTag');
-    const pricesContainer = document.getElementById('statfinHousingPrices');
+    if (paavoProps) lastPaavoProps = paavoProps;
+    const foreignContainer = document.getElementById('statfinForeignBreakdown') || document.getElementById('statfinForeignContainer');
+    const pricesContainer = document.getElementById('statfinPriceBreakdown') || document.getElementById('statfinHousingPrices');
+    const paavoForeignShareEl = document.getElementById('paavoForeignShare');
+    const paavoForeignDetailEl = document.getElementById('paavoForeignDetail');
+    const paavoSqmPriceEl = document.getElementById('paavoSqmPrice');
+    const paavoSqmDetailEl = document.getElementById('paavoSqmDetail');
+
     const kuntaCode = resolveKuntaCode(kuntaRaw, currentLoc.city);
-    const cleanZip = String(zip || currentLoc.postalcode || '').replace(/[^0-9]/g, '').padStart(5, '0');
+    const cleanZip = String(zip || currentLoc.zip || '').replace(/[^0-9]/g, '').padStart(5, '0');
 
     // 1. Haetaan Ulkomaalaistaustaiset & Vieraskieliset (Tilastokeskus 159t.px + Helsingin pienalue WFS)
     (async () => {
@@ -5048,7 +5372,6 @@ async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
             if (!res.ok) throw new Error('StatFin 159t HTTP ' + res.status);
             const data = await res.json();
             const vals = data.value || [];
-            // Kun SSS + kuntaCode: 2 aluetta x 7 mittaria = 14 arvoa
             const hasKunta = vals.length >= 14;
             const sss = {
                 pop: vals[0],
@@ -5069,71 +5392,36 @@ async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
                 ulkKansaPct: vals[13]
             } : sss;
 
-            // Lasketaan postinumeroalueen Paavo-indikaattoreihin perustuva paikallinen painotusarvio
             let zipEstPct = mun.ulkTaustaPct || sss.ulkTaustaPct || 11.1;
             let zipEstCount = null;
             if (paavoProps && paavoProps.he_vakiy > 0) {
                 const rentRatio = paavoProps.te_taly > 0 ? (paavoProps.te_vuok_as / paavoProps.te_taly) : 0.35;
                 const aptRatio = paavoProps.ra_asunn > 0 ? (paavoProps.ra_kt_as / paavoProps.ra_asunn) : 0.50;
                 const studentRatio = paavoProps.he_vakiy > 0 ? ((paavoProps.pt_opisk || 0) / paavoProps.he_vakiy) : 0.08;
-                // Paikallinen demografinen kerroin suhteessa kunnan keskiarvoon (vuokra-aste + kerrostaloaste + opiskelijat)
                 const multiplier = Math.max(0.35, Math.min(2.35, 0.45 + (rentRatio * 0.95) + (aptRatio * 0.35) + (studentRatio * 0.6)));
                 zipEstPct = subAreaInfo ? subAreaInfo.foreignLangPct : Math.min(68, Math.max(1.2, (mun.ulkTaustaPct || 11.1) * multiplier));
                 zipEstCount = Math.round((zipEstPct / 100) * paavoProps.he_vakiy);
             }
 
-            if (foreignSourceTag) {
-                foreignSourceTag.textContent = subAreaInfo
-                    ? `Helsinki Aluesarjat WFS + StatFin 159t (2025)`
-                    : `Tilastokeskus 159t (2025) + Paavo ${cleanZip}`;
+            if (paavoForeignShareEl) {
+                paavoForeignShareEl.textContent = `${zipEstPct.toFixed(1)} % (${cleanZip})`;
+            }
+            if (paavoForeignDetailEl) {
+                paavoForeignDetailEl.textContent = `${currentLoc.city || 'Kunta'}: ${Number(mun.ulkTaustaPct || 0).toFixed(1)}% • Vierask: ${Number(mun.vierKieliPct || 0).toFixed(1)}%`;
             }
 
-            const diffVsCountry = ((mun.ulkTaustaPct || 0) - (sss.ulkTaustaPct || 0));
-            const diffStr = diffVsCountry >= 0 ? `+${diffVsCountry.toFixed(1)} %-yks.` : `${diffVsCountry.toFixed(1)} %-yks.`;
-
-            foreignContainer.innerHTML = `
-                <div class="grid grid-cols-3 gap-2 mb-2.5">
-                    <div class="bg-slate-900/90 border border-indigo-500/30 rounded-lg p-2">
-                        <div class="text-[10px] text-indigo-300 font-semibold">${subAreaInfo ? `Pienalue (${subAreaInfo.areaName})` : `Postinro ${cleanZip} (arvio)`}</div>
-                        <div class="text-base font-extrabold text-white mt-0.5">${zipEstPct.toFixed(1)} %</div>
-                        <div class="text-[10px] text-slate-400">${subAreaInfo ? `${subAreaInfo.foreignLangCount.toLocaleString('fi-FI')} hlö (vierask.)` : (zipEstCount !== null ? `~${zipEstCount.toLocaleString('fi-FI')} hlö alueella` : 'Demografinen malli')}</div>
-                    </div>
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
-                        <div class="text-[10px] text-slate-400 font-semibold">${currentLoc.city || 'Kunta'} (tausta)</div>
-                        <div class="text-base font-extrabold text-indigo-300 mt-0.5">${Number(mun.ulkTaustaPct || 0).toFixed(1)} %</div>
-                        <div class="text-[10px] text-slate-400">${Number(mun.ulkTausta || 0).toLocaleString('fi-FI')} hlö (${diffStr} vrt. FI)</div>
-                    </div>
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
-                        <div class="text-[10px] text-slate-400 font-semibold">Vieraskieliset (${currentLoc.city || 'Kunta'})</div>
-                        <div class="text-base font-extrabold text-sky-300 mt-0.5">${Number(mun.vierKieliPct || 0).toFixed(1)} %</div>
-                        <div class="text-[10px] text-slate-400">${Number(mun.vierKieli || 0).toLocaleString('fi-FI')} hlö • Ulk. kans: ${Number(mun.ulkKansaPct || 0).toFixed(1)}%</div>
-                    </div>
-                </div>
-                <div class="space-y-1.5">
-                    <div>
-                        <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
-                            <span>Postinumeroalueen ${cleanZip} osuus (painotettu)</span>
-                            <span class="font-bold text-indigo-300">${zipEstPct.toFixed(1)} %</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-400 rounded-full" style="width:${Math.min(100, zipEstPct * 2)}%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
-                            <span>${currentLoc.city || 'Kunta'} keskiarvo: ${Number(mun.ulkTaustaPct || 0).toFixed(1)} %</span>
-                            <span>Koko Suomi keskiarvo: ${Number(sss.ulkTaustaPct || 0).toFixed(1)} %</span>
-                        </div>
-                        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden flex">
-                            <div class="h-full bg-sky-500/80" style="width:${Math.min(100, (mun.ulkTaustaPct || 0) * 2)}%"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            if (foreignContainer) {
+                foreignContainer.innerHTML = `
+                    <div>• <strong>Postinumero ${cleanZip} osuus:</strong> <strong class="text-fuchsia-300">${zipEstPct.toFixed(1)} %</strong> ${zipEstCount !== null ? `(~${zipEstCount.toLocaleString('fi-FI')} as.)` : ''}</div>
+                    <div>• <strong>${currentLoc.city || 'Kunta'} ulkomaalaistaustaiset:</strong> <strong class="text-white">${Number(mun.ulkTaustaPct || 0).toFixed(1)} %</strong> (${Number(mun.ulkTausta || 0).toLocaleString('fi-FI')} hlö, FI ka: ${Number(sss.ulkTaustaPct || 0).toFixed(1)} %)</div>
+                    <div>• <strong>Vieraskieliset (${currentLoc.city || 'Kunta'}):</strong> <strong class="text-sky-300">${Number(mun.vierKieliPct || 0).toFixed(1)} %</strong> (${Number(mun.vierKieli || 0).toLocaleString('fi-FI')} hlö)</div>
+                    <div>• <strong>Ulkomaan kansalaiset:</strong> <strong>${Number(mun.ulkKansaPct || 0).toFixed(1)} %</strong> (${Number(mun.ulkKansa || 0).toLocaleString('fi-FI')} hlö)</div>
+                `;
+            }
         } catch (err) {
             console.warn('StatFin 159t error:', err);
             if (foreignContainer) {
-                foreignContainer.innerHTML = `<div class="text-xs text-slate-400">Ulkomaalaistaustaisen väestön tilastoa ei saatu ladattua (${err.message}).</div>`;
+                foreignContainer.innerHTML = `<div class="text-xs text-slate-400">Ulkomaalaistaustaisen väestön tilastoa ei saatu ladattua.</div>`;
             }
         }
     })();
@@ -5161,20 +5449,15 @@ async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
             if (!res.ok) throw new Error('StatFin 13mu HTTP ' + res.status);
             const data = await res.json();
             const vals = data.value || [];
-            // 3 vuotta x 1 postinumero x 4 talotyyppiä x 2 mittaria = 24 arvoa
-            // Indeksilaskenta: yearIdx * 8 + typeIdx * 2 + metricIdx
             const typeLabels = [
-                { idx: 0, label: 'KT Yksiöt (1h)', short: 'Kerrostalo yksiöt' },
-                { idx: 1, label: 'KT Kaksiot (2h)', short: 'Kerrostalo kaksiot' },
-                { idx: 2, label: 'KT Perheas. (3h+)', short: 'Kerrostalo 3h+' },
-                { idx: 3, label: 'Rivitalot yht.', short: 'Rivitalot' }
+                { idx: 0, label: 'KT Yksiöt (1h)' },
+                { idx: 1, label: 'KT Kaksiot (2h)' },
+                { idx: 2, label: 'KT Perheas. (3h+)' },
+                { idx: 3, label: 'Rivitalot yht.' }
             ];
 
-            const cardsHtml = typeLabels.map(t => {
-                // Etsitään tuorein vuosi (2025 -> 2024 -> 2023), jolta löytyy neliöhinta
-                let price = null;
-                let sales = null;
-                let yearUsed = '2025';
+            const parsedTypes = typeLabels.map(t => {
+                let price = null, sales = null, yearUsed = '2025';
                 const years = ['2023', '2024', '2025'];
                 for (let y = 2; y >= 0; y--) {
                     const base = y * 8 + t.idx * 2;
@@ -5187,33 +5470,34 @@ async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
                         break;
                     }
                 }
-                return `
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
-                        <div class="flex items-center justify-between text-[10px] text-slate-400">
-                            <span class="font-semibold">${t.label}</span>
-                            <span class="text-[9px] text-emerald-400">${price ? yearUsed : ''}</span>
-                        </div>
-                        <div class="text-sm font-extrabold text-white mt-0.5">
-                            ${price ? `${Number(price).toLocaleString('fi-FI')} €/m²` : '<span class="text-xs text-slate-500 font-normal">Ei julk. (&lt;6 kpl)</span>'}
-                        </div>
-                        <div class="text-[10px] text-slate-500">
-                            ${sales ? `${sales} kauppaa/v` : 'Tilastokeskus 13mu'}
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                return { ...t, price, sales, yearUsed };
+            });
+
+            const validPrices = parsedTypes.filter(x => x.price > 0);
+            if (paavoSqmPriceEl) {
+                if (validPrices.length > 0) {
+                    const avgSqm = Math.round(validPrices.reduce((s, x) => s + x.price, 0) / validPrices.length);
+                    paavoSqmPriceEl.textContent = `${avgSqm.toLocaleString('fi-FI')} €/m²`;
+                    if (paavoSqmDetailEl) paavoSqmDetailEl.textContent = `Postinro ${cleanZip} (${validPrices[0].yearUsed})`;
+                } else {
+                    paavoSqmPriceEl.textContent = 'Ei julk. (<6 kpl)';
+                }
+            }
 
             if (pricesContainer) {
-                pricesContainer.innerHTML = cardsHtml;
+                pricesContainer.innerHTML = parsedTypes.map(t => `
+                    <div>• <strong>${t.label}:</strong> ${t.price ? `<strong class="text-amber-300">${Number(t.price).toLocaleString('fi-FI')} €/m²</strong> <span class="text-slate-400">(${t.sales || '-'} kauppaa, ${t.yearUsed})</span>` : '<span class="text-slate-500">Ei julk. (&lt;6 kauppaa)</span>'}</div>
+                `).join('');
             }
         } catch (err) {
             console.warn('StatFin 13mu error:', err);
             if (pricesContainer) {
-                pricesContainer.innerHTML = `<div class="col-span-2 text-xs text-slate-400">Postinumeroalueen ${cleanZip} asuntojen neliöhintatietoja ei löytynyt Tilastokeskuksen taulusta 13mu.</div>`;
+                pricesContainer.innerHTML = `<div class="text-xs text-slate-400">Postinumeroalueen ${cleanZip} asuntojen neliöhintatietoja ei löytynyt taulusta 13mu.</div>`;
             }
         }
     })();
 }
+
 
 // =========================================================
 // 11C. RIKOSTILASTOT & ALUEEN TURVALLISUUS (StatFin RPK 13ex.px + Poliisiuutiset)
@@ -6170,6 +6454,1538 @@ async function fetchMarineAndWaterProximity(manualRefresh = false) {
     } catch (err) {
         console.warn('Water proximity error:', err);
     }
+}
+
+// =========================================================
+// 12. KOULUJEN OPPILAAKSIOTTOALUEET & LÄHIKOULUT SEKÄ MUINAISJÄÄNNÖKSET & SUOJELUKOHTEET (RIVI 4D)
+// =========================================================
+const CITY_SCHOOL_CATCHMENT_LINKS = {
+    'helsinki': { label: 'Helsingin Palvelukartta & Oppilaaksiottoalueet (Asti)', url: 'https://palvelukartta.hel.fi/fi/search?q=peruskoulu', mapUrl: 'https://kartta.hel.fi/' },
+    'espoo': { label: 'Espoon oppilaaksiottoalueet ja lähikoulun osoittaminen', url: 'https://www.espoo.fi/fi/kasvatus-ja-opetus/perusopetus/kouluun-ilmoittautuminen-ja-hakeminen/oppilaaksiottoalueet', mapUrl: 'https://kartat.espoo.fi/' },
+    'vantaa': { label: 'Vantaan lähikoulualueet karttapalvelussa', url: 'https://kartta.vantaa.fi/', mapUrl: 'https://kartta.vantaa.fi/' },
+    'turku': { label: 'Turun oppilaaksiottoalueet (Opaskartta)', url: 'https://www.turku.fi/paivahoito-ja-koulutus/perusopetus/peruskoulut/oppilaaksiottoalueet', mapUrl: 'https://opaskartta.turku.fi/' },
+    'tampere': { label: 'Tampereen koulupolut ja oppilaaksiottoalueet', url: 'https://www.tampere.fi/koulutus/perusopetus/koulupolut-ja-oppilaaksiottoalueet', mapUrl: 'https://kartat.tampere.fi/oskari/' },
+    'oulu': { label: 'Oulun oppilaaksiottoalueet ja lähikoulut', url: 'https://www.ouka.fi/perusopetus', mapUrl: 'https://kartta.ouka.fi/' },
+    'jyväskylä': { label: 'Jyväskylän oppilaaksiottoalueet kartalla', url: 'https://kartta.jkl.fi/', mapUrl: 'https://kartta.jkl.fi/' },
+    'kuopio': { label: 'Kuopion lähikoulualueet (Karttapalvelu)', url: 'https://kartta.kuopio.fi/', mapUrl: 'https://kartta.kuopio.fi/' },
+    'lahti': { label: 'Lahden oppilaaksiottoalueet', url: 'https://kartta.lahti.fi/', mapUrl: 'https://kartta.lahti.fi/' },
+    'pori': { label: 'Porin oppilaaksiottoalueet', url: 'https://kartta.pori.fi/', mapUrl: 'https://kartta.pori.fi/' }
+};
+
+async function fetchSchoolCatchmentAndHeritage() {
+    const { lat, lon, city, street } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // --- OSA A: Koulujen oppilaaksiottoalueet & lähikoulut ---
+    (async () => {
+        const kpiBox = document.getElementById('schoolCatchmentKpiBox');
+        const listEl = document.getElementById('schoolCatchmentNearestList');
+        const linksEl = document.getElementById('schoolCatchmentCityLinks');
+        const badgeEl = document.getElementById('schoolCatchmentBadge');
+
+        let wfsCatchmentName = null;
+        let wfsSource = null;
+
+        // 1. Turun seudun oppilaaksiottoalue suoraan WFS:stä (GIS:Oppilasalueet_suomi)
+        if (['turku', 'kaarina', 'raisio'].includes(cityLow)) {
+            try {
+                const d = 0.0015;
+                const bbox = `${lon - d},${lat - d},${lon + d},${lat + d}`;
+                const wfsUrl = `https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=GIS:Oppilasalueet_suomi&SRSNAME=EPSG:4326&BBOX=${bbox}&MAXFEATURES=5`;
+                const res = await fetchWithTimeout(wfsUrl, {}, 6500);
+                if (res.ok) {
+                    const xml = await res.text();
+                    const m = xml.match(/<(?:GIS:)?(?:Nimi|Koulu|Alue|oppilaaksiottoalue|nimi)[^>]*>([^<]+)</i);
+                    if (m && m[1]) {
+                        wfsCatchmentName = m[1].trim();
+                        wfsSource = 'Turun kaupungin Oppilasalueet WFS';
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // 2. Haetaan lähimmät koulut ja lukiot Tilastokeskuksen virallisesta oppilaitosrekisteristä WFS
+        const schools = [];
+        try {
+            const dLat = 0.04;
+            const dLon = 0.08;
+            const wfsStat = `https://geo.stat.fi/geoserver/oppilaitokset/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=oppilaitokset:oppilaitokset&outputFormat=application/json&srsName=EPSG:4326&bbox=${(lon - dLon).toFixed(4)},${(lat - dLat).toFixed(4)},${(lon + dLon).toFixed(4)},${(lat + dLat).toFixed(4)},EPSG:4326`;
+            const res = await fetchWithTimeout(wfsStat, {}, 7000);
+            if (res.ok) {
+                const geo = await res.json();
+                (geo.features || []).forEach(f => {
+                    const coords = f.geometry && f.geometry.coordinates;
+                    const p = f.properties || {};
+                    if (!coords || coords.length < 2) return;
+                    const sLon = coords[0], sLat = coords[1];
+                    const distM = Math.round(haversineMeters(lat, lon, sLat, sLon));
+                    const name = p.onimi || p.onimi_fi || 'Koulu / Oppilaitos';
+                    const addr = [p.okatuosoite, p.opostinumero].filter(Boolean).join(', ');
+                    const nLow = name.toLowerCase();
+                    let level = 'Peruskoulu / Oppilaitos';
+                    if (nLow.includes('lukio') || nLow.includes('gymnasium')) level = '🎓 Lukio';
+                    else if (nLow.includes('ammatti') || nLow.includes('amk') || nLow.includes('yliopisto') || nLow.includes('korkeakoulu')) level = '🏛️ Toinen aste / Korkeakoulu';
+                    else if (nLow.includes('koulu') || nLow.includes('skola') || nLow.includes('yhtenäiskoulu')) level = '🎒 Peruskoulu (Lähikoulu)';
+                    schools.push({ name, addr, level, distM, lat: sLat, lon: sLon });
+                });
+            }
+        } catch (e) {}
+
+        schools.sort((a, b) => a.distM - b.distM);
+        const primarySchools = schools.filter(s => s.level.includes('Peruskoulu'));
+        const nearestPrimary = primarySchools[0] || schools[0] || null;
+        const secondPrimary = primarySchools[1] || schools[1] || null;
+        const nearestHighSchool = schools.find(s => s.level.includes('Lukio')) || null;
+
+        if (badgeEl) {
+            badgeEl.textContent = nearestPrimary ? `Lähikoulu ${(nearestPrimary.distM / 1000).toFixed(1)} km` : 'Tilastokeskus & Kunta';
+        }
+
+        const catchmentTitle = wfsCatchmentName || (nearestPrimary ? `${nearestPrimary.name} (Lähikouluetäisyys)` : 'Kunnan lähikoulualue');
+
+        if (kpiBox) {
+            kpiBox.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div class="bg-slate-900/90 border border-indigo-500/30 rounded-lg p-2.5">
+                        <div class="text-[10px] text-indigo-300 font-semibold">Ensisijainen lähikoulu / alue</div>
+                        <div class="text-xs font-extrabold text-white mt-0.5 truncate" title="${catchmentTitle}">${catchmentTitle}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${nearestPrimary ? `Etäisyys: ${nearestPrimary.distM} m (${nearestPrimary.addr})` : (wfsSource || 'Perusopetuslain 6 § lähikouluperiaate')}</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+                        <div class="text-[10px] text-slate-400 font-semibold">Toiseksi lähin peruskoulu</div>
+                        <div class="text-xs font-bold text-slate-200 mt-0.5 truncate">${secondPrimary ? secondPrimary.name : '-'}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${secondPrimary ? `Etäisyys: ${secondPrimary.distM} m` : 'Yläkoulu / yhtenäiskoulu'}</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5">
+                        <div class="text-[10px] text-slate-400 font-semibold">Lähin lukio</div>
+                        <div class="text-xs font-bold text-cyan-300 mt-0.5 truncate">${nearestHighSchool ? nearestHighSchool.name : 'Ei 4 km säteellä'}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${nearestHighSchool ? `Etäisyys: ${(nearestHighSchool.distM / 1000).toFixed(1)} km` : 'Vapaa hakeutuminen'}</div>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 pt-1">
+                    ℹ️ <b>Oppilaaksiottoalue (Perusopetuslaki 6 §):</b> Kunta osoittaa oppilaalle lähikoulun oppilaaksiottoalueen, koulumatkan pituuden ja turvallisuuden sekä sisarussuhteen perusteella. Koulukuljetusoikeus syntyy yleensä, kun koulumatka ylittää 3 km (1.–3. lk) tai 5 km (4.–9. lk).
+                </div>
+            `;
+        }
+
+        if (listEl) {
+            if (schools.length === 0) {
+                listEl.innerHTML = `<div class="text-slate-500">4 km säteeltä ei löytynyt Tilastokeskuksen oppilaitosrekisterin kouluja. Tarkista kunnan karttapalvelu alta.</div>`;
+            } else {
+                listEl.innerHTML = schools.slice(0, 8).map(s => {
+                    const dStr = s.distM >= 1000 ? `${(s.distM / 1000).toFixed(1)} km` : `${s.distM} m`;
+                    return `
+                        <div onclick="focusMapPoint(${s.lat}, ${s.lon}, '🏫 ${s.name.replace(/'/g, '')}', '${s.level} • ${s.addr}')"
+                             class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 transition">
+                            <div class="truncate">
+                                <span class="font-bold text-slate-100">${s.name}</span>
+                                <span class="text-[10px] text-indigo-300 ml-1.5">${s.level}</span>
+                                <div class="text-[10px] text-slate-400 truncate">${s.addr}</div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-400 shrink-0">${dStr}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        if (linksEl) {
+            const cInfo = CITY_SCHOOL_CATCHMENT_LINKS[cityLow] || {
+                label: `${city || 'Kunnan'} oppilaaksiottoalueet ja lähikoulut`,
+                url: `https://www.google.com/search?q=${encodeURIComponent((city || '') + ' oppilaaksiottoalueet lähikoulu kartta')}`,
+                mapUrl: `https://www.google.com/search?q=${encodeURIComponent((city || '') + ' karttapalvelu oppilaaksiottoalueet')}`
+            };
+            linksEl.innerHTML = `
+                <a href="${cInfo.url}" target="_blank" class="bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    🗺️ ${cInfo.label} ↗
+                </a>
+                <a href="${cInfo.mapUrl}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    📍 Kunnan karttapalvelu ↗
+                </a>
+            `;
+        }
+    })();
+
+    // --- OSA B: Muinaisjäännökset ja suojelukohteet (Museovirasto, Kaavasuojelu & Kulttuuriympäristö) ---
+    (async () => {
+        const sumBox = document.getElementById('heritageSummaryBox');
+        const listEl = document.getElementById('heritageSitesList');
+        const linksEl = document.getElementById('heritageDirectLinks');
+        const badgeEl = document.getElementById('heritageCountBadge');
+
+        const sites = [];
+
+        // 1. Haetaan OpenStreetMapista kiinteät muinaisjäännökset, suojelukohteet, muistomerkit ja kulttuuriympäristöt (historic=*, heritage=*, archaeological_site)
+        try {
+            const hQuery = `[out:json][timeout:10];(node["historic"](around:2500,${lat},${lon});way["historic"](around:2500,${lat},${lon});node["heritage"](around:2500,${lat},${lon});way["heritage"](around:2500,${lat},${lon});way["boundary"="protected_area"](around:2500,${lat},${lon}););out center 35;`;
+            const ov = await fetchOverpassWithFallback(hQuery, 8500);
+            (ov.elements || []).forEach(el => {
+                const eLat = el.lat || (el.center && el.center.lat);
+                const eLon = el.lon || (el.center && el.center.lon);
+                if (!eLat || !eLon) return;
+                const tags = el.tags || {};
+                const hType = tags.historic || (tags.heritage ? 'protected_building' : 'nature_reserve');
+                const name = tags.name || tags['name:fi'] || (
+                    hType === 'archaeological_site' ? 'Kiinteä muinaisjäännös (Muinaismuistolaki)' :
+                    hType === 'memorial' || hType === 'monument' ? 'Historiallinen muistomerkki' :
+                    hType === 'building' || hType === 'manor' || hType === 'castle' ? 'Suojeltu / historiallinen rakennus' :
+                    'Kulttuuriperintö- / suojelukohde'
+                );
+                const catLabel = hType === 'archaeological_site' ? '🏺 Kiinteä muinaisjäännös'
+                    : (tags.heritage || hType === 'building' || hType === 'manor') ? '🏛️ Suojeltu rakennus / RKY'
+                    : hType === 'memorial' || hType === 'monument' ? '🗿 Muistomerkki / Kulttuurikohde'
+                    : '🛡️ Suojelu- / kulttuuriympäristökohde';
+                const distM = Math.round(haversineMeters(lat, lon, eLat, eLon));
+                sites.push({
+                    name,
+                    catLabel,
+                    desc: tags.description || tags.inscription || tags.start_date || '',
+                    distM,
+                    lat: eLat,
+                    lon: eLon
+                });
+            });
+        } catch (e) {}
+
+        // 2. Haetaan lisäksi Helsingin suojellut rakennukset WFS:stä tai Turun suojeltavat kohteet WFS:stä, jos ollaan alueella
+        if (cityLow === 'helsinki') {
+            try {
+                const d = 0.004;
+                const hUrl = `https://kartta.hel.fi/ws/geoserver/avoindata/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=avoindata:Asemakaavoissa_suojellut_rakennukset_alue&outputFormat=application/json&srsName=EPSG:4326&bbox=${lon - d},${lat - d},${lon + d},${lat + d},EPSG:4326&count=15`;
+                const hRes = await fetchWithTimeout(hUrl, {}, 6000);
+                if (hRes.ok) {
+                    const hj = await hRes.json();
+                    (hj.features || []).forEach(f => {
+                        const fp = f.properties || {};
+                        const mark = fp.suojelumerkinta || 'sr';
+                        sites.push({
+                            name: fp.katuosoite || `Asemakaavassa suojeltu rakennus (${mark})`,
+                            catLabel: `🏛️ Kaavasuojelu (${mark})`,
+                            desc: fp.suojelumaarays || 'Helsingin asemakaavan suojelukohde',
+                            distM: 120,
+                            lat,
+                            lon
+                        });
+                    });
+                }
+            } catch (e) {}
+        }
+
+        sites.sort((a, b) => a.distM - b.distM);
+        const archCount = sites.filter(s => s.catLabel.includes('muinaisjäännös')).length;
+        const onPlotOrImmediate = sites.filter(s => s.distM <= 80);
+
+        if (badgeEl) {
+            badgeEl.textContent = `${sites.length} kohdetta (<2.5 km)`;
+        }
+
+        if (sumBox) {
+            sumBox.innerHTML = `
+                <div class="grid grid-cols-3 gap-2 mb-2">
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400">Suojelukohteet &lt; 80 m</div>
+                        <div class="text-sm font-extrabold ${onPlotOrImmediate.length > 0 ? 'text-amber-300' : 'text-emerald-400'} mt-0.5">
+                            ${onPlotOrImmediate.length > 0 ? `⚠️ ${onPlotOrImmediate.length} kohdetta` : '✅ Ei välitöntä'}
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400">Muinaisjäännökset</div>
+                        <div class="text-sm font-extrabold text-white mt-0.5">${archCount} kpl <span class="text-[10px] font-normal text-slate-400">(2,5 km)</span></div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400">Kulttuurikohteet yht.</div>
+                        <div class="text-sm font-extrabold text-amber-300 mt-0.5">${sites.length} kpl</div>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400">
+                    📜 <b>Muinaismuistolaki (295/1963) & Rakennussuojelu:</b> Kiinteät muinaisjäännökset ovat suoraan lain nojalla rauhoitettuja. Jos tontilla on kaavassa <b>sr-1 / sr-2</b> -merkintä tai RKY-alue, julkisivu- ja purkutöihin tarvitaan Museoviraston / maakuntamuseon lausunto.
+                </div>
+            `;
+        }
+
+        if (listEl) {
+            if (sites.length === 0) {
+                listEl.innerHTML = `<div class="text-slate-400">Ei kartoitettuja kiinteitä muinaisjäännöksiä tai suojelumuistomerkkejä välittömässä läheisyydessä. Tarkista Museoviraston Kyppi-rekisteri alta.</div>`;
+            } else {
+                listEl.innerHTML = sites.slice(0, 10).map(s => {
+                    const dStr = s.distM >= 1000 ? `${(s.distM / 1000).toFixed(1)} km` : `${s.distM} m`;
+                    return `
+                        <div onclick="focusMapPoint(${s.lat}, ${s.lon}, '${s.name.replace(/'/g, '')}', '${s.catLabel}')"
+                             class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 transition">
+                            <div class="truncate">
+                                <span class="font-bold text-amber-200">${s.name}</span>
+                                <span class="text-[10px] text-slate-400 ml-1.5">${s.catLabel}</span>
+                                ${s.desc ? `<div class="text-[10px] text-slate-400 truncate">${s.desc}</div>` : ''}
+                            </div>
+                            <span class="font-mono font-bold text-white shrink-0">${dStr}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        if (linksEl) {
+            linksEl.innerHTML = `
+                <a href="https://www.kyppi.fi/palveluikkuna/mjreki/read/asp/r_default.aspx" target="_blank" class="bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    🏺 Museovirasto Kyppi (Muinaisjäännösrekisteri) ↗
+                </a>
+                <a href="https://kartta.museoverkko.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🏛️ Museovirasto Kulttuuriympäristökartta ↗
+                </a>
+                <a href="https://www.rky.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🏰 RKY Valtakunnallisesti merkittävät ympäristöt ↗
+                </a>
+            `;
+        }
+    })();
+}
+
+// =========================================================
+// 13. PYSÄKÖINTIVYÖHYKKEET, KAAVAMÄÄRÄYKSET & PARKKITALOT SEKÄ JÄTEKERÄYSPISTEET & JÄTEASEMAT (RIVI 4E)
+// =========================================================
+const CITY_PARKING_ZONES_INFO = {
+    'helsinki': {
+        zones: 'Maksuvyöhykkeet 1 (kantakaupunki 4 €/h), 2 (2 €/h) ja 3 (1 €/h) sekä asukaspysäköintitunnukset A–O',
+        norm: 'Asemakaavan autopaikkanormi: kantakaupungissa tyypillisesti 1 ap / 120–150 k-m², esikaupunkialueella 1 ap / 85–110 k-m² (sähköauton latausvalmiusvelvoite).',
+        url: 'https://www.hel.fi/fi/kaupunkiymparisto-ja-liikenne/pysakointi/pysakointipaikat-hinnat-ja-maksutavat'
+    },
+    'turku': {
+        zones: 'Vyöhyke 1 (Ydinkeskusta 3,60 €/h), Vyöhyke 2 (Keskusta 1,80 €/h), Vyöhyke 3 (0,60 €/h) sekä asukaspysäköinti A–J',
+        norm: 'Turun kaavamääräys: keskustassa n. 1 ap / 110–130 k-m², muilla kerrostaloalueilla 1 ap / 75–95 k-m², pientaloissa 1,5–2 ap / asunto.',
+        url: 'https://www.turku.fi/asuminen-ja-ymparisto/liikenne/pysakointi'
+    },
+    'tampere': {
+        zones: 'Maksuvyöhykkeet 1 (3,40 €/h), 2 (2,00 €/h) ja 3 (1,20 €/h) sekä asukaspysäköintitunnukset',
+        norm: 'Tampereen pysäköintipolitiikka: raitiotie- ja keskustavyöhykkeellä 1 ap / 110–140 k-m², muilla alueilla 1 ap / 75–95 k-m².',
+        url: 'https://www.tampere.fi/liikenne-kadut-ja-kunnossapito/pysakointi'
+    },
+    'espoo': {
+        zones: 'Kiekko- ja maksulliset vyöhykkeet kaupunkikeskuksissa (Tapiola, Leppävaara, Matinkylä, Espoonlahti)',
+        norm: 'Espoon autopaikkanormi: metro-/raidekeskuksissa 1 ap / 100–125 k-m², pientaloalueilla 2 ap / asunto.',
+        url: 'https://www.espoo.fi/fi/liikenne-ja-kadut/pysakointi'
+    },
+    'oulu': {
+        zones: 'Maksuvyöhyke 1 (2,40 €/h), Vyöhyke 2 (1,50 €/h) ja Vyöhyke 3 sekä asukaspysäköintialueet',
+        norm: 'Oulun kaavamääräys: keskustassa 1 ap / 100–120 k-m², muilla alueilla 1 ap / 75–85 k-m².',
+        url: 'https://www.ouka.fi/pysakointi'
+    }
+};
+
+const REGIONAL_WASTE_COMPANIES = {
+    'helsinki': { name: 'HSY Sortti-asemat (Kivikko, Konala, Konalan pienjäte, Ruskeasanta, Ämmässuo)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, sähkölaitteet (SER), vaarallinen jäte, puutarhajäte, rakennus- ja sekajäte', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
+    'espoo': { name: 'HSY Sortti-asemat (Ämmässuo, Suomenoja / Kivenlahti)', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Puu, metalli, SER, vaarallinen jäte, risut, huonekalut ja remonttijäte', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
+    'vantaa': { name: 'HSY Sortti-asema Ruskeasanta & Kivikko', hours: 'Ma–Pe 7–21, La–Su 10–18', accepts: 'Kaikki kodin remontti-, puutarha-, SER- ja vaaralliset jätteet', url: 'https://www.hsy.fi/jatehuolto/sortti-asemat/' },
+    'turku': { name: 'Lounais-Suomen Jätehuolto (LSJH) – Topinojan jätekeskus & lajitteluasemat', hours: 'Ma–Pe 6.30–21, La 9–16', accepts: 'Vaarallinen jäte, SER, metalli, puu, kipsi, poistotekstiili, puutarhajäte (maksuton), lajiteltu jäte', url: 'https://lsjh.fi/lajitteluasemat/' },
+    'kaarina': { name: 'LSJH Korvenmäen & Topinojan lajitteluasemat', hours: 'Ma–Pe 7–20, La 9–16', accepts: 'Vaarallinen jäte, SER, metalli, puu, puutarhajäte, rakennusjäte', url: 'https://lsjh.fi/lajitteluasemat/' },
+    'raisio': { name: 'LSJH Isosuon jätekeskus (Raisio/Naantali) & Topinoja', hours: 'Ma–Pe 9–18, La 9–15', accepts: 'Risut, puutarhajäte, metalli, SER, vaarallinen jäte, lajiteltu rakennusjäte', url: 'https://lsjh.fi/lajitteluasemat/' },
+    'tampere': { name: 'Pirkanmaan Jätehuolto – Nekalan & Tarastenjärven jäteasemat / Koukkujärvi', hours: 'Ma–Pe 7–20, La 9–15', accepts: 'Metalli, SER, vaaralliset jätteet, puu, risut, sekajäte, asbesti (Tarastenjärvi)', url: 'https://pjhoy.fi/jateasemat/' },
+    'oulu': { name: 'Kiertokaari Oy – Ruskon jätekeskus & Oulunlahden lajitteluasema', hours: 'Ma–Pe 7–20, La 9–16', accepts: 'Kaikki kotitalouden hyöty-, puutarha-, vaaralliset ja rakennusjätteet', url: 'https://kiertokaari.fi/asumisessa-syntyva-jate/ruskon-jatekeskus/' },
+    'jyväskylä': { name: 'Mustankorkea Oy – Jätekeskus & lajittelupiha', hours: 'Ma–Pe 7–19, La 9–15', accepts: 'Puutarhajäte, vaarallinen jäte, SER, metalli, puu, sekajäte', url: 'https://mustankorkea.fi/' },
+    'kuopio': { name: 'Jätekukko Oy – Heinälamminrinteen jätekeskus & lajitteluasemat', hours: 'Ma–Pe 7–19', accepts: 'Metalli, SER, vaaralliset jätteet, puu, puutarhajäte, rakennusjäte', url: 'https://www.jatekukko.fi/' },
+    'lahti': { name: 'Salpakierto Oy – Lajitteluasema Pilleri (Kujala)', hours: 'Ma–Pe 7–20, La 9–15', accepts: 'Vaaralliset jätteet, SER, metalli, puu, puutarhajäte, rakennusjäte', url: 'https://salpakierto.fi/' }
+};
+
+async function fetchParkingAndWasteRecycling() {
+    const { lat, lon, city } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // --- OSA A: Pysäköintivyöhykkeet, kaavamääräykset ja lähimmät pysäköintipaikat/parkkitalot ---
+    (async () => {
+        const kpiBox = document.getElementById('parkingZoneKpiBox');
+        const listEl = document.getElementById('parkingFacilitiesList');
+        const rulesEl = document.getElementById('parkingRulesAndLinks');
+        const badgeEl = document.getElementById('parkingZoneBadge');
+
+        const parkings = [];
+        try {
+            const pQuery = `[out:json][timeout:10];(node["amenity"="parking"](around:1500,${lat},${lon});way["amenity"="parking"](around:1500,${lat},${lon});node["amenity"="parking_entrance"](around:1500,${lat},${lon}););out center 35;`;
+            const ov = await fetchOverpassWithFallback(pQuery, 8500);
+            (ov.elements || []).forEach(el => {
+                const pLat = el.lat || (el.center && el.center.lat);
+                const pLon = el.lon || (el.center && el.center.lon);
+                if (!pLat || !pLon) return;
+                const tags = el.tags || {};
+                if (tags.access === 'private' && !tags.name) return;
+                const pType = tags.parking === 'multi-storey' || tags.parking === 'underground'
+                    ? '🏢 Pysäköintilaitos / Parkkihalli'
+                    : '🅿️ Yleinen pysäköintialue';
+                const feeStr = tags.fee === 'yes' ? (tags.charge ? `Maksullinen (${tags.charge})` : 'Maksullinen')
+                    : tags.fee === 'no' ? (tags.maxstay ? `Maksuton (kiekolla ${tags.maxstay})` : 'Maksuton')
+                    : (tags.maxstay ? `Aikarajoitus ${tags.maxstay}` : 'Tarkista liikennemerkistä');
+                const capStr = tags.capacity ? `${tags.capacity} autopaikkaa` : '';
+                const name = tags.name || tags.operator || pType.replace(/^[^\s]+\s/, '');
+                const distM = Math.round(haversineMeters(lat, lon, pLat, pLon));
+                parkings.push({
+                    name,
+                    pType,
+                    feeStr,
+                    capStr,
+                    distM,
+                    lat: pLat,
+                    lon: pLon,
+                    isGarage: pType.includes('Parkkihalli')
+                });
+            });
+        } catch (e) {}
+
+        parkings.sort((a, b) => a.distM - b.distM);
+        const garages = parkings.filter(p => p.isGarage);
+        const nearestAny = parkings[0] || null;
+        const nearestGarage = garages[0] || null;
+
+        const zInfo = CITY_PARKING_ZONES_INFO[cityLow] || {
+            zones: 'Kunnan katu- ja kiekko-/maksuvyöhykkeet',
+            norm: 'Tyypillinen asemakaavan autopaikkamääräys: kerrostaloissa 1 ap / 80–110 k-m², rivitaloissa 1,2–1,5 ap / asunto, omakotitaloissa 2 ap / asunto.',
+            url: `https://www.google.com/search?q=${encodeURIComponent((city || '') + ' pysäköintivyöhykkeet asukaspysäköinti')}`
+        };
+
+        if (badgeEl) {
+            badgeEl.textContent = `${parkings.length} aluetta (<1.5 km)`;
+        }
+
+        if (kpiBox) {
+            kpiBox.innerHTML = `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Lähin yleinen pysäköinti</div>
+                    <div class="text-sm font-extrabold text-white mt-0.5 truncate">${nearestAny ? nearestAny.name : 'Kadunvarsipysäköinti'}</div>
+                    <div class="text-[10px] text-sky-300">${nearestAny ? `${nearestAny.distM} m • ${nearestAny.feeStr}` : 'Tarkista liikennemerkki'}</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Lähin pysäköintilaitos / halli</div>
+                    <div class="text-sm font-extrabold text-amber-300 mt-0.5 truncate">${nearestGarage ? nearestGarage.name : 'Ei hallia 1,5 km säteellä'}</div>
+                    <div class="text-[10px] text-slate-400">${nearestGarage ? `${nearestGarage.distM} m ${nearestGarage.capStr ? '• ' + nearestGarage.capStr : ''}` : 'Pintapysäköintialue'}</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Kaavan autopaikkanormi</div>
+                    <div class="text-sm font-extrabold text-emerald-400 mt-0.5">1 ap / 80–120 k-m²</div>
+                    <div class="text-[10px] text-slate-400">Pientalot: 2 ap / asunto</div>
+                </div>
+            `;
+        }
+
+        if (listEl) {
+            if (parkings.length === 0) {
+                listEl.innerHTML = `<div class="text-slate-400">Ei erillisiä nimettyjä pysäköintilaitoksia 1,5 km säteellä.</div>`;
+            } else {
+                listEl.innerHTML = parkings.slice(0, 10).map(p => `
+                    <div onclick="focusMapPoint(${p.lat}, ${p.lon}, '🅿️ ${p.name.replace(/'/g, '')}', '${p.pType} • ${p.feeStr}')"
+                         class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 transition">
+                        <div class="truncate">
+                            <span class="font-bold text-slate-100">${p.isGarage ? '🏢' : '🅿️'} ${p.name}</span>
+                            <span class="text-[10px] text-sky-300 ml-1.5">${p.feeStr}</span>
+                            ${p.capStr ? `<div class="text-[10px] text-slate-400">${p.capStr}</div>` : ''}
+                        </div>
+                        <span class="font-mono font-bold text-white shrink-0">${p.distM} m</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        if (rulesEl) {
+            rulesEl.innerHTML = `
+                <div>📍 <b>Pysäköintivyöhykkeet (${city || 'Kunta'}):</b> ${zInfo.zones}</div>
+                <div>📐 <b>Asemakaavan pysäköintimääräys:</b> ${zInfo.norm}</div>
+                <div class="pt-1">
+                    <a href="${zInfo.url}" target="_blank" class="text-sky-400 hover:underline font-semibold">👉 Avaa ${city || 'kunnan'} pysäköintivyöhykekartta ja asukaspysäköintihinnat ↗</a>
+                </div>
+            `;
+        }
+    })();
+
+    // --- OSA B: Jätekeräyspisteet, Rinki-ekopisteet ja seudulliset jäteasemat ---
+    (async () => {
+        const centerBox = document.getElementById('wasteCenterHighlightBox');
+        const spotsList = document.getElementById('recyclingSpotsList');
+        const linksEl = document.getElementById('recyclingExternalLinks');
+        const badgeEl = document.getElementById('recyclingCountBadge');
+
+        const wComp = REGIONAL_WASTE_COMPANIES[cityLow] || {
+            name: `${city || 'Alueen'} seudullinen jäteasema ja lajittelupiste`,
+            hours: 'Arkisin tyypillisesti klo 7–18 (tarkista jäteyhtiöltä)',
+            accepts: 'Vaaralliset jätteet (maalit, akut, kemikaalit), sähkölaitteet (SER), metalliromu, puutarhajäte, puu ja rakennusjäte',
+            url: `https://www.kierratys.info/`
+        };
+
+        const spots = [];
+        try {
+            const rQuery = `[out:json][timeout:10];(node["amenity"="recycling"](around:3500,${lat},${lon});way["amenity"="recycling"](around:3500,${lat},${lon});node["amenity"="waste_transfer_station"](around:12000,${lat},${lon});way["landuse"="landfill"](around:12000,${lat},${lon}););out center 35;`;
+            const ov = await fetchOverpassWithFallback(rQuery, 8500);
+            (ov.elements || []).forEach(el => {
+                const rLat = el.lat || (el.center && el.center.lat);
+                const rLon = el.lon || (el.center && el.center.lon);
+                if (!rLat || !rLon) return;
+                const tags = el.tags || {};
+                const distM = Math.round(haversineMeters(lat, lon, rLat, rLon));
+
+                const mats = [];
+                if (tags['recycling:glass_bottles'] === 'yes' || tags['recycling:glass'] === 'yes') mats.push('Lasi');
+                if (tags['recycling:cans'] === 'yes' || tags['recycling:scrap_metal'] === 'yes') mats.push('Metalli');
+                if (tags['recycling:Paper'] === 'yes' || tags['recycling:paper'] === 'yes') mats.push('Paperi');
+                if (tags['recycling:cardboard'] === 'yes' || tags['recycling:cartons'] === 'yes') mats.push('Kartonki');
+                if (tags['recycling:plastic'] === 'yes' || tags['recycling:plastic_packaging'] === 'yes') mats.push('Muovi');
+                if (tags['recycling:clothes'] === 'yes') mats.push('Vaatteet/Tekstiilit');
+                if (tags['recycling:batteries'] === 'yes') mats.push('Paristot');
+
+                const isStation = tags.recycling_type === 'centre' || tags.amenity === 'waste_transfer_station' || tags.landuse === 'landfill';
+                const name = tags.name || tags.operator || (isStation ? 'Lajittelu- / Jäteasema' : 'Rinki-ekopiste / Kierrätyspiste');
+                spots.push({
+                    name,
+                    isStation,
+                    materials: mats.length > 0 ? mats.join(', ') : (isStation ? 'Suurjätteet, SER, vaarallinen jäte, metalli, puu' : 'Lasi, metalli, kartonki, paperi / muovi'),
+                    openingHours: tags.opening_hours || (isStation ? wComp.hours : '24/7'),
+                    distM,
+                    lat: rLat,
+                    lon: rLon
+                });
+            });
+        } catch (e) {}
+
+        spots.sort((a, b) => a.distM - b.distM);
+
+        if (badgeEl) {
+            badgeEl.textContent = `${spots.length} pistettä lähistöllä`;
+        }
+
+        if (centerBox) {
+            centerBox.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-emerald-300">🏭 Seudullinen jäteasema & suurlajittelu:</span>
+                    <a href="${wComp.url}" target="_blank" class="text-[11px] text-emerald-400 hover:underline font-semibold">Hinnasto & Aukiolo ↗</a>
+                </div>
+                <div class="font-bold text-white">${wComp.name}</div>
+                <div class="text-[11px] text-slate-300">🕒 <b>Aukioloajat:</b> ${wComp.hours}</div>
+                <div class="text-[11px] text-slate-400">📦 <b>Vastaanotettavat materiaalit:</b> ${wComp.accepts}</div>
+            `;
+        }
+
+        if (spotsList) {
+            if (spots.length === 0) {
+                spotsList.innerHTML = `<div class="text-slate-400">Ei kartoitettuja Rinki-ekopisteitä 3,5 km säteellä. Katso kaikki keräyspisteet Kierrätys.infosta alta.</div>`;
+            } else {
+                spotsList.innerHTML = spots.slice(0, 10).map(s => {
+                    const dStr = s.distM >= 1000 ? `${(s.distM / 1000).toFixed(1)} km` : `${s.distM} m`;
+                    return `
+                        <div onclick="focusMapPoint(${s.lat}, ${s.lon}, '♻️ ${s.name.replace(/'/g, '')}', '${s.materials}')"
+                             class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 transition">
+                            <div class="truncate">
+                                <span class="font-bold text-slate-100">${s.isStation ? '🏭' : '♻️'} ${s.name}</span>
+                                <span class="text-[10px] text-emerald-300 ml-1.5">🕒 ${s.openingHours}</span>
+                                <div class="text-[10px] text-slate-400 truncate">Jakeet: ${s.materials}</div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-400 shrink-0">${dStr}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        if (linksEl) {
+            linksEl.innerHTML = `
+                <a href="https://www.kierratys.info/" target="_blank" class="bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    ♻️ Kierrätys.info (Valtakunnallinen pistehaku) ↗
+                </a>
+                <a href="https://rinkiin.fi/kotitalouksille/rinki-ekopisteet/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    📦 Rinki-ekopisteet ↗
+                </a>
+                <a href="${wComp.url}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🚛 Jäteaseman jäteopas ↗
+                </a>
+            `;
+        }
+    })();
+}
+
+// =========================================================
+// 14. KIINTEISTÖVERO & TONTTIVERO, KATUJEN TALVIKUNNOSSAPITO SEKÄ MOBIILIVERKKO (RIVI 4F)
+// =========================================================
+// Verohallinnon vahvistamat kuntien kiinteistöveroprosentit (maapohjan yleinen kiinteistövero min 1,30 %, vakituinen asuinrakennus, muu asuinrakennus, rakentamaton asuntotontti)
+const MUNICIPAL_PROPERTY_TAX_RATES = {
+    'helsinki': { land: 1.30, res: 0.41, otherRes: 1.05, vacant: 6.00 },
+    'espoo': { land: 1.30, res: 0.41, otherRes: 1.00, vacant: 6.00 },
+    'vantaa': { land: 1.30, res: 0.41, otherRes: 1.25, vacant: 6.00 },
+    'kauniainen': { land: 1.30, res: 0.41, otherRes: 1.00, vacant: 5.50 },
+    'turku': { land: 1.30, res: 0.45, otherRes: 1.15, vacant: 4.50 },
+    'kaarina': { land: 1.30, res: 0.50, otherRes: 1.10, vacant: 4.00 },
+    'raisio': { land: 1.30, res: 0.45, otherRes: 1.10, vacant: 4.00 },
+    'naantali': { land: 1.30, res: 0.45, otherRes: 1.00, vacant: 3.50 },
+    'tampere': { land: 1.38, res: 0.60, otherRes: 1.25, vacant: 4.88 },
+    'oulu': { land: 1.30, res: 0.52, otherRes: 1.15, vacant: 4.00 },
+    'jyväskylä': { land: 1.40, res: 0.60, otherRes: 1.30, vacant: 4.40 },
+    'kuopio': { land: 1.35, res: 0.58, otherRes: 1.25, vacant: 4.00 },
+    'lahti': { land: 1.45, res: 0.58, otherRes: 1.35, vacant: 4.50 },
+    'pori': { land: 1.40, res: 0.55, otherRes: 1.30, vacant: 3.90 },
+    'vaasa': { land: 1.30, res: 0.55, otherRes: 1.20, vacant: 4.00 },
+    'lappeenranta': { land: 1.35, res: 0.53, otherRes: 1.30, vacant: 4.00 },
+    'hämeenlinna': { land: 1.35, res: 0.58, otherRes: 1.25, vacant: 4.00 },
+    'seinäjoki': { land: 1.35, res: 0.55, otherRes: 1.25, vacant: 3.85 },
+    'rovaniemi': { land: 1.30, res: 0.55, otherRes: 1.20, vacant: 3.50 },
+    'joensuu': { land: 1.40, res: 0.60, otherRes: 1.30, vacant: 4.00 },
+    'kotka': { land: 1.45, res: 0.60, otherRes: 1.35, vacant: 4.50 },
+    'kouvola': { land: 1.40, res: 0.60, otherRes: 1.30, vacant: 4.00 }
+};
+
+function getMunicipalTaxRates(cityName) {
+    const key = (cityName || '').trim().toLowerCase();
+    return MUNICIPAL_PROPERTY_TAX_RATES[key] || { land: 1.30, res: 0.50, otherRes: 1.15, vacant: 3.80 };
+}
+
+function recalcPropertyTaxEstimate() {
+    const resEl = document.getElementById('propTaxEstimateResult');
+    if (!resEl) return;
+    const sel = document.getElementById('propTaxTypeSelect')?.value || 'detached';
+    const rates = getMunicipalTaxRates(currentLoc.city);
+    const plotM2 = currentLoc.propertyAreaM2 > 100 && currentLoc.propertyAreaM2 < 8000 ? currentLoc.propertyAreaM2 : 950;
+
+    // Arvioitu maapohjan verotusarvo (Verohallinnon aluehinta * 73,5 % arvostamislain mukaisesti)
+    const isMajorCity = ['helsinki', 'espoo', 'vantaa', 'kauniainen', 'turku', 'tampere'].includes((currentLoc.city || '').toLowerCase());
+    const landTaxableVal = Math.round(plotM2 * (isMajorCity ? 82 : 34));
+    const bldTaxableVal = 125000; // Tyypillinen 120 m² rakennuksen jälleenhankinta-arvo ikäalennusten jälkeen
+
+    let annualTax = 0;
+    let breakdown = '';
+
+    if (sel === 'detached') {
+        const landTax = Math.round(landTaxableVal * (rates.land / 100));
+        const bldTax = Math.round(bldTaxableVal * (rates.res / 100));
+        annualTax = landTax + bldTax;
+        breakdown = `Maapohjan vero (${rates.land.toFixed(2)}%): <b>~${landTax} €/v</b> + Asuinrakennuksen vero (${rates.res.toFixed(2)}%): <b>~${bldTax} €/v</b> (tontti ~${plotM2.toLocaleString('fi-FI')} m²)`;
+    } else if (sel === 'housing_co') {
+        const landTax = Math.round((landTaxableVal * 0.06) * (rates.land / 100));
+        const bldTax = Math.round(55000 * (rates.res / 100));
+        annualTax = landTax + bldTax;
+        breakdown = `Sisältyy hoitovastikkeeseen (~${Math.round(annualTax / 12)} €/kk osakkaan osuutena). Maapohja ${rates.land.toFixed(2)}% & rakennus ${rates.res.toFixed(2)}%.`;
+    } else if (sel === 'leisure') {
+        const landTax = Math.round(landTaxableVal * (rates.land / 100));
+        const bldTax = Math.round(75000 * (rates.otherRes / 100));
+        annualTax = landTax + bldTax;
+        breakdown = `Maapohja (${rates.land.toFixed(2)}%): ~${landTax} €/v + Vapaa-ajan rakennus (${rates.otherRes.toFixed(2)}%): ~${bldTax} €/v`;
+    } else {
+        annualTax = Math.round(landTaxableVal * (rates.vacant / 100));
+        breakdown = `Rakentamattoman asuntotontin korotettu vero (${rates.vacant.toFixed(2)}%): ~${annualTax} €/v (tontti ~${plotM2.toLocaleString('fi-FI')} m²)`;
+    }
+
+    resEl.innerHTML = `
+        <div class="flex items-center justify-between">
+            <span class="text-slate-300">Arvioitu kiinteistövero:</span>
+            <span class="text-base font-extrabold text-amber-300">~${annualTax.toLocaleString('fi-FI')} € / vuosi</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 leading-relaxed">${breakdown}</div>
+    `;
+}
+
+async function fetchPropertyTaxStreetAndMobile() {
+    const { lat, lon, city, street } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // 1. Kiinteistövero & Tonttivero
+    const taxBadge = document.getElementById('propTaxMunicipalityBadge');
+    const taxGrid = document.getElementById('propTaxRatesGrid');
+    const rates = getMunicipalTaxRates(city);
+
+    if (taxBadge) taxBadge.textContent = `${city || 'Kunta'} 2026`;
+    if (taxGrid) {
+        taxGrid.innerHTML = `
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-2">
+                <div class="text-[10px] text-slate-400">Maapohjan vero (Tonttivero)</div>
+                <div class="text-sm font-extrabold text-amber-300 mt-0.5">${rates.land.toFixed(2)} %</div>
+                <div class="text-[9px] text-slate-500">Lakisääteinen alaraja 1,30 %</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-2">
+                <div class="text-[10px] text-slate-400">Vakituinen asuinrakennus</div>
+                <div class="text-sm font-extrabold text-emerald-400 mt-0.5">${rates.res.toFixed(2)} %</div>
+                <div class="text-[9px] text-slate-500">Omakoti-, rivi- ja kerrostalot</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-2">
+                <div class="text-[10px] text-slate-400">Muu asuinrakennus (Mökki)</div>
+                <div class="text-sm font-extrabold text-sky-300 mt-0.5">${rates.otherRes.toFixed(2)} %</div>
+                <div class="text-[9px] text-slate-500">Vapaa-ajan asunnot</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-2">
+                <div class="text-[10px] text-slate-400">Rakentamaton tontti</div>
+                <div class="text-sm font-extrabold text-rose-300 mt-0.5">${rates.vacant.toFixed(2)} %</div>
+                <div class="text-[9px] text-slate-500">Korotettu tonttivero</div>
+            </div>
+        `;
+    }
+    recalcPropertyTaxEstimate();
+
+    // 2. Katujen kunnossapito & Talvikunnossapitovastuut (Laki kadun ja eräiden yleisten alueiden kunnossa- ja puhtaanapidosta 669/1978 + OSM highway)
+    (async () => {
+        const maintBadge = document.getElementById('streetMaintClassBadge');
+        const maintBox = document.getElementById('streetMaintDetailsBox');
+        const maintLinks = document.getElementById('streetMaintLinksBox');
+
+        let roadType = 'residential';
+        let surface = 'asphalt';
+        let lit = 'yes';
+        let maxspeed = '40';
+
+        try {
+            const wQuery = `[out:json][timeout:8];way["highway"](around:60,${lat},${lon});out tags 5;`;
+            const ov = await fetchOverpassWithFallback(wQuery, 6500);
+            const roadWay = (ov.elements || []).find(w => w.tags && w.tags.name) || (ov.elements || [])[0];
+            if (roadWay && roadWay.tags) {
+                roadType = roadWay.tags.highway || roadType;
+                surface = roadWay.tags.surface || surface;
+                lit = roadWay.tags.lit || lit;
+                maxspeed = roadWay.tags.maxspeed || maxspeed;
+            }
+        } catch (e) {}
+
+        const isMainStreet = ['primary', 'secondary', 'tertiary', 'trunk'].includes(roadType);
+        const maintClass = isMainStreet
+            ? 'Hoitoluokka I (Pääkatu & joukkoliikennekatu)'
+            : roadType === 'service' || roadType === 'unclassified'
+            ? 'Hoitoluokka III / Tonttikatu'
+            : 'Hoitoluokka II–III (Asuntokatu / Kokoojakatu)';
+
+        const snowThreshold = isMainStreet ? 'Aurauskynnys 3 cm (toimenpideaika 3–4 h)' : 'Aurauskynnys 5–6 cm (auraus pääkatujen jälkeen, 6–12 h)';
+
+        if (maintBadge) {
+            maintBadge.textContent = isMainStreet ? 'Luokka I (Pääkatu)' : 'Luokka II–III (Asuntokatu)';
+        }
+
+        if (maintBox) {
+            maintBox.innerHTML = `
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span class="text-slate-400">Katu & luokka:</span>
+                    <strong class="text-white text-right">${street || 'Lähikatu'} (${maintClass})</strong>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span class="text-slate-400">Talvikunnossapito (auraus):</span>
+                    <span class="text-cyan-300 text-right">${snowThreshold}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span class="text-slate-400">Päällyste & nopeusrajoitus:</span>
+                    <span class="text-slate-200 text-right">${surface === 'asphalt' || surface === 'paved' ? 'Asfaltti' : surface} • ${maxspeed} km/h ${lit !== 'no' ? '• 💡 Valaistu' : ''}</span>
+                </div>
+                <div class="text-[11px] text-slate-300 pt-1 space-y-1 leading-relaxed">
+                    <div>🚜 <b>Kaupungin vastuu:</b> Ajoradan ja pyörätien auraus, liukkaudentorjunta ja hiekoitushiekan poisto keväällä.</div>
+                    <div>🏠 <b>Tontinomistajan vastuu (Kunnossapitolaki 4 §):</b> Tonttiliittymän aurausvallin poisto, tontin kohdalla olevan jalkakäytävän talvikunnossapito (ellei kunta ole ottanut kokonaisvastuuta) sekä katuojan/hulevesikaivon kannen pitäminen vapaana lumesta ja jäästä.</div>
+                </div>
+            `;
+        }
+
+        if (maintLinks) {
+            maintLinks.innerHTML = `
+                <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    🚜 Fintraffic Kunnonvalvonta & Auraustilanne ↗
+                </a>
+                <a href="https://www.google.com/search?q=${encodeURIComponent((city || '') + ' katujen talvikunnossapito hoitoluokat kartta')}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    ❄️ ${city || 'Kunnan'} talvikunnossapitokartta ↗
+                </a>
+            `;
+        }
+    })();
+
+    // 3. Mobiiliverkon kuuluvuus, operaattoripeitto ja lähimmät tukiasemamastot
+    (async () => {
+        const towersBox = document.getElementById('mobileTowersStatusBox');
+        const opLinks = document.getElementById('mobileOperatorLinksBox');
+        const badgeEl = document.getElementById('mobileCovBadge');
+
+        let towers = [];
+        try {
+            const mQuery = `[out:json][timeout:8];(node["man_made"~"mast|communications_tower"](around:3000,${lat},${lon});node["tower:type"="communication"](around:3000,${lat},${lon});node["telecom"="antenna"](around:2500,${lat},${lon}););out 20;`;
+            const ov = await fetchOverpassWithFallback(mQuery, 7000);
+            towers = (ov.elements || []).map(el => ({
+                distM: Math.round(haversineMeters(lat, lon, el.lat, el.lon)),
+                operator: (el.tags && (el.tags.operator || el.tags.name)) || 'Mobiilitukiasema / Masto'
+            })).sort((a, b) => a.distM - b.distM);
+        } catch (e) {}
+
+        const nearestTowerM = towers[0] ? towers[0].distM : null;
+        if (badgeEl) {
+            badgeEl.textContent = nearestTowerM !== null && nearestTowerM < 1200 ? '5G Ultra (Erinomainen)' : '5G / 4G LTE Peitto';
+        }
+
+        if (towersBox) {
+            towersBox.innerHTML = `
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400">Kartoitetut tukiasemat (3 km)</div>
+                        <div class="text-sm font-extrabold text-emerald-400 mt-0.5">${towers.length > 0 ? `${towers.length} kpl (lähin ${nearestTowerM} m)` : 'Kattotukiasemat (5G/4G)'}</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400">Arvioitu 5G/4G-kuuluvuus</div>
+                        <div class="text-sm font-extrabold text-white mt-0.5">300–1000 Mbit/s</div>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 leading-relaxed pt-1">
+                    📡 Suomessa <b>Elisa</b>, <b>Telia</b> ja <b>DNA</b> (sekä Itä- ja Pohjois-Suomessa Yhteisverkko SYV) tarjoavat 5G (3.5 GHz / 700 MHz) ja 4G LTE -peiton. Uusissa energiatehokkaissa taloissa (selektiivilasit) sisäkuuluvuus kannattaa tarkistaa operaattorikartasta alta:
+                </div>
+            `;
+        }
+
+        if (opLinks) {
+            opLinks.innerHTML = `
+                <a href="https://elisa.fi/kuuluvuus/" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-sky-300 font-semibold flex items-center justify-between transition">
+                    <span>🔵 Elisa Kuuluvuuskartta</span><span>↗</span>
+                </a>
+                <a href="https://www.telia.fi/asiakastuki/verkko/verkko-ja-kuuluvuus/kuuluvuuskartta" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-purple-300 font-semibold flex items-center justify-between transition">
+                    <span>🟣 Telia Kuuluvuuskartta</span><span>↗</span>
+                </a>
+                <a href="https://www.dna.fi/tuki/kuuluvuus-ja-verkko/kuuluvuuskartta" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-pink-300 font-semibold flex items-center justify-between transition">
+                    <span>🔴 DNA Kuuluvuuskartta</span><span>↗</span>
+                </a>
+                <a href="https://www.cellmapper.net/map?latitude=${lat}&longitude=${lon}&zoom=15" target="_blank" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg text-emerald-300 font-semibold flex items-center justify-between transition">
+                    <span>🗼 CellMapper Tukiasemat</span><span>↗</span>
+                </a>
+            `;
+        }
+    })();
+}
+
+// =========================================================
+// 15. TALOYHTIÖN PERUSTIEDOT (PRH YTJ API v3), YHTEISET TILAT SEKÄ STUK RADON, ASBESTI & RAKENNUSTERVEYS (RIVI 4G)
+// =========================================================
+const STUK_MUNICIPAL_RADON_ESTIMATES = {
+    'tampere': { avgBq: 185, over300Pct: 24, risk: 'Korkea radonriskialue (Harju- ja kalliomaaperä)' },
+    'lahti': { avgBq: 240, over300Pct: 34, risk: 'Korkea radonriskialue (Salpausselän harjuvyöhyke)' },
+    'kouvola': { avgBq: 225, over300Pct: 31, risk: 'Korkea radonriskialue (Kaakkois-Suomen rapakivigraniitti)' },
+    'lappeenranta': { avgBq: 210, over300Pct: 28, risk: 'Korkea radonriskialue (Salpausselkä & rapakivi)' },
+    'kotka': { avgBq: 205, over300Pct: 26, risk: 'Kohonnut radonriskialue (Rapakivigraniitti)' },
+    'hämeenlinna': { avgBq: 165, over300Pct: 19, risk: 'Kohonnut radonriskialue' },
+    'jyväskylä': { avgBq: 145, over300Pct: 15, risk: 'Kohtalainen radonriskialue' },
+    'helsinki': { avgBq: 115, over300Pct: 11, risk: 'Kohtalainen radonriski (Kallio- ja moreenialueilla korkeampi)' },
+    'espoo': { avgBq: 135, over300Pct: 14, risk: 'Kohtalainen / kohonnut radonriski' },
+    'vantaa': { avgBq: 130, over300Pct: 13, risk: 'Kohtalainen radonriski' },
+    'turku': { avgBq: 95, over300Pct: 7, risk: 'Tavanomainen radonpitoisuus (Kallioperustuksissa tarkistettava)' },
+    'oulu': { avgBq: 70, over300Pct: 4, risk: 'Matala keskimääräinen radonpitoisuus' },
+    'vaasa': { avgBq: 75, over300Pct: 5, risk: 'Matala / tavanomainen radonpitoisuus' },
+    'kuopio': { avgBq: 110, over300Pct: 9, risk: 'Tavanomainen radonpitoisuus' },
+    'rovaniemi': { avgBq: 95, over300Pct: 7, risk: 'Tavanomainen radonpitoisuus' }
+};
+
+async function fetchHousingCompanyAndBuildingHealth() {
+    const { lat, lon, street, num, zip, city } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // --- OSA A: Taloyhtiön perustiedot PRH Avoindata YTJ v3 -rajapinnasta & Yhteiset tilat ---
+    (async () => {
+        const prhBox = document.getElementById('housingCompanyPrhBox');
+        const spacesBox = document.getElementById('housingSharedSpacesBox');
+        const docsLinks = document.getElementById('housingCompanyDocsLinks');
+        const badgeEl = document.getElementById('housingCompanyBadge');
+
+        let matchedCompanies = [];
+        try {
+            // Haetaan PRH:n virallisesta avoimesta rajapinnasta asunto-osakeyhtiöitä kadunnimellä ja paikkakunnalla
+            const searchName = street ? `Asunto Oy ${street} ${num || ''}`.trim() : '';
+            if (searchName.length > 10) {
+                const url1 = `https://avoindata.prh.fi/opendata-ytj-api/v3/companies?name=${encodeURIComponent(searchName)}&location=${encodeURIComponent(city || '')}`;
+                const r1 = await fetchWithTimeout(url1, {}, 7500);
+                if (r1.ok) {
+                    const j1 = await r1.json();
+                    matchedCompanies = (j1.companies || []).slice(0, 5);
+                }
+            }
+            if (matchedCompanies.length === 0 && street) {
+                // Toissijainen haku pelkällä kadunnimellä (esim. "Asunto Oy Yliopistonkatu" tai "As Oy <Katu>")
+                const url2 = `https://avoindata.prh.fi/opendata-ytj-api/v3/companies?name=${encodeURIComponent(street + (num ? ' ' + num : ''))}&location=${encodeURIComponent(city || '')}`;
+                const r2 = await fetchWithTimeout(url2, {}, 7500);
+                if (r2.ok) {
+                    const j2 = await r2.json();
+                    matchedCompanies = (j2.companies || []).filter(c => {
+                        const n = (c.names && c.names[0] && c.names[0].name) || '';
+                        return /asunto|as\.?\s*oy|kiinteistö|bostads/i.test(n);
+                    }).slice(0, 5);
+                }
+            }
+        } catch (e) {
+            console.warn('PRH API error:', e);
+        }
+
+        if (matchedCompanies.length > 0) {
+            const top = matchedCompanies[0];
+            const compName = (top.names && top.names[0] && top.names[0].name) || 'Asunto-osakeyhtiö';
+            const yTunnus = (top.businessId && top.businessId.value) || '-';
+            const regDate = (top.registrationDate || (top.businessId && top.businessId.registrationDate) || '').slice(0, 10);
+            const regYear = regDate ? parseInt(regDate.slice(0, 4), 10) : null;
+            const addrObj = (top.addresses && top.addresses[0]) || {};
+            const coManager = addrObj.co || 'Katso isännöitsijäntodistuksesta';
+            const postAddr = [addrObj.street, addrObj.buildingNumber, addrObj.entrance].filter(Boolean).join(' ') + (addrObj.postCode ? `, ${addrObj.postCode}` : '');
+            const webUrl = top.website && top.website.url ? (top.website.url.startsWith('http') ? top.website.url : 'https://' + top.website.url) : null;
+
+            if (badgeEl) badgeEl.textContent = `Y-tunnus ${yTunnus}`;
+
+            if (prhBox) {
+                prhBox.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                        <div>
+                            <div class="text-sm font-extrabold text-white">🏢 ${compName}</div>
+                            <div class="text-[11px] text-indigo-300">Y-tunnus: <span class="font-mono font-bold">${yTunnus}</span> • Rekisteröity: <b>${regDate || '-'}</b></div>
+                        </div>
+                        <a href="https://tietopalvelu.ytj.fi/yritys/${yTunnus}" target="_blank" class="bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition shrink-0">
+                            YTJ Rekisteriote ↗
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
+                        <div><span class="text-slate-400">Isännöinti / c/o-osoite:</span> <strong class="text-emerald-300">${coManager}</strong></div>
+                        <div><span class="text-slate-400">Yhtiön postiosoite:</span> <span class="text-slate-200">${postAddr || '-'}</span></div>
+                        ${webUrl ? `<div class="col-span-2"><span class="text-slate-400">Isännöitsijän / yhtiön verkkosivu:</span> <a href="${webUrl}" target="_blank" class="text-sky-400 hover:underline font-medium">${top.website.url} ↗</a></div>` : ''}
+                    </div>
+                    ${matchedCompanies.length > 1 ? `
+                        <div class="pt-1.5 border-t border-slate-800/80 text-[10px] text-slate-400">
+                            Muut kadun yhtiöt PRH:ssa: ${matchedCompanies.slice(1, 4).map(c => `<a href="https://tietopalvelu.ytj.fi/yritys/${c.businessId?.value}" target="_blank" class="text-slate-300 hover:text-indigo-300 underline">${c.names?.[0]?.name} (${c.businessId?.value})</a>`).join(' • ')}
+                        </div>
+                    ` : ''}
+                `;
+            }
+        } else {
+            if (badgeEl) badgeEl.textContent = 'Kiinteistö / PRH YTJ';
+            if (prhBox) {
+                prhBox.innerHTML = `
+                    <div class="text-slate-300 font-semibold">🏠 Kiinteistömuotoinen pientalo tai erillinen yhtiönimi</div>
+                    <div class="text-[11px] text-slate-400 leading-relaxed">
+                        Osoitteella "${street} ${num}" ei löytynyt kadunnimen mukaista Asunto Oy -nimeä suoraan PRH:sta (kyseessä on omakotitalokiinteistö tai taloyhtiöllä on paikannimeen perustuva nimi, esim. <i>Asunto Oy ${currentLoc.suburb || city}n...</i>). Voit hakea yhtiöjärjestyksen ja tilinpäätöksen alla olevista linkeistä.
+                    </div>
+                `;
+            }
+        }
+
+        // Yhteiset tilat: Talopesula, saunatilat, ullakko-/kellarikomerot, väestönsuoja ja pyörävarastot
+        if (spacesBox) {
+            const aptRatio = (lastPaavoProps && lastPaavoProps.ra_asunn > 0) ? (lastPaavoProps.ra_kt_as / lastPaavoProps.ra_asunn) : 0.6;
+            const isApartmentHeavy = aptRatio >= 0.35;
+            spacesBox.innerHTML = `
+                <div class="font-bold text-indigo-300">🔑 Taloyhtiön yhteiset tilat & varustelu (Tarkistuslista isännöitsijäntodistukseen):</div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="font-semibold text-white">🧖 Taloyhtiön sauna</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${isApartmentHeavy ? 'Yhteissauna / lenkkisauna' : 'Huoneistokohtainen sauna'}</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="font-semibold text-white">🧺 Pesutupa & Kuivaushuone</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Talopesula & mankeli</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="font-semibold text-white">🚲 Ulkoiluväline- & Pyörävarasto</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Pyöräsuoja & lastenvaunuvarasto</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-2">
+                        <div class="font-semibold text-white">📦 Ullakko- / Kellarikomero</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Irtaimistovarasto & VSS-tila</div>
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-400 pt-1">
+                    📑 <b>Yhtiöjärjestys & Tilinpäätös:</b> Tarkista yhtiöjärjestyksestä mahdollinen <b>lunastuslauseke</b>, vastikeperuste (m² vs. osakemäärä) sekä tilinpäätöksestä hoitovastikkeen kehitys ja korjausvelka (PTS 5 v).
+                </div>
+            `;
+        }
+
+        if (docsLinks) {
+            docsLinks.innerHTML = `
+                <a href="https://virre.prh.fi/" target="_blank" class="bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    📜 PRH Virre (Yhtiöjärjestys & Tilinpäätös) ↗
+                </a>
+                <a href="https://tietopalvelu.ytj.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🏢 YTJ Yritys- ja taloyhtiöhaku ↗
+                </a>
+                <a href="https://asiointi.maanmittauslaitos.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🏠 MML Osakehuoneistorekisteri (HTJ) ↗
+                </a>
+            `;
+        }
+    })();
+
+    // --- OSA B: STUK Säteily- ja radonmittaukset, Asbestikartoitusvelvoite (ennen 1994) sekä Sisäilma- ja vesivahinkoriski ---
+    (async () => {
+        const radonBox = document.getElementById('stukRadonKpiBox');
+        const asbBox = document.getElementById('asbestosAndHistoryBox');
+        const healthLinks = document.getElementById('buildingHealthLinks');
+        const badgeEl = document.getElementById('buildingHealthBadge');
+
+        const radonData = STUK_MUNICIPAL_RADON_ESTIMATES[cityLow] || {
+            avgBq: 120,
+            over300Pct: 11,
+            risk: 'Tavanomainen sisäilman radonriski (STUK viitearvo 300 Bq/m³)'
+        };
+
+        // Yritetään tunnistaa rakennusvuosi OSM-rakennuksesta tai PRH-rekisteröintivuodesta
+        let estBuildYear = null;
+        try {
+            const bQuery = `[out:json][timeout:6];way["building"](around:45,${lat},${lon});out tags 5;`;
+            const ov = await fetchOverpassWithFallback(bQuery, 5500);
+            for (const w of (ov.elements || [])) {
+                const sd = w.tags && (w.tags.start_date || w.tags['building:year']);
+                if (sd && /^\d{4}/.test(sd)) {
+                    estBuildYear = parseInt(sd.slice(0, 4), 10);
+                    break;
+                }
+            }
+        } catch (e) {}
+
+        const needsAsbestosSurvey = !estBuildYear || estBuildYear < 1994;
+
+        if (badgeEl) {
+            badgeEl.textContent = `Radon ~${radonData.avgBq} Bq/m³`;
+        }
+
+        if (radonBox) {
+            radonBox.innerHTML = `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">STUK Kuntakeskiarvo (${city || 'Alue'})</div>
+                    <div class="text-sm font-extrabold ${radonData.avgBq >= 180 ? 'text-amber-300' : 'text-emerald-400'} mt-0.5">~${radonData.avgBq} Bq/m³</div>
+                    <div class="text-[10px] text-slate-400">Viitearvo: enintään 300 Bq/m³</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Yli 300 Bq/m³ osuus kunnassa</div>
+                    <div class="text-sm font-extrabold text-white mt-0.5">~${radonData.over300Pct} % pientaloista</div>
+                    <div class="text-[10px] text-slate-400">${radonData.risk.split('(')[0]}</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Asbestikartoituslaki (684/2015)</div>
+                    <div class="text-sm font-extrabold ${needsAsbestosSurvey ? 'text-amber-300' : 'text-emerald-400'} mt-0.5">
+                        ${estBuildYear ? (estBuildYear < 1994 ? `⚠️ Pakollinen (rak. ${estBuildYear})` : `✅ Ei asbestia (rak. ${estBuildYear})`) : '⚠️ Pakollinen jos rak. < 1994'}
+                    </div>
+                    <div class="text-[10px] text-slate-400">Ennen vuotta 1994 valmistuneet</div>
+                </div>
+            `;
+        }
+
+        if (asbBox) {
+            asbBox.innerHTML = `
+                <div class="font-bold text-rose-300">🔬 Asbestikartoitus, Tilahistoria & Sisäilma-/Vesivahinkoriskit:</div>
+                <div class="space-y-1.5 text-[11px] text-slate-300 leading-relaxed">
+                    <div>• <b>Asbestikartoitusvelvoite (Työturvallisuuslaki & VNa 798/2015):</b> Kaikissa ennen vuotta <b>1994</b> valmistuneissa rakennuksissa on tehtävä kirjallinen asbestikartoitus ennen kylpyhuone-, keittiö-, lattia- tai putkiremonttia (yleisiä kohteita: laattaliimat, saumalaastit, muovimatot, putkieristeet ja julkisivulevyt).</div>
+                    <div>• <b>Rakennuksen tilahistoria & vesivahingot:</b> Tarkista isännöitsijäntodistuksesta ja kuntotarkastusraportista <b>käyttövesiputkien ikä</b> (tekninen käyttöikä 30–40 v), <b>viemäreiden pinnoitus/putkiremontti (LVIS)</b>, märkätilojen vedeneristeiden vuosi sekä mahdolliset aiemmat kosteusmittauspöytäkirjat.</div>
+                    <div>• <b>Aikakauden tyypilliset riskirakenteet:</b> 1950–1980-luvuilla valesokkeli, maanvarainen laatta puukoolauksella sekä tasakatto; 1960–1970-luvuilla painovoimaisen ilmanvaihdon tukkiminen ja asbestipitoiset rakennusmateriaalit.</div>
+                </div>
+            `;
+        }
+
+        if (healthLinks) {
+            healthLinks.innerHTML = `
+                <a href="https://stuk.fi/radon-suomessa" target="_blank" class="bg-rose-600/25 hover:bg-rose-600/40 text-rose-200 border border-rose-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    ☢️ STUK Kuntakohtaiset radontilastot ↗
+                </a>
+                <a href="https://tyosuojelu.fi/tyoolot/rakennusala/asbesti" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🦺 Työsuojelu: Asbestikartoitusohje ↗
+                </a>
+                <a href="https://hometalkoot.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🏠 Rakenteiden kosteus- ja sisäilmariskit ↗
+                </a>
+            `;
+        }
+    })();
+}
+
+// =========================================================
+// 16. PUUSTO & METSÄVARATIEDOT (METSÄKESKUS WFS) SEKÄ RIISTAKOLARIT (SRVA) & TIELIIKENNEMÄÄRÄT (FINTRAFFIC LAM) (RIVI 4H)
+// =========================================================
+const METSAKESKUS_FERTILITY_CLASSES = {
+    1: 'Lehto (OMaT – erittäin rehevä kasvupaikka)',
+    2: 'Lehtomainen kangas (OMT – käenkaali-mustikkatyyppi)',
+    3: 'Tuore kangas (MT – mustikkatyyppi)',
+    4: 'Kuivahko kangas (VT – puolukkatyyppi)',
+    5: 'Kuiva kangas (CT – kanervatyyppi)',
+    6: 'Karukkokangas (ClT – jäkälätyyppi)',
+    7: 'Kalliomaa tai hietikko',
+    8: 'Lakimetsä tai tunturi'
+};
+
+const METSAKESKUS_TREE_SPECIES = {
+    1: 'Mänty (Pinus sylvestris)',
+    2: 'Kuusi (Picea abies)',
+    3: 'Rauduskoivu (Betula pendula)',
+    4: 'Hieskoivu (Betula pubescens)',
+    5: 'Haapa (Populus tremula)',
+    6: 'Harmaaleppä',
+    7: 'Tervaleppä',
+    8: 'Muu havupuu',
+    9: 'Muu lehtipuu'
+};
+
+async function fetchForestAndTrafficVolumes() {
+    const { lat, lon, city } = currentLoc;
+    const kuntaCode = resolveKuntaCode(lastPaavoProps?.kunta, city);
+
+    // --- OSA A: Suomen metsäkeskuksen avoin metsävaratieto (stand:stand WFS) + lähialueen puusto ---
+    (async () => {
+        const kpiRow = document.getElementById('forestStandKpiRow');
+        const detailsBox = document.getElementById('forestStandDetailsBox');
+        const linksEl = document.getElementById('forestExternalLinks');
+        const badgeEl = document.getElementById('forestStandBadge');
+
+        let standProps = null;
+        let standDistNote = 'Tontilla / välittömässä läheisyydessä';
+
+        try {
+            // Haetaan ensin 450 m säteeltä, ja jos keskustassa ei ole metsäkuviota, laajennetaan 1.8 km säteelle lähimetsän tyypin selvittämiseksi
+            for (const d of [0.004, 0.016]) {
+                const bbox = `${(lon - d).toFixed(5)},${(lat - d).toFixed(5)},${(lon + d).toFixed(5)},${(lat + d).toFixed(5)},EPSG:4326`;
+                const url = `https://avoin.metsakeskus.fi/rajapinnat/v1/stand/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=stand:stand&srsName=EPSG:4326&bbox=${bbox}&outputFormat=application/json&count=8`;
+                const res = await fetchWithTimeout(url, {}, 7500);
+                if (res.ok) {
+                    const geo = await res.json();
+                    if (geo.features && geo.features.length > 0) {
+                        // Valitaan kuvio jolla on puustotietoja (MAINTREESPECIES tai VOLUME)
+                        const withTrees = geo.features.find(f => f.properties && (f.properties.VOLUME > 0 || f.properties.MAINTREESPECIES)) || geo.features[0];
+                        standProps = withTrees.properties;
+                        if (d > 0.005) standDistNote = 'Lähin metsävarakuvio (~0,5–1,5 km)';
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Metsäkeskus WFS error:', e);
+        }
+
+        if (standProps) {
+            const fertClass = METSAKESKUS_FERTILITY_CLASSES[standProps.FERTILITYCLASS] || 'Kangasmetsä / Metsämaa';
+            const mainSpecies = METSAKESKUS_TREE_SPECIES[standProps.MAINTREESPECIES] || 'Sekapuusto (Mänty/Kuusi/Koivu)';
+            const pinePct = Math.round((standProps.PROPORTIONPINE || 0) * 100);
+            const sprucePct = Math.round((standProps.PROPORTIONSPRUCE || 0) * 100);
+            const broadleafPct = Math.max(0, 100 - pinePct - sprucePct);
+            const meanAge = standProps.MEANAGE ? `${Math.round(standProps.MEANAGE)} v` : '-';
+            const meanHeight = standProps.MEANHEIGHT ? `${Number(standProps.MEANHEIGHT).toFixed(1)} m` : '-';
+            const volume = standProps.VOLUME ? `${Math.round(standProps.VOLUME)} m³/ha` : '-';
+            const stemCount = standProps.STEMCOUNT ? `${Math.round(standProps.STEMCOUNT)} runkoa/ha` : '-';
+
+            if (badgeEl) badgeEl.textContent = mainSpecies.split('(')[0].trim();
+
+            if (kpiRow) {
+                kpiRow.innerHTML = `
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                        <div class="text-[10px] text-slate-400">Pääpuulaji</div>
+                        <div class="text-sm font-extrabold text-emerald-400 mt-0.5">${mainSpecies.split('(')[0]}</div>
+                        <div class="text-[10px] text-slate-400">Mänty ${pinePct}% • Kuusi ${sprucePct}% • Lehtip. ${broadleafPct}%</div>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                        <div class="text-[10px] text-slate-400">Metsän kasvupaikka</div>
+                        <div class="text-sm font-extrabold text-white mt-0.5 truncate" title="${fertClass}">${fertClass.split('(')[0]}</div>
+                        <div class="text-[10px] text-slate-400">${fertClass.includes('(') ? fertClass.slice(fertClass.indexOf('(')) : ''}</div>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                        <div class="text-[10px] text-slate-400">Puuston keski-ikä & pituus</div>
+                        <div class="text-sm font-extrabold text-cyan-300 mt-0.5">${meanAge} • ${meanHeight}</div>
+                        <div class="text-[10px] text-slate-400">Läpimitta: ${standProps.MEANDIAMETER ? standProps.MEANDIAMETER.toFixed(1) + ' cm' : '-'}</div>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                        <div class="text-[10px] text-slate-400">Puuston tilavuus</div>
+                        <div class="text-sm font-extrabold text-amber-300 mt-0.5">${volume}</div>
+                        <div class="text-[10px] text-slate-400">Kasvu: ${standProps.VOLUMEGROWTH ? standProps.VOLUMEGROWTH.toFixed(1) + ' m³/ha/v' : stemCount}</div>
+                    </div>
+                `;
+            }
+
+            if (detailsBox) {
+                detailsBox.innerHTML = `
+                    <div class="flex items-center justify-between text-xs border-b border-slate-800 pb-1.5">
+                        <span class="font-bold text-emerald-300">🌲 Metsäkeskuksen kuviotieto (${standDistNote}):</span>
+                        <span class="text-[10px] text-slate-400">Kuvion ala: ${standProps.AREA ? standProps.AREA.toFixed(2) + ' ha' : '-'}</span>
+                    </div>
+                    <div class="space-y-1 text-[11px] text-slate-300 pt-1">
+                        <div>• <b>Kasvupaikkaluokka:</b> ${fertClass}</div>
+                        <div>• <b>Puulajisuhteet:</b> Mänty <b>${pinePct} %</b>, Kuusi <b>${sprucePct} %</b>, Koivu ja muut lehtipuut <b>${broadleafPct} %</b></div>
+                        <div>• <b>Rakenne:</b> Runkoluku ${stemCount}, tukkipuu ${standProps.SAWLOGVOLUME ? Math.round(standProps.SAWLOGVOLUME) + ' m³/ha' : '-'}, kuitupuu ${standProps.PULPWOODVOLUME ? Math.round(standProps.PULPWOODVOLUME) + ' m³/ha' : '-'}</div>
+                    </div>
+                `;
+            }
+        } else {
+            if (badgeEl) badgeEl.textContent = 'Kaupunkipuusto';
+            if (kpiRow) {
+                kpiRow.innerHTML = `
+                    <div class="col-span-4 bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-300">
+                        🌳 Kohde sijaitsee tiiviisti rakennetulla asemakaava-alueella (ei metsätalouskuviota 1,8 km säteellä). Kaupunkipuustoa ja katupuita hallinnoi kunnan viheryksikkö (asemakaava-alueella puiden kaatamiseen tarvitaan maisematyölupa tai naapurinkuuleminen).
+                    </div>
+                `;
+            }
+            if (detailsBox) {
+                detailsBox.innerHTML = `<div class="text-slate-400">Voit tarkastella seudun metsävarakuvioita ja luontotyyppejä alla olevasta Metsäkeskuksen Metsään.fi-karttapalvelusta.</div>`;
+            }
+        }
+
+        if (linksEl) {
+            linksEl.innerHTML = `
+                <a href="https://asiointi.metsakeskus.fi/avoinmetsatieto" target="_blank" class="bg-emerald-600/25 hover:bg-emerald-600/40 text-emerald-200 border border-emerald-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                    🌲 Metsäkeskus Avoin metsä- ja luontotieto ↗
+                </a>
+                <a href="https://kartta.paikkatietoikkuna.fi/" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                    🌳 Valtakunnalliset metsävarat (VMI) ↗
+                </a>
+            `;
+        }
+    })();
+
+    // --- OSA B: Tieliikenteen liikennemäärät (Fintraffic LAM) sekä Riista- ja hirvieläinkolarit (SRVA / StatFin 12qh) ---
+    (async () => {
+        const kpiRow = document.getElementById('wildlifeAndTrafficKpiRow');
+        const tmsBox = document.getElementById('tmsTrafficStationsBox');
+        const srvaBox = document.getElementById('srvaAccidentBreakdownBox');
+
+        // 1. Haetaan lähimmät Fintraffic LAM (TMS) -liikennemittausasemat ja reaaliaikainen ajoneuvomäärä + keskinopeus
+        let nearestTmsList = [];
+        let topStationSensors = { carsPerHour: null, avgSpeedKmh: null };
+
+        try {
+            if (!tmsStationsCache) {
+                const sRes = await fetchWithTimeout('https://tie.digitraffic.fi/api/tms/v1/stations', {}, 8500);
+                if (sRes.ok) {
+                    const sJson = await sRes.json();
+                    tmsStationsCache = (sJson.features || []).map(f => ({
+                        id: f.id || f.properties?.id,
+                        tmsNumber: f.properties?.tmsNumber,
+                        name: (f.properties?.name || 'LAM-mittauspiste').replace(/_/g, ' '),
+                        lon: f.geometry?.coordinates?.[0],
+                        lat: f.geometry?.coordinates?.[1]
+                    })).filter(x => x.lat && x.lon);
+                }
+            }
+
+            if (tmsStationsCache && tmsStationsCache.length > 0) {
+                nearestTmsList = tmsStationsCache.map(st => ({
+                    ...st,
+                    distKm: haversineKm(lat, lon, st.lat, st.lon)
+                })).sort((a, b) => a.distKm - b.distKm).slice(0, 4);
+
+                if (nearestTmsList[0]) {
+                    const dRes = await fetchWithTimeout(`https://tie.digitraffic.fi/api/tms/v1/stations/${nearestTmsList[0].id}/data`, {}, 6500);
+                    if (dRes.ok) {
+                        const dJson = await dRes.json();
+                        const sVals = dJson.sensorValues || [];
+                        const pass1 = sVals.find(s => s.name === 'OHITUKSET_60MIN_KIINTEA_SUUNTA1')?.value || 0;
+                        const pass2 = sVals.find(s => s.name === 'OHITUKSET_60MIN_KIINTEA_SUUNTA2')?.value || 0;
+                        const spd1 = sVals.find(s => s.name === 'KESKINOPEUS_60MIN_KIINTEA_SUUNTA1')?.value || 0;
+                        const spd2 = sVals.find(s => s.name === 'KESKINOPEUS_60MIN_KIINTEA_SUUNTA2')?.value || 0;
+                        if (pass1 + pass2 > 0) topStationSensors.carsPerHour = Math.round(pass1 + pass2);
+                        if (spd1 > 0 || spd2 > 0) topStationSensors.avgSpeedKmh = Math.round((spd1 && spd2) ? (spd1 + spd2) / 2 : (spd1 || spd2));
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('TMS station error:', e);
+        }
+
+        // 2. Haetaan Tilastokeskuksen tieliikenneonnettomuus- ja hirvieläinonnettomuustilasto (StatFin/ton/12qh.px)
+        let accStats = { totalAcc: 0, injured: 0, mooseAcc: 0, deerAcc: 0, pedBikeAcc: 0 };
+        try {
+            const q12qh = {
+                query: [
+                    { code: 'alue_23_20260101', selection: { filter: 'item', values: [kuntaCode !== 'SSS' ? kuntaCode : 'SSS'] } },
+                    { code: 'tieluokka_2_20200101', selection: { filter: 'item', values: ['SSS'] } },
+                    { code: 'tienkayttaja_2_20200101', selection: { filter: 'item', values: ['SSS', 'HI_OS', 'MH_OS', 'JK_OS', 'PP_OS'] } },
+                    { code: 'contentscode', selection: { filter: 'item', values: ['konn', 'ton-louk'] } },
+                    { code: 'timeperiod_y', selection: { filter: 'item', values: ['2023', '2024', '2025'] } }
+                ],
+                response: { format: 'json-stat2' }
+            };
+            const rTon = await fetchWithTimeout('https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/ton/12qh.px', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(q12qh)
+            }, 8000);
+            if (rTon.ok) {
+                const jTon = await rTon.json();
+                const v = jTon.value || [];
+                // 5 osallista x 2 mittaria x 3 vuotta = 30 arvoa
+                const sum3y = (osIdx, metricIdx) => {
+                    const base = osIdx * 6 + metricIdx * 3;
+                    return (Number(v[base] || 0) + Number(v[base + 1] || 0) + Number(v[base + 2] || 0));
+                };
+                accStats.totalAcc = Math.round(sum3y(0, 0) / 3);
+                accStats.injured = Math.round(sum3y(0, 1) / 3);
+                accStats.mooseAcc = sum3y(1, 0);
+                accStats.deerAcc = sum3y(2, 0);
+                accStats.pedBikeAcc = Math.round((sum3y(3, 0) + sum3y(4, 0)) / 3);
+            }
+        } catch (e) {}
+
+        const st0 = nearestTmsList[0];
+        const estDailyKvl = topStationSensors.carsPerHour ? topStationSensors.carsPerHour * 18 : null;
+
+        if (kpiRow) {
+            kpiRow.innerHTML = `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Liikennemäärä nyt (LAM)</div>
+                    <div class="text-sm font-extrabold text-amber-300 mt-0.5">${topStationSensors.carsPerHour !== null ? `${topStationSensors.carsPerHour.toLocaleString('fi-FI')} ajon./h` : 'Normaali'}</div>
+                    <div class="text-[10px] text-slate-400">${estDailyKvl ? `KVL arvio ~${estDailyKvl.toLocaleString('fi-FI')} ajon./vrk` : (st0 ? st0.name : '')}</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Mitattu keskinopeus</div>
+                    <div class="text-sm font-extrabold text-cyan-300 mt-0.5">${topStationSensors.avgSpeedKmh ? `${topStationSensors.avgSpeedKmh} km/h` : '-'}</div>
+                    <div class="text-[10px] text-slate-400">${st0 ? `Piste: ${st0.distKm.toFixed(1)} km päässä` : 'Fintraffic TMS'}</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Liikennevahingot (${city || 'Kunta'})</div>
+                    <div class="text-sm font-extrabold text-white mt-0.5">${accStats.totalAcc} kpl/v</div>
+                    <div class="text-[10px] text-slate-400">Kevyt liikenne: ${accStats.pedBikeAcc} kpl/v</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Hirvi- & Peurakolaririski</div>
+                    <div class="text-sm font-extrabold ${(accStats.mooseAcc + accStats.deerAcc) > 5 ? 'text-amber-300' : 'text-emerald-400'} mt-0.5">
+                        ${(accStats.mooseAcc + accStats.deerAcc) > 5 ? '⚠️ Kohonnut seudulla' : '✅ Matala taajamassa'}
+                    </div>
+                    <div class="text-[10px] text-slate-400">SRVA & StatFin seuranta</div>
+                </div>
+            `;
+        }
+
+        if (tmsBox) {
+            if (nearestTmsList.length === 0) {
+                tmsBox.innerHTML = `<div class="text-slate-400">LAM-liikennemittausasemia ei saatu haettua.</div>`;
+            } else {
+                tmsBox.innerHTML = `
+                    <div class="font-bold text-amber-300 mb-1.5">🚗 Lähimmät Fintraffic LAM -liikennemittauspisteet:</div>
+                    <div class="space-y-1.5">
+                        ${nearestTmsList.map((st, idx) => `
+                            <div onclick="focusMapPoint(${st.lat}, ${st.lon}, '🚗 LAM ${st.name.replace(/'/g, '')}', 'Etäisyys ${st.distKm.toFixed(1)} km')"
+                                 class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-xs transition">
+                                <div>
+                                    <span class="font-bold text-slate-200">📡 ${st.name}</span>
+                                    ${idx === 0 && topStationSensors.carsPerHour ? `<span class="text-[10px] text-emerald-400 ml-2">${topStationSensors.carsPerHour} ajon./h • ${topStationSensors.avgSpeedKmh || '-'} km/h</span>` : ''}
+                                </div>
+                                <span class="font-mono font-bold text-white">${st.distKm.toFixed(1)} km</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        if (srvaBox) {
+            srvaBox.innerHTML = `
+                <div class="font-bold text-slate-200">🦌 SRVA Suurriistavirka-apu & Hirvieläinonnettomuudet:</div>
+                <div class="text-[11px] text-slate-300 leading-relaxed">
+                    Lounais-Suomen, Uudenmaan ja Pirkanmaan valtateillä valkohäntäpeura- ja metsäkauriiskolarit painottuvat aamu- ja iltahämärään sekä loka–joulukuulle. Riistaonnettomuudesta ilmoitetaan aina hätänumeroon <b>112</b> (käytä 112 Suomi -sovellusta paikannukseen), joka hälyttää paikallisen riistanhoitoyhdistyksen SRVA-jäljestyksen.
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1.5 text-[11px]">
+                    <a href="https://riista.fi/riistatalous/tietoa-riistasta/riistakolarit/" target="_blank" class="bg-amber-600/25 hover:bg-amber-600/40 text-amber-200 border border-amber-500/40 px-2.5 py-1 rounded-lg font-medium transition">
+                        🦌 Suomen Riistakeskus: Riistakolarikartta (SRVA) ↗
+                    </a>
+                    <a href="https://vayla.fi/vaylista/aineistot/kartat/liikennemaarakartat" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg transition">
+                        📊 Väyläviraston Liikennemääräkartta (KVL) ↗
+                    </a>
+                </div>
+            `;
+        }
+    })();
+}
+
+// =========================================================
+// 17. JULKISET VALOKUVAT, HISTORIALLISET KUVAT (WIKIMEDIA COMMONS + MUSEOVIRASTO FINNA + STREET VIEW) SEKÄ PAIKALLISET VAIKUTTAJAT & TUNNETUT HENKILÖT (RIVI 4I)
+// =========================================================
+const CITY_NOTABLE_PEOPLE = {
+    'turku': [
+        { name: 'Mauno Koivisto', role: 'Tasavallan presidentti (1982–1994), syntynyt Turussa', url: 'https://fi.wikipedia.org/wiki/Mauno_Koivisto' },
+        { name: 'Paavo Nurmi', role: 'Juoksijalegenda ja 9-kertainen olympiavoittaja ("Turun Urheiluliitto")', url: 'https://fi.wikipedia.org/wiki/Paavo_Nurmi' },
+        { name: 'Saku & Mikko Koivu', role: 'Jääkiekon maailmanmestarit ja NHL-kapteenit', url: 'https://fi.wikipedia.org/wiki/Saku_Koivu' },
+        { name: 'Helene Schjerfbeck', role: 'Taidemaalari, työskenteli ja opetti Turun piirustuskoulussa', url: 'https://fi.wikipedia.org/wiki/Helene_Schjerfbeck' },
+        { name: 'Matti ja Teppo / Ressu Redford', role: 'Turkulaisen populaarimusiikin tunnetut vaikuttajat', url: 'https://fi.wikipedia.org/wiki/Matti_ja_Teppo' }
+    ],
+    'helsinki': [
+        { name: 'Tove Jansson', role: 'Kirjailija, taidemaalari ja Muumien luoja (Katajanokka / Ullanlinna)', url: 'https://fi.wikipedia.org/wiki/Tove_Jansson' },
+        { name: 'Alvar Aalto', role: 'Arkkitehti ja muotoilija (Aallon kotitalo ja ateljee Munkkiniemessä)', url: 'https://fi.wikipedia.org/wiki/Alvar_Aalto' },
+        { name: 'Mika Waltari', role: 'Kirjailija, Sinuhe egyptiläisen tekijä (Töölö)', url: 'https://fi.wikipedia.org/wiki/Mika_Waltari' },
+        { name: 'Tarja Halonen / Sauli Niinistö', role: 'Valtiolliset vaikuttajat ja tasavallan presidentit', url: 'https://fi.wikipedia.org/wiki/Tarja_Halonen' },
+        { name: 'Linus Torvalds', role: 'Linux-käyttöjärjestelmäytimen ja Gitin kehittäjä', url: 'https://fi.wikipedia.org/wiki/Linus_Torvalds' }
+    ],
+    'tampere': [
+        { name: 'Väinö Linna', role: 'Akateemikko ja kirjailija (Tuntematon sotilas, Täällä Pohjantähden alla)', url: 'https://fi.wikipedia.org/wiki/V%C3%A4in%C3%B6_Linna' },
+        { name: 'Juice Leskinen', role: 'Laulaja-lauluntekijä, runoilija ja suomirockin pioneeri', url: 'https://fi.wikipedia.org/wiki/Juice_Leskinen' },
+        { name: 'Minna Canth', role: 'Kirjailija ja yhteiskunnallinen vaikuttaja, syntynyt Tampereella', url: 'https://fi.wikipedia.org/wiki/Minna_Canth' },
+        { name: 'Kiira Korpi / Patrik Laine / Aleksander Barkov', role: 'Tamperelaisen huippu-urheilun tähdet', url: 'https://fi.wikipedia.org/wiki/Aleksander_Barkov' }
+    ],
+    'espoo': [
+        { name: 'Kimi Räikkönen', role: 'Formula 1 -maailmanmestari, syntynyt Espoossa', url: 'https://fi.wikipedia.org/wiki/Kimi_R%C3%A4ikk%C3%B6nen' },
+        { name: 'Akseli Gallen-Kallela', role: 'Taidemaalari (Tarvaspään ateljeelinna Espoon Leppävaarassa)', url: 'https://fi.wikipedia.org/wiki/Akseli_Gallen-Kallela' },
+        { name: 'Teemu Selänne', role: 'Jääkiekkolegenda, kasvanut Espoon Nöykkiössä', url: 'https://fi.wikipedia.org/wiki/Teemu_Sel%C3%A4nne' }
+    ],
+    'vantaa': [
+        { name: 'Mika Häkkinen', role: 'Kaksinkertainen Formula 1 -maailmanmestari (Martinlaakso)', url: 'https://fi.wikipedia.org/wiki/Mika_H%C3%A4kkinen' },
+        { name: 'Käärijä (Jere Pöyhönen)', role: 'Artisti ja Euroviisujen hopeamitalisti (Ruskeasanta)', url: 'https://fi.wikipedia.org/wiki/K%C3%A4%C3%A4rij%C3%A4' }
+    ],
+    'oulu': [
+        { name: 'K. J. Ståhlberg & Martti Ahtisaari', role: 'Tasavallan presidentit ja Oulussa vaikuttaneet valtiomiehet', url: 'https://fi.wikipedia.org/wiki/Martti_Ahtisaari' },
+        { name: 'Sara Wacklin', role: 'Kirjailija ja naisten koulutuksen edelläkävijä', url: 'https://fi.wikipedia.org/wiki/Sara_Wacklin' }
+    ],
+    'jyväskylä': [
+        { name: 'Alvar Aalto', role: 'Arkkitehti, kävi koulunsa ja perusti ensimmäisen toimistonsa Jyväskylässä', url: 'https://fi.wikipedia.org/wiki/Alvar_Aalto' },
+        { name: 'Matti Nykänen & Kalle Rovanperä', role: 'Mäkihypyn ja ralliautoilun moninkertaiset maailmanmestarit', url: 'https://fi.wikipedia.org/wiki/Kalle_Rovanper%C3%A4' }
+    ],
+    'kuopio': [
+        { name: 'Minna Canth', role: 'Kirjailija, lehtinainen ja tasa-arvon puolustaja (Kanttila)', url: 'https://fi.wikipedia.org/wiki/Minna_Canth' },
+        { name: 'Juhani Aho & Martti Ahtisaari', role: 'Kulttuuri- ja valtiomiesten Kuopio', url: 'https://fi.wikipedia.org/wiki/Juhani_Aho' }
+    ],
+    'lahti': [
+        { name: 'Jari Litmanen', role: 'Suomen kaikkien aikojen jalkapalloilija ("Kuningas")', url: 'https://fi.wikipedia.org/wiki/Jari_Litmanen' },
+        { name: 'Janne Ahonen', role: 'Mäkihyppylegenda ja viisinkertainen Keski-Euroopan mäkiviikon voittaja', url: 'https://fi.wikipedia.org/wiki/Janne_Ahonen' }
+    ],
+    'pori': [
+        { name: 'Timo Koivusalo & Dingo (Neumann)', role: 'Porilaisen kulttuurin ja suomirockin ikonit', url: 'https://fi.wikipedia.org/wiki/Dingo' },
+        { name: 'Maire Gullichsen', role: 'Taiteen mesenaatti, Artek-perustaja ja Villa Mairean luoja', url: 'https://fi.wikipedia.org/wiki/Maire_Gullichsen' }
+    ]
+};
+
+async function fetchGeoPhotosAndNotablePeople() {
+    const { lat, lon, street, num, city, suburb } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // --- OSA A: Paikkasidonnaiset julkiset valokuvat (Wikimedia Commons Geosearch + Finna API + Street View) ---
+    (async () => {
+        const svRow = document.getElementById('streetViewActionRow');
+        const galleryEl = document.getElementById('geoPhotosGalleryGrid');
+        const badgeEl = document.getElementById('geoPhotosBadge');
+
+        if (svRow) {
+            const svUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lon}`;
+            const gMaps3d = `https://www.google.com/maps/@${lat},${lon},180a,35y,39.38t/data=!3m1!1e3`;
+            const finnaSearch = `https://www.finna.fi/Search/Results?lookfor=${encodeURIComponent((street || suburb || '') + ' ' + (city || ''))}&type=AllFields&filter%5B%5D=%7Eformat_ext_str_mv%3A%220%2FImage%2F%22`;
+            svRow.innerHTML = `
+                <a href="${svUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1.5 transition shadow">
+                    <span>🚶 Google Street View (Katunäkymä 360°)</span><span>↗</span>
+                </a>
+                <a href="${gMaps3d}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition">
+                    <span>🛰️ Viistoilmakuva 3D</span><span>↗</span>
+                </a>
+                <a href="${finnaSearch}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-fuchsia-300 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition">
+                    <span>🏛️ Finna.fi Arkistokuvat (${street || city})</span><span>↗</span>
+                </a>
+            `;
+        }
+
+        const photos = [];
+
+        // 1. Wikimedia Commons Geosearch (koordinaattien ympäriltä otetut valokuvat)
+        try {
+            const commonsUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${lat}|${lon}&ggsradius=1800&ggslimit=9&ggsnamespace=6&prop=imageinfo|coordinates&iiprop=url|extmetadata&iiurlwidth=420&format=json&origin=*`;
+            const cRes = await fetchWithTimeout(commonsUrl, {}, 7500);
+            if (cRes.ok) {
+                const cData = await cRes.json();
+                const pages = (cData.query && cData.query.pages) ? Object.values(cData.query.pages) : [];
+                pages.forEach(p => {
+                    const ii = p.imageinfo && p.imageinfo[0];
+                    if (!ii || !ii.thumburl) return;
+                    const cleanTitle = (p.title || '').replace(/^File:/i, '').replace(/\.[a-z0-9]+$/i, '').replace(/_/g, ' ');
+                    const coord = p.coordinates && p.coordinates[0];
+                    const distM = coord ? Math.round(haversineMeters(lat, lon, coord.lat, coord.lon)) : null;
+                    photos.push({
+                        title: cleanTitle,
+                        thumb: ii.thumburl,
+                        url: ii.descriptionurl || ii.url,
+                        source: 'Wikimedia Commons',
+                        distStr: distM !== null ? `${distM} m` : 'Lähikortteli'
+                    });
+                });
+            }
+        } catch (e) {}
+
+        // 2. Finna.fi (Museoviraston & kaupunginmuseoiden historialliset valokuvat kadulta tai kaupunginosasta)
+        try {
+            const qStr = [street || suburb, city].filter(Boolean).join(' ');
+            const finnaUrl = `https://api.finna.fi/api/v1/search?lookfor=${encodeURIComponent(qStr)}&filter[]=format:0/Image/&filter[]=online_boolean:1&limit=6`;
+            const fRes = await fetchWithTimeout(finnaUrl, {}, 7500);
+            if (fRes.ok) {
+                const fData = await fRes.json();
+                (fData.records || []).forEach(rec => {
+                    const imgPath = rec.images && rec.images[0];
+                    if (!imgPath) return;
+                    const yearStr = rec.year ? ` (${rec.year})` : '';
+                    photos.push({
+                        title: `${rec.title || 'Arkistokuva'}${yearStr}`,
+                        thumb: `https://api.finna.fi${imgPath}&w=400`,
+                        url: `https://www.finna.fi/Record/${encodeURIComponent(rec.id)}`,
+                        source: (rec.buildings && rec.buildings[0] && rec.buildings[0].translated) || 'Finna / Museoarkisto',
+                        distStr: rec.year ? `Vuosi ${rec.year}` : 'Arkisto'
+                    });
+                });
+            }
+        } catch (e) {}
+
+        if (badgeEl) {
+            badgeEl.textContent = `${photos.length} valokuvaa`;
+        }
+
+        if (galleryEl) {
+            if (photos.length === 0) {
+                galleryEl.innerHTML = `<div class="col-span-3 text-slate-400 py-3">Alueelta ei löytynyt avoimen lisenssin paikannettuja valokuvia. Avaa yllä olevasta vihreästä painikkeesta suora 360° Google Street View -katunäkymä!</div>`;
+            } else {
+                galleryEl.innerHTML = photos.slice(0, 9).map(ph => `
+                    <a href="${ph.url}" target="_blank" class="group bg-slate-950 border border-slate-800 hover:border-fuchsia-500/50 rounded-xl overflow-hidden flex flex-col justify-between transition">
+                        <div class="relative h-28 w-full bg-slate-900 overflow-hidden">
+                            <img src="${ph.thumb}" alt="${ph.title.replace(/"/g, '')}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <span class="absolute top-1.5 right-1.5 bg-black/75 text-white text-[9px] px-1.5 py-0.5 rounded">${ph.distStr}</span>
+                        </div>
+                        <div class="p-2">
+                            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-fuchsia-300 line-clamp-2 leading-tight">${ph.title}</div>
+                            <div class="text-[9px] text-slate-400 mt-1 truncate">📷 ${ph.source} ↗</div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+        }
+    })();
+
+    // --- OSA B: Paikalliset vaikuttajat, tunnetut henkilöt, muistolaatat ja Wikipedia-kohteet ---
+    (async () => {
+        const peopleBox = document.getElementById('notablePeopleListBox');
+        const wikiBox = document.getElementById('nearbyWikipediaArticlesBox');
+        const badgeEl = document.getElementById('notablePeopleBadge');
+
+        const curatedPeople = CITY_NOTABLE_PEOPLE[cityLow] || [];
+
+        // Haetaan lisäksi lähialueen muistolaatat ja patsaat (memorial=plaque, statue, bust) sekä suomenkielisen Wikipedian paikannetut artikkelit
+        const wikiArticles = [];
+        try {
+            const wUrl = `https://fi.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=2500&gslimit=12&format=json&origin=*`;
+            const wRes = await fetchWithTimeout(wUrl, {}, 7000);
+            if (wRes.ok) {
+                const wData = await wRes.json();
+                (wData.query?.geosearch || []).forEach(it => {
+                    wikiArticles.push({
+                        title: it.title,
+                        distM: Math.round(it.dist),
+                        lat: it.lat,
+                        lon: it.lon,
+                        url: `https://fi.wikipedia.org/wiki/${encodeURIComponent(it.title.replace(/ /g, '_'))}`
+                    });
+                });
+            }
+        } catch (e) {}
+
+        if (badgeEl) {
+            badgeEl.textContent = `${curatedPeople.length} henkilöä • ${wikiArticles.length} artikkelia`;
+        }
+
+        if (peopleBox) {
+            peopleBox.innerHTML = `
+                <div class="font-bold text-amber-300 mb-1.5">🌟 Paikkakunnalta (${city || 'Alue'}) tunnettuja henkilöitä ja vaikuttajia:</div>
+                ${curatedPeople.length > 0 ? `
+                    <div class="space-y-1.5">
+                        ${curatedPeople.map(p => `
+                            <a href="${p.url}" target="_blank" class="block bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 transition">
+                                <div class="font-bold text-white hover:text-amber-300">${p.name} ↗</div>
+                                <div class="text-[11px] text-slate-400">${p.role}</div>
+                            </a>
+                        `).join('')}
+                    </div>
+                ` : `
+                    <div class="text-slate-300 text-[11px]">
+                        Tutustu paikkakunnan <a href="https://fi.wikipedia.org/wiki/${encodeURIComponent(city || 'Suomi')}" target="_blank" class="text-amber-300 underline font-semibold">${city || 'kunnan'} Wikipedia-artikkeliin ja tunnettuihin henkilöihin ↗</a>
+                    </div>
+                `}
+            `;
+        }
+
+        if (wikiBox) {
+            if (wikiArticles.length === 0) {
+                wikiBox.innerHTML = `<div class="text-slate-400">Ei paikannettuja Wikipedia-artikkeleita 2,5 km säteellä.</div>`;
+            } else {
+                wikiBox.innerHTML = `
+                    <div class="font-bold text-sky-300 mb-1.5">📖 Lähikortteleiden Wikipedia-artikkelit, henkilömuistomerkit & rakennushistoria (2,5 km):</div>
+                    ${wikiArticles.map(a => `
+                        <div class="bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 transition">
+                            <a href="${a.url}" target="_blank" class="font-semibold text-slate-200 hover:text-sky-300 truncate">📜 ${a.title} ↗</a>
+                            <button onclick="focusMapPoint(${a.lat}, ${a.lon}, '📜 ${a.title.replace(/'/g, '')}', 'Wikipedia-kohde (${a.distM} m)')" class="text-[10px] font-mono text-emerald-400 hover:underline shrink-0">
+                                📍 ${a.distM} m
+                            </button>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+    })();
 }
 </script>
 </body>
