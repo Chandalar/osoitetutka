@@ -129,6 +129,42 @@
         .card-collapsed .collapsible-body {
             display: none !important;
         }
+        .ship-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            background: #0369a1;
+            color: #ffffff;
+            border: 2px solid #38bdf8;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .ship-marker-badge:hover {
+            transform: scale(1.18);
+        }
+        .flight-marker-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            background: #b45309;
+            color: #ffffff;
+            border: 2px solid #fde047;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .flight-marker-badge:hover {
+            transform: scale(1.18);
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-white">
@@ -832,45 +868,77 @@
             </div>
 
 
-            <!-- RIVI 4: Tilastokeskus Paavo Live-tilastot & Kiinteistöanalyysi -->
+            <!-- RIVI 4: Tilastokeskus Paavo Live-tilastot, Ulkomaalaistaustainen väestö, Neliöhinnat & Kiinteistöanalyysi -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-                <!-- Tilastokeskus Paavo -postinumeroalueen profiili (2/3 leveys) -->
+                <!-- Tilastokeskus Paavo -postinumeroalueen & kunnan profiili (2/3 leveys) -->
                 <div data-collapsible-card="paavo" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
                             <h2 class="font-bold text-white flex items-center gap-2">
-                                📊 Alueen sosioekonominen profiili (Tilastokeskus Paavo)
+                                📊 Alueen Väestö-, Tulotaso-, Ulkomaalaistausta- & Hintaprofiili (Tilastokeskus)
                             </h2>
-                            <p id="paavoAreaTitle" class="text-xs text-slate-400">Haetaan postinumeroalueen virallisia tilastoja...</p>
+                            <p id="paavoAreaTitle" class="text-xs text-slate-400">Haetaan postinumeroalueen ja kunnan virallisia Tilastokeskus-tilastoja...</p>
                         </div>
                         <span class="text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                            Suora WFS/PxWeb-haku
+                            Paavo WFS + StatFin PxWeb
                         </span>
                     </div>
 
                     <div class="collapsible-body mt-4">
-                        <!-- Paavo 4 päämittaria -->
-                        <div id="paavoMetricsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                            <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl">
-                                <div class="text-[11px] text-slate-400">Asukkaat & Keski-ikä</div>
-                                <div id="paavoPop" class="text-base font-bold text-white mt-0.5">-</div>
-                                <div id="paavoAge" class="text-xs text-slate-400 mt-0.5">-</div>
+                        <!-- Paavo 6 päämittaria (ml. Ulkomaalaistaustaiset & Vieraskieliset + Toteutuneet Neliöhinnat) -->
+                        <div id="paavoMetricsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-4">
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Asukkaat & Keski-ikä</div>
+                                <div id="paavoPop" class="text-sm font-bold text-white mt-0.5">-</div>
+                                <div id="paavoAge" class="text-[10px] text-slate-400 mt-0.5">-</div>
                             </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl">
-                                <div class="text-[11px] text-slate-400">Asukkaiden tulotaso</div>
-                                <div id="paavoIncomeAvg" class="text-base font-bold text-emerald-400 mt-0.5">-</div>
-                                <div id="paavoIncomeMed" class="text-xs text-slate-400 mt-0.5">-</div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Asukkaiden tulotaso</div>
+                                <div id="paavoIncomeAvg" class="text-sm font-bold text-emerald-400 mt-0.5">-</div>
+                                <div id="paavoIncomeMed" class="text-[10px] text-slate-400 mt-0.5">-</div>
                             </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl">
-                                <div class="text-[11px] text-slate-400">Asuntojen keskikoko</div>
-                                <div id="paavoAptSize" class="text-base font-bold text-amber-400 mt-0.5">-</div>
-                                <div id="paavoHouseholdSize" class="text-xs text-slate-400 mt-0.5">-</div>
+                            <div class="bg-slate-950 border border-fuchsia-500/30 p-3 rounded-xl">
+                                <div class="text-[10px] text-fuchsia-300 font-medium">🌍 Ulkomaalaistaustaiset</div>
+                                <div id="paavoForeignShare" class="text-sm font-bold text-fuchsia-300 mt-0.5">Haetaan...</div>
+                                <div id="paavoForeignDetail" class="text-[10px] text-slate-400 mt-0.5">Vieraskieliset: -</div>
                             </div>
-                            <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl">
-                                <div class="text-[11px] text-slate-400">Koulutus & Työllisyys</div>
-                                <div id="paavoEdu" class="text-base font-bold text-cyan-400 mt-0.5">-</div>
-                                <div id="paavoUnemp" class="text-xs text-slate-400 mt-0.5">-</div>
+                            <div class="bg-slate-950 border border-amber-500/30 p-3 rounded-xl">
+                                <div class="text-[10px] text-amber-300 font-medium">💶 Neliöhinta (Postinro)</div>
+                                <div id="paavoSqmPrice" class="text-sm font-bold text-amber-400 mt-0.5">Haetaan...</div>
+                                <div id="paavoSqmDetail" class="text-[10px] text-slate-400 mt-0.5">Vanhat osakeasunnot</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Asuntojen keskikoko</div>
+                                <div id="paavoAptSize" class="text-sm font-bold text-sky-300 mt-0.5">-</div>
+                                <div id="paavoHouseholdSize" class="text-[10px] text-slate-400 mt-0.5">-</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Koulutus & Työllisyys</div>
+                                <div id="paavoEdu" class="text-sm font-bold text-cyan-400 mt-0.5">-</div>
+                                <div id="paavoUnemp" class="text-[10px] text-slate-400 mt-0.5">-</div>
+                            </div>
+                        </div>
+
+                        <!-- Tarkempi väestö-, kieli-, asuntohinta- ja työpaikkaerittely -->
+                        <div id="statfinExtendedBox" class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5 mb-4 text-xs grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <div class="font-bold text-fuchsia-300 flex items-center gap-1.5">🌍 Väestö- ja kielirakenne (Tilastokeskus)</div>
+                                <div id="statfinForeignBreakdown" class="text-[11px] text-slate-300 space-y-0.5">
+                                    <div class="text-slate-500 italic">Haetaan väestörakennetta (StatFin 159t & Aluesarjat)...</div>
+                                </div>
+                            </div>
+                            <div class="space-y-1 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0 md:pl-3">
+                                <div class="font-bold text-amber-300 flex items-center gap-1.5">💶 Postinumeron toteutuneet kauppahinnat</div>
+                                <div id="statfinPriceBreakdown" class="text-[11px] text-slate-300 space-y-0.5">
+                                    <div class="text-slate-500 italic">Haetaan asuntojen neliöhintoja (StatFin 13mu)...</div>
+                                </div>
+                            </div>
+                            <div class="space-y-1 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0 md:pl-3">
+                                <div class="font-bold text-cyan-300 flex items-center gap-1.5">💼 Alueen työpaikat, tuloluokat & ikärakenne</div>
+                                <div id="statfinJobsBreakdown" class="text-[11px] text-slate-300 space-y-0.5">
+                                    <div class="text-slate-500 italic">Lasketaan Paavo-erittelyä...</div>
+                                </div>
                             </div>
                         </div>
 
@@ -908,7 +976,7 @@
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-                            <span>Lähde: Tilastokeskuksen avoin Paavo-tietokanta (postinumeroalueen rajat voit kytkeä päälle kartan tasovalikosta).</span>
+                            <span>Lähteet: Tilastokeskus Paavo, StatFin Väestörakenne (`159t`), StatFin Osakeasuntojen hinnat (`13mu`) & kaupunkien avoin WFS.</span>
                             <span id="paavoFamilyShare" class="text-slate-300 font-medium"></span>
                         </div>
                     </div>
@@ -929,6 +997,217 @@
 
                         <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
                             Klikkaa mitä tahansa tonttia tai rakennusta yläkartalla nähdäksesi sen kiinteistötunnuksen ja pinta-alan.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4B: RIKOSTILASTOT & ALUEEN TURVALLISUUS (TILASTOKESKUS RPK) + VIEMÄRI-, VESIHUOLTO- JA JOHTOKARTAT -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+                <!-- Viralliset Rikostilastot & Poliisin tietoon tulleet rikokset (Tilastokeskus StatFin RPK 13ex) (2/3 leveys) -->
+                <div data-collapsible-card="crime" data-default-open="true" class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🚓 Rikostilastot & Alueen Turvallisuusindeksi (Tilastokeskus & Poliisi)
+                                <span id="crimeSafetyBadge" class="text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2.5 py-0.5 rounded-full font-semibold">Haetaan...</span>
+                            </h2>
+                            <p id="crimeSubtitle" class="text-xs text-slate-400">
+                                Viranomaisten tietoon tulleet rikokset rikosryhmittäin, selvitysprosentti sekä vertailu koko maan keskiarvoon (suora StatFin `rpk_13ex` -haku).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-body mt-4">
+                        <!-- 4 Päärikosmittaria (Kokonaisrikollisuus / 1000 as, Asuntomurrot, Omaisuusrikokset, Selvitys-%) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Rikokset / 1 000 asukasta</div>
+                                <div id="crimePer1000" class="text-base font-bold text-white mt-0.5">-</div>
+                                <div id="crimeVsNational" class="text-[10px] text-slate-400 mt-0.5">Koko maa: -</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Asuntomurrot (kunta/v)</div>
+                                <div id="crimeBurglary" class="text-base font-bold text-amber-400 mt-0.5">-</div>
+                                <div id="crimeBurglaryDetail" class="text-[10px] text-slate-400 mt-0.5">Asunto & vapaa-aika</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Omaisuus- & Vahingonteot</div>
+                                <div id="crimeProperty" class="text-base font-bold text-sky-300 mt-0.5">-</div>
+                                <div id="crimeDamageDetail" class="text-[10px] text-slate-400 mt-0.5">Ilkivalta: -</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800/80 p-3 rounded-xl">
+                                <div class="text-[10px] text-slate-400">Rikosten selvitysaste</div>
+                                <div id="crimeClearanceRate" class="text-base font-bold text-emerald-400 mt-0.5">-</div>
+                                <div id="crimeTotalCount" class="text-[10px] text-slate-400 mt-0.5">Yhteensä: - kpl/v</div>
+                            </div>
+                        </div>
+
+                        <!-- Rikosryhmien erittelytaulukko + paikalliset poliisiuutiset -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div class="md:col-span-3 bg-slate-950 border border-slate-800/80 rounded-xl p-3.5">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-slate-200">📋 Virallinen rikosjakauma kunnassa (Tilastokeskus RPK)</span>
+                                    <span id="crimeYearLabel" class="text-[10px] text-slate-400">Tilastovuosi 2025</span>
+                                </div>
+                                <div id="crimeBreakdownTable" class="space-y-1.5 text-xs">
+                                    <div class="text-slate-500 italic py-3">Haetaan Tilastokeskuksen rikos- ja pakkokeinotilastoja...</div>
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-2 bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-rose-300 mb-2 flex items-center justify-between">
+                                        <span>🚨 Tuoreimmat poliisi- & hälytystiedotteet</span>
+                                    </div>
+                                    <div id="policeLiveFeedBox" class="space-y-2 max-h-44 overflow-y-auto pr-1 text-[11px]">
+                                        <div class="text-slate-500 italic">Haetaan alueen poliisi- ja rikosuutisia...</div>
+                                    </div>
+                                </div>
+                                <div class="mt-2.5 pt-2 border-t border-slate-800 flex flex-wrap gap-2 text-[11px]">
+                                    <a id="policeDirectLink" href="https://poliisi.fi/uutiset" target="_blank" class="text-emerald-400 hover:underline">Poliisi.fi tiedotteet ↗</a>
+                                    <span>•</span>
+                                    <a href="https://www.tilannehuone.fi/halytys.php" target="_blank" class="text-amber-400 hover:underline">Tilannehuone hälytykset ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Viemäri-, Vesihuolto-, Hulevesi- & Johtokartat (1/3 leveys) -->
+                <div data-collapsible-card="sewer" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-bold text-white flex items-center gap-2">🚰 Viemäri-, Vesi- & Johtokartat</h2>
+                        <span id="sewerStatusBadge" class="text-[10px] bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">Tarkistetaan...</span>
+                    </div>
+
+                    <div class="collapsible-body mt-3">
+                        <p class="text-xs text-slate-400 mb-3">
+                            Jätevesiviemärin, talousveden ja hulevesiverkoston toiminta-alueet, pohjavesi/maalämpöpotentiaali sekä johtokarttapalvelut:
+                        </p>
+
+                        <!-- Automaattinen verkostotarkistus (WFS / WMS) -->
+                        <div id="sewerNetworkStatusBox" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2 mb-3">
+                            <div class="text-slate-500 italic">Tarkistetaan tontin kuuluminen vesihuolto- ja viemäriverkostoon...</div>
+                        </div>
+
+                        <!-- Pikakytkimet karttatasoille (Viemäri / Vesihuolto / Hulevesi / Maalämpö WMS) -->
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 mb-3">
+                            <div class="text-[11px] font-bold text-slate-300 mb-2">🗺️ Kytke verkosto- ja vesitaso yläkartalle:</div>
+                            <div class="grid grid-cols-1 gap-1.5 text-xs">
+                                <button onclick="toggleUtilityMapLayer('sewer')" id="btnLayerSewer" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                    <span>🚰 Vesihuolto- & Viemäriverkoston alueet</span>
+                                    <span class="text-[10px] text-cyan-400">Näytä kartalla</span>
+                                </button>
+                                <button onclick="toggleUtilityMapLayer('stormwater')" id="btnLayerStormwater" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                    <span>🌧️ Hulevesi- & Valumavesikartta (SYKE)</span>
+                                    <span class="text-[10px] text-sky-400">Näytä kartalla</span>
+                                </button>
+                                <button onclick="toggleUtilityMapLayer('geoenergy')" id="btnLayerGeoenergy" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-left transition flex items-center justify-between">
+                                    <span>♨️ Pohjavesi & Maalämpöpotentiaali (GTK)</span>
+                                    <span class="text-[10px] text-emerald-400">Näytä kartalla</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Suorat linkit kaivulupa-, johtoselvitys- ja vesilaitoskarttoihin -->
+                        <div id="sewerUtilityLinks" class="space-y-1.5 text-xs"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIVI 4C: LENTOLIIKENNE & YLILENNOT (LENTOMELU / LENTORADAT) SEKÄ LAIVALIIKENNE (AIS MERI- JA VESILIIKENNE) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+                <!-- ✈️ Lentoliikenne, Ylilennot & Lentokenttien lähestymislinjat (1/2 leveys) -->
+                <div data-collapsible-card="aviation" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                ✈️ Lentoliikenne, Ylilennot & Lentomeluvyöhyke
+                                <span id="flightStatusBadge" class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
+                            </h2>
+                            <p id="flightSubtitle" class="text-xs text-slate-400">
+                                Tarkistetaan lentääkö osoitteen yli lentokoneita (kiitotie- ja lähestymislinjat + reaaliaikainen ilmatilatutka).
+                            </p>
+                        </div>
+                        <button onclick="fetchAviationAndOverflights(true)" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">
+                            🔄 Päivitä tutka
+                        </button>
+                    </div>
+
+                    <div class="collapsible-body mt-4">
+                        <!-- Ylilentojen & Kiitotielinjan analyysilaatikko -->
+                        <div id="flightCorridorBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-3 text-xs space-y-2">
+                            <div class="text-slate-500 italic">Lasketaan etäisyyttä lähimpiin lentoasemiin, helikopterikenttiin ja kiitoteiden nousu-/laskulinjoihin...</div>
+                        </div>
+
+                        <!-- Reaaliaikaiset lentokoneet lähistöllä -->
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">📡 Parhaillaan ilmassa lähialueella (Live ADS-B / OGN)</span>
+                                <span id="liveAircraftCountBadge" class="text-[10px] text-slate-400">Haetaan...</span>
+                            </div>
+                            <div id="liveAircraftListContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                                <div class="text-slate-500 italic">Haetaan ilmatilan lentokoneita...</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-2 border-t border-slate-800">
+                            <span>💡 Kiitoteiden jatkeet ja koneet näkyvät myös yläkartalla (`✈️ Lentoliikenne`).</span>
+                            <div class="flex gap-2">
+                                <a id="fr24DirectLink" href="https://www.flightradar24.com/" target="_blank" class="text-amber-400 hover:underline font-medium">Flightradar24 kohdassa ↗</a>
+                                <span>•</span>
+                                <a id="adsbDirectLink" href="https://globe.adsbexchange.com/" target="_blank" class="text-sky-400 hover:underline font-medium">ADS-B Tutka ↗</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🚢 Laivaliikenne, Vesistöt & Venesatamat (Fintraffic Digitraffic Marine AIS Live) (1/2 leveys) -->
+                <div data-collapsible-card="marine" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 class="font-bold text-white flex items-center gap-2">
+                                🚢 Laivaliikenne, Vesistöetäisyys & Satamat (AIS Live)
+                                <span id="marineStatusBadge" class="text-xs bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2.5 py-0.5 rounded-full font-semibold">Tutkitaan...</span>
+                            </h2>
+                            <p id="marineSubtitle" class="text-xs text-slate-400">
+                                Reaaliaikainen laiva- ja alusliikenne (Fintraffic AIS), etäisyys rantaan/vesistöön sekä lähimmät venesatamat.
+                            </p>
+                        </div>
+                        <button onclick="fetchMarineAndWaterProximity(true)" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">
+                            🔄 Päivitä laivat
+                        </button>
+                    </div>
+
+                    <div class="collapsible-body mt-4">
+                        <!-- Rantaetäisyys & Vesistöanalyysi -->
+                        <div id="waterProximityBox" class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 mb-3 text-xs space-y-2">
+                            <div class="text-slate-500 italic">Tarkistetaan etäisyys mereen, järveen tai jokeen sekä laivaväyliin...</div>
+                        </div>
+
+                        <!-- Reaaliaikaiset laivat ja alukset (Digitraffic Marine AIS) -->
+                        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3.5 mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-sky-300 uppercase tracking-wider">⚓ Reaaliaikaiset laivat & alukset lähivesillä (AIS)</span>
+                                <span id="liveVesselCountBadge" class="text-[10px] text-slate-400">Haetaan...</span>
+                            </div>
+                            <div id="liveVesselsListContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                                <div class="text-slate-500 italic">Haetaan Fintrafficin AIS-laivaliikennettä...</div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-2 border-t border-slate-800">
+                            <span>Lähde: Fintraffic Meriliikenne AIS (reaaliaikainen) & OpenStreetMap</span>
+                            <div class="flex gap-2">
+                                <a id="marinetrafficDirectLink" href="https://www.marinetraffic.com/" target="_blank" class="text-sky-400 hover:underline font-medium">MarineTraffic ↗</a>
+                                <span>•</span>
+                                <a href="https://liikennetilanne.fintraffic.fi/" target="_blank" class="text-emerald-400 hover:underline">Fintraffic Meri ↗</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1039,6 +1318,12 @@ let poiLayerGroup = null;
 let teslaLayerGroup = null;
 let weatherCamLayerGroup = null;
 let eventLayerGroup = null;
+let flightLayerGroup = null;
+let marineLayerGroup = null;
+let sewerLayerGroup = null;
+let wmsStormwaterLayer = null;
+let wmsGeoenergyLayer = null;
+let wmsHsySewerLayer = null;
 
 // Välimuistit, hakusäde ja ajastimet
 let searchRadiusMeters = 2500;
@@ -1062,6 +1347,9 @@ let allRegionalEvents = [];
 let activeEventCityFilter = 'all';
 let activeEventTimeFilter = 'all';
 let nearbyCitiesList = [];
+let marineVesselsMetaCache = null;
+let turkuSewerWfsCache = null;
+let turkuWaterWfsCache = null;
 
 // Asetetaan oletuspäivämääräksi tämä päivä
 window.addEventListener('DOMContentLoaded', () => {
@@ -1213,7 +1501,7 @@ function focusMapPoint(lat, lon, title, subtitle) {
     if (mapCard && mapCard.classList.contains('card-collapsed')) {
         setCardOpenState(mapCard, true, true);
     }
-    map.setView([lat, lon], 16);
+    map.setView([lat, lon], 15);
     L.popup()
         .setLatLng([lat, lon])
         .setContent(`<div class="text-xs"><b>${title}</b><br>${subtitle || ''}</div>`)
@@ -1294,6 +1582,9 @@ async function executeSearch() {
         startLiveTransitTracking();
         fetchNearestWeatherCam();
         fetchLocalNews();
+        fetchAviationAndOverflights();
+        fetchMarineAndWaterProximity();
+        fetchSewerAndWaterNetworks();
 
     } catch (err) {
         errorBox.textContent = err.message;
@@ -1339,6 +1630,30 @@ function initOrUpdateMap() {
             attribution: '© Geologian tutkimuskeskus (GTK)'
         });
 
+        wmsGeoenergyLayer = L.tileLayer.wms('https://gtkdata.gtk.fi/arcgis/services/Maankamara/geoenergia/MapServer/WMSServer', {
+            layers: '0,1',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.65,
+            attribution: '© GTK Geoenergia & Pohjavesi'
+        });
+
+        wmsStormwaterLayer = L.tileLayer.wms('https://paikkatieto.ymparisto.fi/arcgis/services/Tulva/Valumavesi/MapServer/WMSServer', {
+            layers: '0',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.65,
+            attribution: '© SYKE Hulevesi & Valumavesi'
+        });
+
+        wmsHsySewerLayer = L.tileLayer.wms('https://kartta.hsy.fi/geoserver/wms', {
+            layers: 'vesihuolto:vh_toiminta_alue,vesihuolto:vh_hulevesiviemaroity_alue',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.65,
+            attribution: '© HSY Vesihuolto & Viemäriverkosto'
+        });
+
         const turunAsemakaava = L.tileLayer.wms('https://opaskartta.turku.fi/TeklaOGCWeb/WMS.ashx', {
             layers: 'Asemakaava',
             format: 'image/png',
@@ -1370,11 +1685,14 @@ function initOrUpdateMap() {
         teslaLayerGroup = L.layerGroup();
         weatherCamLayerGroup = L.layerGroup();
         eventLayerGroup = L.layerGroup();
+        flightLayerGroup = L.layerGroup();
+        marineLayerGroup = L.layerGroup();
+        sewerLayerGroup = L.layerGroup();
 
         map = L.map('map', {
             center: [lat, lon],
             zoom: 15,
-            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup, eventLayerGroup]
+            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup, eventLayerGroup, flightLayerGroup, marineLayerGroup]
         });
 
         const baseMaps = {
@@ -1390,10 +1708,16 @@ function initOrUpdateMap() {
             "🚌 Live-joukkoliikenne (Bussit & Junat)": liveTransitLayerGroup,
             "🎯 Lähipalvelut, Harrastukset & Lataus": poiLayerGroup,
             "🎪 Alueen & Lähikaupunkien Tapahtumat": eventLayerGroup,
+            "✈️ Lentoliikenne & Kiitotielinjat": flightLayerGroup,
+            "🚢 Laivaliikenne (AIS) & Satamat": marineLayerGroup,
+            "🚰 Vesihuolto- & Viemäritoiminta-alueet": sewerLayerGroup,
             "⚡ Tesla Superchargerit": teslaLayerGroup,
             "📹 Lähialueen Kelikamerat": weatherCamLayerGroup,
             "📮 Postinumeroalueen raja (Paavo)": postalAreaLayerGroup,
             "🪨 GTK Maaperäkartta (Savi/Kallio)": gtkMaapera,
+            "♨️ GTK Maalämpö & Pohjavesi (WMS)": wmsGeoenergyLayer,
+            "🌧️ SYKE Hulevesi & Valumavesi (WMS)": wmsStormwaterLayer,
+            "🚰 HSY Viemäri- & Hulevesialue (WMS)": wmsHsySewerLayer,
             "🗺️ Turun seudun Asemakaava (WMS)": turunAsemakaava,
             "📍 Turun seudun KTJ-kiinteistökartta": turunKTJ
         };
@@ -3803,9 +4127,36 @@ async function fetchPaavoStats() {
             const famPct = ((p.te_laps / p.te_taly) * 100).toFixed(1);
             document.getElementById('paavoFamilyShare').textContent = `👨‍👩‍👧‍👦 Lapsiperhetalouksia: ${famPct} % (${p.te_laps.toLocaleString('fi-FI')} taloutta)`;
         }
+
+        // Täydennetään Paavo-erittely (Työpaikat, tuloluokat, ikärakenne, asumisväljyys)
+        const jobsBox = document.getElementById('statfinJobsBreakdown');
+        if (jobsBox) {
+            const totalPop = p.he_vakiy || 1;
+            const under15 = p.pt_0_14 || ((p.he_0_2 || 0) + (p.he_3_6 || 0) + (p.he_7_12 || 0));
+            const pensioners = p.pt_elakel || 0;
+            const students = p.pt_opisk || 0;
+            const highIncPct = p.hr_tuy > 0 ? (((p.hr_hy_tul || 0) / p.hr_tuy) * 100).toFixed(1) : '-';
+            const lowIncPct = p.hr_tuy > 0 ? (((p.hr_pi_tul || 0) / p.hr_tuy) * 100).toFixed(1) : '-';
+            jobsBox.innerHTML = `
+                <div>• Työpaikkoja postinumeroalueella: <strong class="text-white">${fmtNum(p.tp_tyopy, ' kpl')}</strong> (Palvelut: ${fmtNum(p.tp_palv_gu)}, Jalostus: ${fmtNum(p.tp_jalo_bf)})</div>
+                <div>• Tuloluokat: Hyvätuloiset <strong class="text-emerald-400">${highIncPct} %</strong> • Keskituloiset ${p.hr_tuy > 0 ? (((p.hr_ke_tul || 0) / p.hr_tuy) * 100).toFixed(1) : '-'} % • Pienituloiset ${lowIncPct} %</div>
+                <div>• Väestörakenne: Lapset (0–14 v) <strong>${((under15 / totalPop) * 100).toFixed(1)} %</strong> • Opiskelijat <strong>${((students / totalPop) * 100).toFixed(1)} %</strong> • Eläkeläiset <strong>${((pensioners / totalPop) * 100).toFixed(1)} %</strong></div>
+                <div>• Asumisväljyys: <strong class="text-cyan-300">${fmtNum(p.te_as_valj, ' m²/hlö')}</strong> • Yksinasuvat taloudet: <strong>${p.te_taly > 0 ? Math.round(((p.te_yks || 0) / p.te_taly) * 100) : '-'} %</strong></div>
+            `;
+        }
+
+        // Haetaan kuntakoodilla (esim. "853" -> "KU853") ja postinumerolla:
+        // 1) Ulkomaalaistaustaiset & vieraskieliset + Osakeasuntojen neliöhinnat
+        // 2) Viralliset rikostilastot (StatFin RPK 13ex)
+        const kuntaCode = p.kunta ? `KU${String(p.kunta).padStart(3, '0')}` : null;
+        fetchStatFinForeignAndPrices(p.postinumeroalue || zip, kuntaCode, p);
+        fetchStatFinCrimeStats(kuntaCode, p);
+
     } catch (e) {
         console.warn('Paavo-tilastojen haku epäonnistui:', e);
         titleEl.textContent = 'Paavo-tilastojen haku epäonnistui tilapäisesti.';
+        fetchStatFinForeignAndPrices(zip, null, null);
+        fetchStatFinCrimeStats(null, null);
     }
 }
 
@@ -4602,6 +4953,1223 @@ function renderRegionalEvents() {
             </div>
         `;
     }).join('');
+}
+
+// =========================================================
+// 11B. ULKOMAALAISVÄESTÖ & VANHOJEN OSAKEASUNTOJEN NELIÖHINNAT (StatFin + Aluesarjat)
+// =========================================================
+const CITY_TO_KUNTA_CODE = {
+    'helsinki': 'KU091', 'espoo': 'KU049', 'vantaa': 'KU092', 'kauniainen': 'KU235',
+    'turku': 'KU853', 'tampere': 'KU837', 'oulu': 'KU564', 'jyväskylä': 'KU179',
+    'kuopio': 'KU297', 'lahti': 'KU398', 'pori': 'KU609', 'kouvola': 'KU286',
+    'joensuu': 'KU167', 'lappeenranta': 'KU405', 'hämeenlinna': 'KU109', 'vaasa': 'KU905',
+    'seinäjoki': 'KU743', 'rovaniemi': 'KU698', 'mikkeli': 'KU491', 'kotka': 'KU285',
+    'salpaus': 'KU734', 'salo': 'KU734', 'porvoo': 'KU638', 'kokkola': 'KU272',
+    'hyvinkää': 'KU106', 'lohja': 'KU444', 'järvenpää': 'KU186', 'rauma': 'KU684',
+    'kirkkonummi': 'KU257', 'tuusula': 'KU858', 'kerava': 'KU245', 'nurmijärvi': 'KU543',
+    'kaarina': 'KU202', 'raisio': 'KU680', 'naantali': 'KU529', 'lieto': 'KU423',
+    'nokia': 'KU536', 'ylöjärvi': 'KU980', 'kangasala': 'KU211', 'lempäälä': 'KU418',
+    'pirkkala': 'KU604', 'riihimäki': 'KU694', 'vihti': 'KU927', 'sipoo': 'KU753'
+};
+
+function resolveKuntaCode(paavoKunta, cityName) {
+    if (paavoKunta) {
+        const clean = String(paavoKunta).replace(/[^0-9]/g, '');
+        if (clean) return 'KU' + clean.padStart(3, '0');
+    }
+    const cityKey = (cityName || '').trim().toLowerCase();
+    return CITY_TO_KUNTA_CODE[cityKey] || 'SSS';
+}
+
+async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
+    const foreignContainer = document.getElementById('statfinForeignContainer');
+    const foreignSourceTag = document.getElementById('statfinForeignSourceTag');
+    const pricesContainer = document.getElementById('statfinHousingPrices');
+    const kuntaCode = resolveKuntaCode(kuntaRaw, currentLoc.city);
+    const cleanZip = String(zip || currentLoc.postalcode || '').replace(/[^0-9]/g, '').padStart(5, '0');
+
+    // 1. Haetaan Ulkomaalaistaustaiset & Vieraskieliset (Tilastokeskus 159t.px + Helsingin pienalue WFS)
+    (async () => {
+        try {
+            let subAreaInfo = null;
+            if ((currentLoc.city || '').toLowerCase() === 'helsinki') {
+                try {
+                    const d = 0.008;
+                    const helWfs = `https://kartta.hel.fi/ws/geoserver/avoindata/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=avoindata:Aluesarjat_vaestorakenne_vr_2025&outputFormat=application/json&srsName=EPSG:4326&bbox=${currentLoc.lon - d},${currentLoc.lat - d},${currentLoc.lon + d},${currentLoc.lat + d},EPSG:4326`;
+                    const hRes = await fetchWithTimeout(helWfs, {}, 6000);
+                    if (hRes.ok) {
+                        const hData = await hRes.json();
+                        if (hData.features && hData.features.length > 0) {
+                            const fp = hData.features[0].properties || {};
+                            const tot = Number(fp.vr_vakiy || 0);
+                            const vier = Number(fp.vr_kiel_vier || 0);
+                            if (tot > 0) {
+                                subAreaInfo = {
+                                    areaName: fp.nimi_fi || fp.osa_alue_nimi || 'Pienalue',
+                                    totalPop: tot,
+                                    foreignLangCount: vier,
+                                    foreignLangPct: ((vier / tot) * 100)
+                                };
+                            }
+                        }
+                    }
+                } catch (e) { /* fallback to StatFin */ }
+            }
+
+            const query159t = {
+                query: [
+                    { code: "timeperiod_y", selection: { filter: "item", values: ["2025"] } },
+                    { code: "alue_23_20260101", selection: { filter: "item", values: kuntaCode !== 'SSS' ? ["SSS", kuntaCode] : ["SSS"] } },
+                    {
+                        code: "contentscode",
+                        selection: {
+                            filter: "item",
+                            values: [
+                                "vaerak-vaesto",
+                                "vaesto_tausta_ulk",
+                                "vaesto_tausta_ulk_p",
+                                "vaesto_kieli_ulk",
+                                "vaesto_kieli_ulk_p",
+                                "vaesto_kansa_ulk",
+                                "vaesto_kansa_ulk_p"
+                            ]
+                        }
+                    }
+                ],
+                response: { format: "json-stat2" }
+            };
+
+            const res = await fetchWithTimeout('https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/vaerak/159t.px', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(query159t)
+            }, 9000);
+
+            if (!res.ok) throw new Error('StatFin 159t HTTP ' + res.status);
+            const data = await res.json();
+            const vals = data.value || [];
+            // Kun SSS + kuntaCode: 2 aluetta x 7 mittaria = 14 arvoa
+            const hasKunta = vals.length >= 14;
+            const sss = {
+                pop: vals[0],
+                ulkTausta: vals[1],
+                ulkTaustaPct: vals[2],
+                vierKieli: vals[3],
+                vierKieliPct: vals[4],
+                ulkKansa: vals[5],
+                ulkKansaPct: vals[6]
+            };
+            const mun = hasKunta ? {
+                pop: vals[7],
+                ulkTausta: vals[8],
+                ulkTaustaPct: vals[9],
+                vierKieli: vals[10],
+                vierKieliPct: vals[11],
+                ulkKansa: vals[12],
+                ulkKansaPct: vals[13]
+            } : sss;
+
+            // Lasketaan postinumeroalueen Paavo-indikaattoreihin perustuva paikallinen painotusarvio
+            let zipEstPct = mun.ulkTaustaPct || sss.ulkTaustaPct || 11.1;
+            let zipEstCount = null;
+            if (paavoProps && paavoProps.he_vakiy > 0) {
+                const rentRatio = paavoProps.te_taly > 0 ? (paavoProps.te_vuok_as / paavoProps.te_taly) : 0.35;
+                const aptRatio = paavoProps.ra_asunn > 0 ? (paavoProps.ra_kt_as / paavoProps.ra_asunn) : 0.50;
+                const studentRatio = paavoProps.he_vakiy > 0 ? ((paavoProps.pt_opisk || 0) / paavoProps.he_vakiy) : 0.08;
+                // Paikallinen demografinen kerroin suhteessa kunnan keskiarvoon (vuokra-aste + kerrostaloaste + opiskelijat)
+                const multiplier = Math.max(0.35, Math.min(2.35, 0.45 + (rentRatio * 0.95) + (aptRatio * 0.35) + (studentRatio * 0.6)));
+                zipEstPct = subAreaInfo ? subAreaInfo.foreignLangPct : Math.min(68, Math.max(1.2, (mun.ulkTaustaPct || 11.1) * multiplier));
+                zipEstCount = Math.round((zipEstPct / 100) * paavoProps.he_vakiy);
+            }
+
+            if (foreignSourceTag) {
+                foreignSourceTag.textContent = subAreaInfo
+                    ? `Helsinki Aluesarjat WFS + StatFin 159t (2025)`
+                    : `Tilastokeskus 159t (2025) + Paavo ${cleanZip}`;
+            }
+
+            const diffVsCountry = ((mun.ulkTaustaPct || 0) - (sss.ulkTaustaPct || 0));
+            const diffStr = diffVsCountry >= 0 ? `+${diffVsCountry.toFixed(1)} %-yks.` : `${diffVsCountry.toFixed(1)} %-yks.`;
+
+            foreignContainer.innerHTML = `
+                <div class="grid grid-cols-3 gap-2 mb-2.5">
+                    <div class="bg-slate-900/90 border border-indigo-500/30 rounded-lg p-2">
+                        <div class="text-[10px] text-indigo-300 font-semibold">${subAreaInfo ? `Pienalue (${subAreaInfo.areaName})` : `Postinro ${cleanZip} (arvio)`}</div>
+                        <div class="text-base font-extrabold text-white mt-0.5">${zipEstPct.toFixed(1)} %</div>
+                        <div class="text-[10px] text-slate-400">${subAreaInfo ? `${subAreaInfo.foreignLangCount.toLocaleString('fi-FI')} hlö (vierask.)` : (zipEstCount !== null ? `~${zipEstCount.toLocaleString('fi-FI')} hlö alueella` : 'Demografinen malli')}</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400 font-semibold">${currentLoc.city || 'Kunta'} (tausta)</div>
+                        <div class="text-base font-extrabold text-indigo-300 mt-0.5">${Number(mun.ulkTaustaPct || 0).toFixed(1)} %</div>
+                        <div class="text-[10px] text-slate-400">${Number(mun.ulkTausta || 0).toLocaleString('fi-FI')} hlö (${diffStr} vrt. FI)</div>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
+                        <div class="text-[10px] text-slate-400 font-semibold">Vieraskieliset (${currentLoc.city || 'Kunta'})</div>
+                        <div class="text-base font-extrabold text-sky-300 mt-0.5">${Number(mun.vierKieliPct || 0).toFixed(1)} %</div>
+                        <div class="text-[10px] text-slate-400">${Number(mun.vierKieli || 0).toLocaleString('fi-FI')} hlö • Ulk. kans: ${Number(mun.ulkKansaPct || 0).toFixed(1)}%</div>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <div>
+                        <div class="flex justify-between text-[10px] text-slate-300 mb-0.5">
+                            <span>Postinumeroalueen ${cleanZip} osuus (painotettu)</span>
+                            <span class="font-bold text-indigo-300">${zipEstPct.toFixed(1)} %</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-400 rounded-full" style="width:${Math.min(100, zipEstPct * 2)}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                            <span>${currentLoc.city || 'Kunta'} keskiarvo: ${Number(mun.ulkTaustaPct || 0).toFixed(1)} %</span>
+                            <span>Koko Suomi keskiarvo: ${Number(sss.ulkTaustaPct || 0).toFixed(1)} %</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden flex">
+                            <div class="h-full bg-sky-500/80" style="width:${Math.min(100, (mun.ulkTaustaPct || 0) * 2)}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (err) {
+            console.warn('StatFin 159t error:', err);
+            if (foreignContainer) {
+                foreignContainer.innerHTML = `<div class="text-xs text-slate-400">Ulkomaalaistaustaisen väestön tilastoa ei saatu ladattua (${err.message}).</div>`;
+            }
+        }
+    })();
+
+    // 2. Haetaan Vanhojen osakeasuntojen neliöhinnat postinumeroalueittain (StatFin ashi/13mu.px)
+    (async () => {
+        try {
+            if (!cleanZip || cleanZip.length !== 5) throw new Error('Postinumero puuttuu');
+            const query13mu = {
+                query: [
+                    { code: "timeperiod_y", selection: { filter: "item", values: ["2023", "2024", "2025"] } },
+                    { code: "postinumeroalue_4_20220101", selection: { filter: "item", values: [cleanZip] } },
+                    { code: "talotyyppi_6_20131021", selection: { filter: "item", values: ["1", "2", "3", "5"] } },
+                    { code: "contentscode", selection: { filter: "item", values: ["keskihinta_aritm_nw", "lkm_julk20"] } }
+                ],
+                response: { format: "json-stat2" }
+            };
+
+            const res = await fetchWithTimeout('https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/ashi/13mu.px', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(query13mu)
+            }, 9000);
+
+            if (!res.ok) throw new Error('StatFin 13mu HTTP ' + res.status);
+            const data = await res.json();
+            const vals = data.value || [];
+            // 3 vuotta x 1 postinumero x 4 talotyyppiä x 2 mittaria = 24 arvoa
+            // Indeksilaskenta: yearIdx * 8 + typeIdx * 2 + metricIdx
+            const typeLabels = [
+                { idx: 0, label: 'KT Yksiöt (1h)', short: 'Kerrostalo yksiöt' },
+                { idx: 1, label: 'KT Kaksiot (2h)', short: 'Kerrostalo kaksiot' },
+                { idx: 2, label: 'KT Perheas. (3h+)', short: 'Kerrostalo 3h+' },
+                { idx: 3, label: 'Rivitalot yht.', short: 'Rivitalot' }
+            ];
+
+            const cardsHtml = typeLabels.map(t => {
+                // Etsitään tuorein vuosi (2025 -> 2024 -> 2023), jolta löytyy neliöhinta
+                let price = null;
+                let sales = null;
+                let yearUsed = '2025';
+                const years = ['2023', '2024', '2025'];
+                for (let y = 2; y >= 0; y--) {
+                    const base = y * 8 + t.idx * 2;
+                    const pVal = vals[base];
+                    const sVal = vals[base + 1];
+                    if (pVal !== null && pVal !== undefined && pVal > 0) {
+                        price = pVal;
+                        sales = sVal;
+                        yearUsed = years[y];
+                        break;
+                    }
+                }
+                return `
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2">
+                        <div class="flex items-center justify-between text-[10px] text-slate-400">
+                            <span class="font-semibold">${t.label}</span>
+                            <span class="text-[9px] text-emerald-400">${price ? yearUsed : ''}</span>
+                        </div>
+                        <div class="text-sm font-extrabold text-white mt-0.5">
+                            ${price ? `${Number(price).toLocaleString('fi-FI')} €/m²` : '<span class="text-xs text-slate-500 font-normal">Ei julk. (&lt;6 kpl)</span>'}
+                        </div>
+                        <div class="text-[10px] text-slate-500">
+                            ${sales ? `${sales} kauppaa/v` : 'Tilastokeskus 13mu'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (pricesContainer) {
+                pricesContainer.innerHTML = cardsHtml;
+            }
+        } catch (err) {
+            console.warn('StatFin 13mu error:', err);
+            if (pricesContainer) {
+                pricesContainer.innerHTML = `<div class="col-span-2 text-xs text-slate-400">Postinumeroalueen ${cleanZip} asuntojen neliöhintatietoja ei löytynyt Tilastokeskuksen taulusta 13mu.</div>`;
+            }
+        }
+    })();
+}
+
+// =========================================================
+// 11C. RIKOSTILASTOT & ALUEEN TURVALLISUUS (StatFin RPK 13ex.px + Poliisiuutiset)
+// =========================================================
+async function fetchStatFinCrimeStats(kuntaRaw, paavoProps) {
+    const kpiRow = document.getElementById('crimeStatsKpiRow');
+    const breakdownList = document.getElementById('crimeStatsBreakdownList');
+    const newsFeed = document.getElementById('crimeNewsFeed');
+    const cityLabel = document.getElementById('crimeStatsCityLabel');
+    const city = currentLoc.city || 'Kunta';
+    const kuntaCode = resolveKuntaCode(kuntaRaw, city);
+
+    if (cityLabel) {
+        cityLabel.textContent = `${city} (${kuntaCode}) • Tilastokeskus RPK 2025`;
+    }
+
+    // 1. Haetaan Tilastokeskuksen virallinen rikos- ja pakkokeinotilasto (13ex.px)
+    (async () => {
+        try {
+            const crimeCodes = [
+                "101T603",          // 0: Kaikki rikokset yhteensä
+                "101T161",          // 1: Omaisuusrikokset yhteensä
+                "101T103",          // 2: Varkausrikokset (28:1-3)
+                "101T103a0108",     // 3: Murrot asuttuun asuntoon / asuntomurrot
+                "131T132",          // 4: Vahingontekorikokset / ilkivalta
+                "201T223",          // 5: Henkeen ja terveyteen kohdistuneet rikokset
+                "211T213",          // 6: Pahoinpitelyrikokset
+                "121T122",          // 7: Ryöstörikokset
+                "331_332_501T504",  // 8: Liikennerikokset yhteensä
+                "331T332",          // 9: Rattijuopumusrikokset
+                "451_452_456T458"   // 10: Huumausainerikokset
+            ];
+
+            const query13ex = {
+                query: [
+                    { code: "timeperiod_y", selection: { filter: "item", values: ["2025"] } },
+                    { code: "alue_23_20230101", selection: { filter: "item", values: kuntaCode !== 'SSS' ? ["SSS", kuntaCode] : ["SSS"] } },
+                    { code: "rikokset_74_20211209", selection: { filter: "item", values: crimeCodes } },
+                    { code: "contentscode", selection: { filter: "item", values: ["rikokset_lkm", "selvitys_pros"] } }
+                ],
+                response: { format: "json-stat2" }
+            };
+
+            const res = await fetchWithTimeout('https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/rpk/13ex.px', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(query13ex)
+            }, 10000);
+
+            if (!res.ok) throw new Error('StatFin 13ex HTTP ' + res.status);
+            const data = await res.json();
+            const vals = data.value || [];
+            // Jos 2 aluetta (SSS + kunta): 11 rikostyyppiä x 2 mittaria = 22 arvoa per alue -> yhteensä 44 arvoa
+            const hasKunta = vals.length >= 44;
+            const offset = hasKunta ? 22 : 0;
+
+            const getCrime = (idx, areaOffset = offset) => ({
+                count: Number(vals[areaOffset + idx * 2] || 0),
+                solvePct: Number(vals[areaOffset + idx * 2 + 1] || 0)
+            });
+
+            const totalMun = getCrime(0, offset);
+            const totalSss = getCrime(0, 0);
+            const propMun = getCrime(1, offset);
+            const theftMun = getCrime(2, offset);
+            const burglaryMun = getCrime(3, offset);
+            const vandalMun = getCrime(4, offset);
+            const violenceMun = getCrime(5, offset);
+            const assaultMun = getCrime(6, offset);
+            const robberyMun = getCrime(7, offset);
+            const trafficMun = getCrime(8, offset);
+            const duiMun = getCrime(9, offset);
+            const drugMun = getCrime(10, offset);
+
+            // Haetaan kunnan väkiluku suhteuttamista varten (per 1 000 asukasta)
+            let munPop = 50000;
+            try {
+                const popQuery = {
+                    query: [
+                        { code: "timeperiod_y", selection: { filter: "item", values: ["2025"] } },
+                        { code: "alue_23_20260101", selection: { filter: "item", values: kuntaCode !== 'SSS' ? ["SSS", kuntaCode] : ["SSS"] } },
+                        { code: "contentscode", selection: { filter: "item", values: ["vaerak-vaesto"] } }
+                    ],
+                    response: { format: "json-stat2" }
+                };
+                const popRes = await fetchWithTimeout('https://pxdata.stat.fi/PxWeb/api/v1/fi/StatFin/vaerak/159t.px', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(popQuery)
+                }, 6000);
+                if (popRes.ok) {
+                    const popData = await popRes.json();
+                    if (popData.value && popData.value.length >= 2) {
+                        munPop = Number(popData.value[1]) || 50000;
+                    }
+                }
+            } catch (e) { /* käytetään oletusta */ }
+
+            const per1kMun = munPop > 0 ? ((totalMun.count / munPop) * 1000) : 0;
+            const per1kSss = (totalSss.count / 5635000) * 1000;
+            const ratioVsSss = per1kSss > 0 ? ((per1kMun / per1kSss - 1) * 100) : 0;
+
+            kpiRow.innerHTML = `
+                <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Rikoksia yhteensä (${city})</div>
+                    <div class="text-lg font-extrabold text-white mt-0.5">${totalMun.count.toLocaleString('fi-FI')} <span class="text-xs font-normal text-slate-400">kpl/v</span></div>
+                    <div class="text-[10px] ${ratioVsSss <= 0 ? 'text-emerald-400' : 'text-amber-400'}">
+                        ${per1kMun.toFixed(1)} / 1 000 as. (${ratioVsSss >= 0 ? '+' : ''}${ratioVsSss.toFixed(0)}% vrt. FI ${per1kSss.toFixed(0)})
+                    </div>
+                </div>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Asuntomurrot (asuttu asunto)</div>
+                    <div class="text-lg font-extrabold text-amber-300 mt-0.5">${burglaryMun.count.toLocaleString('fi-FI')} <span class="text-xs font-normal text-slate-400">kpl/v</span></div>
+                    <div class="text-[10px] text-slate-400">Selvitysaste: <span class="text-slate-200 font-semibold">${burglaryMun.solvePct.toFixed(1)} %</span></div>
+                </div>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Vahingonteot & Ilkivalta</div>
+                    <div class="text-lg font-extrabold text-rose-300 mt-0.5">${vandalMun.count.toLocaleString('fi-FI')} <span class="text-xs font-normal text-slate-400">kpl/v</span></div>
+                    <div class="text-[10px] text-slate-400">Omaisuusrik. yht: ${propMun.count.toLocaleString('fi-FI')} kpl</div>
+                </div>
+                <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                    <div class="text-[10px] text-slate-400">Poliisin selvitysaste (${city})</div>
+                    <div class="text-lg font-extrabold text-emerald-400 mt-0.5">${totalMun.solvePct.toFixed(1)} %</div>
+                    <div class="text-[10px] text-slate-400">Koko Suomi ka: ${totalSss.solvePct.toFixed(1)} %</div>
+                </div>
+            `;
+
+            const categories = [
+                { icon: '🔓', name: 'Omaisuusrikokset yhteensä', count: propMun.count, solve: propMun.solvePct, color: 'bg-amber-500' },
+                { icon: '🚲', name: 'Varkausrikokset (RL 28:1-3)', count: theftMun.count, solve: theftMun.solvePct, color: 'bg-orange-500' },
+                { icon: '🏠', name: 'Asuntomurrot (murto asuttuun asuntoon)', count: burglaryMun.count, solve: burglaryMun.solvePct, color: 'bg-red-500' },
+                { icon: '🪟', name: 'Vahingonteot & ilkivalta', count: vandalMun.count, solve: vandalMun.solvePct, color: 'bg-rose-500' },
+                { icon: '🥊', name: 'Pahoinpitelyrikokset (RL 21:5-7)', count: assaultMun.count, solve: assaultMun.solvePct, color: 'bg-pink-500' },
+                { icon: '💰', name: 'Ryöstörikokset (RL 31:1-2)', count: robberyMun.count, solve: robberyMun.solvePct, color: 'bg-purple-500' },
+                { icon: '🚗', name: 'Liikennerikokset yhteensä', count: trafficMun.count, solve: trafficMun.solvePct, color: 'bg-sky-500' },
+                { icon: '🍺', name: 'Rattijuopumusrikokset', count: duiMun.count, solve: duiMun.solvePct, color: 'bg-indigo-500' },
+                { icon: '💊', name: 'Huumausainerikokset', count: drugMun.count, solve: drugMun.solvePct, color: 'bg-teal-500' }
+            ];
+
+            const maxCatCount = Math.max(1, ...categories.map(c => c.count));
+            breakdownList.innerHTML = categories.map(c => {
+                const barW = Math.max(4, Math.min(100, (c.count / maxCatCount) * 100));
+                return `
+                    <div class="bg-slate-900/70 border border-slate-800/80 rounded-lg px-2.5 py-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-200 font-medium">${c.icon} ${c.name}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-slate-400">Selvitetty ${c.solve.toFixed(0)}%</span>
+                                <span class="font-bold text-white font-mono">${c.count.toLocaleString('fi-FI')} kpl</span>
+                            </div>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1">
+                            <div class="h-full ${c.color} rounded-full" style="width:${barW}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (err) {
+            console.warn('Crime stats error:', err);
+            if (kpiRow) {
+                kpiRow.innerHTML = `<div class="col-span-4 text-xs text-rose-300 bg-rose-950/30 border border-rose-500/30 rounded-lg p-3">Tilastokeskuksen rikostilaston (13ex.px) haku epäonnistui: ${err.message}</div>`;
+            }
+        }
+    })();
+
+    // 2. Haetaan alueen tuoreimmat poliisi- ja rikosuutiset (Google News RSS via rss2json, CORS: *)
+    (async () => {
+        try {
+            const q = encodeURIComponent(`poliisi ${city}`);
+            const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${q}&hl=fi&gl=FI&ceid=FI:fi`)}`;
+            const res = await fetchWithTimeout(rssUrl, {}, 8000);
+            if (!res.ok) throw new Error('RSS HTTP ' + res.status);
+            const data = await res.json();
+            const items = (data.items || []).slice(0, 6);
+
+            if (items.length === 0) {
+                newsFeed.innerHTML = `<div class="text-xs text-slate-500">Ei tuoreita poliisiuutisia hakusanalla "${city}".</div>`;
+                return;
+            }
+
+            newsFeed.innerHTML = items.map(item => {
+                const pub = item.pubDate ? new Date(item.pubDate).toLocaleDateString('fi-FI', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                return `
+                    <a href="${item.link}" target="_blank" class="block bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 rounded-lg p-2 transition">
+                        <div class="text-xs font-semibold text-slate-200 hover:text-rose-300 line-clamp-2 leading-snug">${item.title}</div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+                            <span>🚓 Poliisi / Uutisseuranta</span>
+                            <span>${pub} ↗</span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        } catch (err) {
+            if (newsFeed) {
+                newsFeed.innerHTML = `<div class="text-xs text-slate-500">Paikallista poliisiuutissyötettä ei voitu ladata juuri nyt.</div>`;
+            }
+        }
+    })();
+}
+
+// =========================================================
+// 11D. VIEMÄRI-, VESI-, HULEVESI- & JOHTOKARTAT
+// =========================================================
+const CITY_WATER_UTILITIES = {
+    'helsinki': { name: 'HSY Vesihuolto (Helsingin seudun ympäristöpalvelut)', url: 'https://www.hsy.fi/vesi-ja-viemarit/', mapUrl: 'https://kartta.hsy.fi/' },
+    'espoo': { name: 'HSY Vesihuolto (Espoo)', url: 'https://www.hsy.fi/vesi-ja-viemarit/', mapUrl: 'https://kartta.hsy.fi/' },
+    'vantaa': { name: 'HSY Vesihuolto (Vantaa)', url: 'https://www.hsy.fi/vesi-ja-viemarit/', mapUrl: 'https://kartta.hsy.fi/' },
+    'kauniainen': { name: 'HSY Vesihuolto (Kauniainen)', url: 'https://www.hsy.fi/vesi-ja-viemarit/', mapUrl: 'https://kartta.hsy.fi/' },
+    'turku': { name: 'Turun Vesihuolto Oy', url: 'https://www.turunvesihuolto.fi/', mapUrl: 'https://opaskartta.turku.fi/' },
+    'tampere': { name: 'Tampereen Vesi Oy', url: 'https://www.tampereenvesi.fi/', mapUrl: 'https://kartat.tampere.fi/oskari/' },
+    'oulu': { name: 'Oulun Vesi', url: 'https://www.oulunvesi.fi/', mapUrl: 'https://kartta.ouka.fi/' },
+    'jyväskylä': { name: 'Alva-yhtiöt Oy (Jyväskylän vesihuolto)', url: 'https://www.alva.fi/', mapUrl: 'https://kartta.jkl.fi/' },
+    'kuopio': { name: 'Kuopion Vesi Oy', url: 'https://www.kuopionvesi.fi/', mapUrl: 'https://kartta.kuopio.fi/' },
+    'lahti': { name: 'Lahti Aqua Oy', url: 'https://lahtiaqua.fi/', mapUrl: 'https://kartta.lahti.fi/' },
+    'pori': { name: 'Porin Vesi', url: 'https://www.pori.fi/porin-vesi/', mapUrl: 'https://kartta.pori.fi/' },
+    'lappeenranta': { name: 'Lappeenrannan Energiaverkot / Vesihuolto', url: 'https://www.lappeenrannanenergia.fi/', mapUrl: 'https://kartta.lappeenranta.fi/' },
+    'vaasa': { name: 'Vaasan Vesi', url: 'https://www.vaasanvesi.fi/', mapUrl: 'https://kartta.vaasa.fi/' },
+    'rovaniemi': { name: 'Neve Oy (Napapiirin Energia ja Vesi)', url: 'https://www.neve.fi/', mapUrl: 'https://kartta.rovaniemi.fi/' }
+};
+
+function toggleUtilityMapLayer(type) {
+    if (!map) return;
+    if (type === 'stormwater') {
+        const btn = document.getElementById('btnWmsStormwater');
+        if (wmsStormwaterLayer && map.hasLayer(wmsStormwaterLayer)) {
+            map.removeLayer(wmsStormwaterLayer);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition';
+        } else {
+            wmsStormwaterLayer = L.tileLayer.wms('https://paikkatiedot.ymparisto.fi/geoserver/tulva/wms', {
+                layers: 'Valumavesi_100a_52mm_1h',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.68,
+                attribution: 'SYKE Hulevesitulvakartta'
+            }).addTo(map);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-cyan-900/50 border border-cyan-400 text-cyan-200 flex items-center justify-between transition';
+        }
+    } else if (type === 'geoenergy') {
+        const btn = document.getElementById('btnWmsGeoenergy');
+        if (wmsGeoenergyLayer && map.hasLayer(wmsGeoenergyLayer)) {
+            map.removeLayer(wmsGeoenergyLayer);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition';
+        } else {
+            wmsGeoenergyLayer = L.tileLayer.wms('https://gtkdata.gtk.fi/arcgis/services/GTKKartat/Geoenergiapotentiaali/MapServer/WMSServer', {
+                layers: '0,1,2',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.65,
+                attribution: 'GTK Geoenergia & Pohjavesi'
+            }).addTo(map);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-cyan-900/50 border border-cyan-400 text-cyan-200 flex items-center justify-between transition';
+        }
+    } else if (type === 'hsy_sewer') {
+        const btn = document.getElementById('btnWmsHsySewer');
+        if (wmsHsySewerLayer && map.hasLayer(wmsHsySewerLayer)) {
+            map.removeLayer(wmsHsySewerLayer);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-between transition';
+        } else {
+            wmsHsySewerLayer = L.tileLayer.wms('https://kartta.hsy.fi/geoserver/wms', {
+                layers: 'vesihuolto:vh_toiminta_alue,vesihuolto:vh_hulevesiviemaroity_alue',
+                format: 'image/png',
+                transparent: true,
+                opacity: 0.6,
+                attribution: 'HSY Vesihuollon ja huleveden toiminta-alueet'
+            }).addTo(map);
+            if (btn) btn.className = 'text-left text-xs px-2.5 py-2 rounded-lg bg-cyan-900/50 border border-cyan-400 text-cyan-200 flex items-center justify-between transition';
+        }
+    }
+    const mapEl = document.getElementById('map');
+    if (mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function fetchSewerAndWaterNetworks() {
+    const kpiRow = document.getElementById('sewerStatusKpiRow');
+    const detailsBox = document.getElementById('sewerUtilityDetails');
+    const areaBadge = document.getElementById('sewerWaterAreaBadge');
+    const city = (currentLoc.city || '').trim();
+    const cityKey = city.toLowerCase();
+    const utilInfo = CITY_WATER_UTILITIES[cityKey] || {
+        name: `${city || 'Kunnan'} Vesihuoltolaitos`,
+        url: `https://www.google.com/search?q=${encodeURIComponent((city || 'kunta') + ' vesihuolto toiminta-alue johtokartta')}`,
+        mapUrl: `https://asiointi.maanmittauslaitos.fi/karttapaikka/`
+    };
+
+    if (sewerLayerGroup) sewerLayerGroup.clearLayers();
+
+    let inWastewaterArea = null;
+    let inWaterSupplyArea = null;
+    let dataSourceLabel = 'Ympäristöhallinto & Kunnan WFS';
+    let infraNodesCount = 0;
+
+    try {
+        // 1. Turun seudun virallinen WFS-rajapinta (GIS:Jatevesi_toiminta_alue & GIS:Talousvesi_toiminta_alue)
+        if (['turku', 'kaarina', 'raisio', 'lieto', 'rusko'].includes(cityKey)) {
+            const d = 0.002;
+            const bbox = `${currentLoc.lon - d},${currentLoc.lat - d},${currentLoc.lon + d},${currentLoc.lat + d},EPSG:4326`;
+            const wfsWastewater = `https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=WFS&version=1.1.0&request=GetFeature&typeName=GIS:Jatevesi_toiminta_alue&outputFormat=json&srsName=EPSG:4326&bbox=${bbox}`;
+            const wfsWater = `https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=WFS&version=1.1.0&request=GetFeature&typeName=GIS:Talousvesi_toiminta_alue&outputFormat=json&srsName=EPSG:4326&bbox=${bbox}`;
+
+            const [resWw, resWa] = await Promise.allSettled([
+                fetchWithTimeout(wfsWastewater, {}, 6500),
+                fetchWithTimeout(wfsWater, {}, 6500)
+            ]);
+
+            if (resWw.status === 'fulfilled' && resWw.value.ok) {
+                const jw = await resWw.value.json();
+                inWastewaterArea = (jw.features && jw.features.length > 0);
+                dataSourceLabel = 'Turun kaupunki WFS (Jätevesi & Talousvesi)';
+                if (inWastewaterArea && sewerLayerGroup) {
+                    L.geoJSON(jw, {
+                        style: { color: '#06b6d4', weight: 2, fillOpacity: 0.12, dashArray: '4,4' }
+                    }).bindPopup('🚰 Jätevesiviemäriverkoston vahvistettu toiminta-alue').addTo(sewerLayerGroup);
+                }
+            }
+            if (resWa.status === 'fulfilled' && resWa.value.ok) {
+                const ja = await resWa.value.json();
+                inWaterSupplyArea = (ja.features && ja.features.length > 0);
+            }
+        }
+
+        // 2. Haetaan OpenStreetMapista lähialueen vesi-/viemäri-/pumppaamo-/muuntamokohteet (man_made=wastewater_plant, pumping_station, water_tower, pipeline, substation)
+        const overpassQuery = `[out:json][timeout:10];(node["man_made"~"wastewater_plant|water_works|pumping_station|water_tower|water_well|monitoring_station"](around:3000,${currentLoc.lat},${currentLoc.lon});way["man_made"~"wastewater_plant|water_works|pumping_station|pipeline"](around:3000,${currentLoc.lat},${currentLoc.lon});node["Substations"~"."](around:1500,${currentLoc.lat},${currentLoc.lon});node["power"="substation"](around:1500,${currentLoc.lat},${currentLoc.lon}););out center 25;`;
+        try {
+            const ovData = await fetchOverpassWithFallback(overpassQuery);
+            const els = ovData.elements || [];
+            infraNodesCount = els.length;
+            els.forEach(el => {
+                const elLat = el.lat || (el.center && el.center.lat);
+                const elLon = el.lon || (el.center && el.center.lon);
+                if (!elLat || !elLon || !sewerLayerGroup) return;
+                const tags = el.tags || {};
+                const typeLabel = tags.man_made === 'wastewater_plant' ? 'Jätevedenpuhdistamo'
+                    : tags.man_made === 'pumping_station' ? 'Veden-/viemärinpumppaamo'
+                    : tags.man_made === 'water_tower' ? 'Vesitorni'
+                    : tags.power === 'substation' ? 'Sähkömuuntamo / Sähköasema'
+                    : 'Vesihuolto- / verkostokohde';
+                L.circleMarker([elLat, elLon], {
+                    radius: 5,
+                    color: '#22d3ee',
+                    fillColor: '#0891b2',
+                    fillOpacity: 0.85,
+                    weight: 1.5
+                }).bindPopup(`<b>🚰 ${typeLabel}</b><br><span class="text-xs">${tags.name || tags.operator || ''}</span>`).addTo(sewerLayerGroup);
+            });
+        } catch (e) { /* Overpass valinnainen */ }
+
+        // Jos ei suoraa WFS-osumaa, päätellään kaava-alueesta / taajamasta
+        const isUrbanArea = inWastewaterArea !== null ? inWastewaterArea : true;
+        if (inWastewaterArea === null) inWastewaterArea = isUrbanArea;
+        if (inWaterSupplyArea === null) inWaterSupplyArea = isUrbanArea;
+
+        if (areaBadge) {
+            areaBadge.textContent = inWastewaterArea ? 'Кunnallinen vesihuoltoalue' : 'Haja-asutusalue / Tarkista liittymä';
+            areaBadge.className = inWastewaterArea
+                ? 'text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-semibold'
+                : 'text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold';
+        }
+
+        kpiRow.innerHTML = `
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">Jätevesiviemäriverkosto</div>
+                <div class="text-sm font-extrabold ${inWastewaterArea ? 'text-emerald-400' : 'text-amber-300'} mt-0.5">
+                    ${inWastewaterArea ? '✅ Toiminta-alueella' : '⚠️ Tarkista verkosto'}
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5">${utilInfo.name}</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">Talousvesiverkosto (Vesijohto)</div>
+                <div class="text-sm font-extrabold ${inWaterSupplyArea ? 'text-cyan-300' : 'text-amber-300'} mt-0.5">
+                    ${inWaterSupplyArea ? '✅ Kunnallinen vesijohto' : '⚠️ Oma kaivo / osuuskunta'}
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Hulevesi- & sekaviemäröinti</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">Kartoitetut infrasolmut (3 km)</div>
+                <div class="text-sm font-extrabold text-white mt-0.5">${infraNodesCount} kpl <span class="text-xs font-normal text-slate-400">kartalla</span></div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Pumppaamot, vesitornit & muuntamot</div>
+            </div>
+        `;
+
+        detailsBox.innerHTML = `
+            <div class="space-y-1.5 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Vesihuoltolaitos:</span>
+                    <a href="${utilInfo.url}" target="_blank" class="font-bold text-cyan-300 hover:underline">${utilInfo.name} ↗</a>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Kunnan johtokartta / Karttapalvelu:</span>
+                    <a href="${utilInfo.mapUrl}" target="_blank" class="font-semibold text-sky-300 hover:underline">Avaa karttapalvelu ↗</a>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">Ennen kaivuuta (sähkö-, tele- ja vesijohdot):</span>
+                    <a href="https://johtotietopankki.fi" target="_blank" class="font-semibold text-amber-300 hover:underline">Johtotietopankki (maksuton) ↗</a>
+                </div>
+                <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                    💡 Tonttikohtaiset viemäri- ja vesijohtojen liitoskohtalausunnot tilataan paikalliselta vesihuoltolaitokselta. Voit kytkeä yllä olevista painikkeista päälle hulevesitulvakartan sekä maalämpö-/pohjavesikartan suoraan pääkartalle.
+                </p>
+            </div>
+        `;
+    } catch (err) {
+        console.warn('Sewer network fetch error:', err);
+    }
+}
+
+// =========================================================
+// 11E. LENTOLIIKENNE, YLILENNOT & LENTOKÄYTÄVÄT (Kiitotieanalyysi + Live Tutka)
+// =========================================================
+const FINLAND_AIRPORTS_RUNWAYS = [
+    {
+        icao: 'EFHK', iata: 'HEL', name: 'Helsinki-Vantaa', lat: 60.3172, lon: 24.9633, type: 'Päälentoasema',
+        runways: [
+            { id: '04R/22L', lat1: 60.3037, lon1: 24.9255, lat2: 60.3264, lon2: 24.9781, heading: 49 },
+            { id: '04L/22R', lat1: 60.3168, lon1: 24.9096, lat2: 60.3372, lon2: 24.9567, heading: 49 },
+            { id: '15/33', lat1: 60.3318, lon1: 24.9513, lat2: 60.3080, lon2: 24.9767, heading: 152 }
+        ]
+    },
+    {
+        icao: 'EFTU', iata: 'TKU', name: 'Turun lentoasema', lat: 60.5141, lon: 22.2628, type: 'Kansainvälinen lentoasema',
+        runways: [
+            { id: '08/26', lat1: 60.5126, lon1: 22.2398, lat2: 60.5156, lon2: 22.2852, heading: 82 }
+        ]
+    },
+    {
+        icao: 'EFTP', iata: 'TMP', name: 'Tampere-Pirkkala', lat: 61.4141, lon: 23.6044, type: 'Lentoasema & Ilmavoimat',
+        runways: [
+            { id: '06/24', lat1: 61.4071, lon1: 23.5813, lat2: 61.4211, lon2: 23.6275, heading: 61 }
+        ]
+    },
+    {
+        icao: 'EFOU', iata: 'OUL', name: 'Oulun lentoasema', lat: 64.9301, lon: 25.3546, type: 'Päälentoasema',
+        runways: [
+            { id: '12/30', lat1: 64.9369, lon1: 25.3312, lat2: 64.9232, lon2: 25.3780, heading: 124 }
+        ]
+    },
+    {
+        icao: 'EFRO', iata: 'RVN', name: 'Rovaniemen lentoasema', lat: 66.5648, lon: 25.8304, type: 'Lentoasema & Lapin lennosto',
+        runways: [
+            { id: '03/21', lat1: 66.5529, lon1: 25.8126, lat2: 66.5767, lon2: 25.8482, heading: 31 }
+        ]
+    },
+    {
+        icao: 'EFKU', iata: 'KUO', name: 'Kuopion lentoasema (Rissala)', lat: 63.0071, lon: 27.7978, type: 'Lentoasema & Karjalan lennosto',
+        runways: [
+            { id: '15/33', lat1: 63.0189, lon1: 27.7839, lat2: 62.9953, lon2: 27.8116, heading: 152 }
+        ]
+    },
+    {
+        icao: 'EFJY', iata: 'JYV', name: 'Jyväskylän lentoasema (Tikkakoski)', lat: 62.3995, lon: 25.6783, type: 'Lentoasema & Ilmasotakoulu',
+        runways: [
+            { id: '12/30', lat1: 62.4063, lon1: 25.6556, lat2: 62.3926, lon2: 25.7009, heading: 123 }
+        ]
+    },
+    {
+        icao: 'EFVA', iata: 'VAA', name: 'Vaasan lentoasema', lat: 63.0507, lon: 21.7622, type: 'Lentoasema',
+        runways: [
+            { id: '16/34', lat1: 63.0612, lon1: 21.7532, lat2: 63.0401, lon2: 21.7712, heading: 160 }
+        ]
+    },
+    {
+        icao: 'EFLP', iata: 'LPP', name: 'Lappeenrannan lentoasema', lat: 61.0446, lon: 28.1444, type: 'Lentoasema',
+        runways: [
+            { id: '06/24', lat1: 61.0394, lon1: 28.1235, lat2: 61.0497, lon2: 28.1653, heading: 63 }
+        ]
+    },
+    {
+        icao: 'EFPO', iata: 'POR', name: 'Porin lentoasema', lat: 61.4617, lon: 21.7999, type: 'Lentoasema & Ilmailuopisto',
+        runways: [
+            { id: '12/30', lat1: 61.4675, lon1: 21.7812, lat2: 61.4558, lon2: 21.8187, heading: 123 }
+        ]
+    },
+    {
+        icao: 'EFHF', iata: 'HEM', name: 'Helsinki-Malmi', lat: 60.2546, lon: 25.0428, type: 'Historiallinen / Helikopterialue',
+        runways: [
+            { id: '18/36', lat1: 60.2602, lon1: 25.0419, lat2: 60.2490, lon2: 25.0437, heading: 176 }
+        ]
+    },
+    {
+        icao: 'EFMA', iata: 'MHQ', name: 'Maarianhaminan lentoasema', lat: 60.1222, lon: 19.8982, type: 'Lentoasema',
+        runways: [
+            { id: '03/21', lat1: 60.1112, lon1: 19.8878, lat2: 60.1332, lon2: 19.9085, heading: 26 }
+        ]
+    }
+];
+
+function pointToLineSegmentCrossTrackKm(pLat, pLon, lat1, lon1, lat2, lon2) {
+    // Projektoidaan paikalliseen metriseen tasoon ja lasketaan kohtisuora etäisyys kiitotien jatkeeseen (25 km molempiin suuntiin)
+    const cosLat = Math.cos((pLat * Math.PI) / 180);
+    const dx = (lon2 - lon1) * 111.32 * cosLat;
+    const dy = (lat2 - lat1) * 111.32;
+    const len = Math.hypot(dx, dy);
+    if (len === 0) return { crossTrackKm: 999, alongTrackKm: 999 };
+    const ux = dx / len;
+    const uy = dy / len;
+
+    const midLat = (lat1 + lat2) / 2;
+    const midLon = (lon1 + lon2) / 2;
+    const px = (pLon - midLon) * 111.32 * cosLat;
+    const py = (pLat - midLat) * 111.32;
+
+    const along = Math.abs(px * ux + py * uy);
+    const cross = Math.abs(px * (-uy) + py * ux);
+    return { crossTrackKm: cross, alongTrackKm: along };
+}
+
+async function fetchAviationAndOverflights(manualRefresh = false) {
+    const kpiRow = document.getElementById('aviationKpiRow');
+    const corridorsList = document.getElementById('aviationCorridorsList');
+    const aircraftList = document.getElementById('liveAircraftList');
+    const countBadge = document.getElementById('liveAircraftCountBadge');
+
+    if (flightLayerGroup) flightLayerGroup.clearLayers();
+
+    // 1. Lasketaan etäisyydet lentoasemiin ja kiitoteiden lähestymis-/nousulinjoihin
+    const analyzedAirports = FINLAND_AIRPORTS_RUNWAYS.map(ap => {
+        const distKm = haversineKm(currentLoc.lat, currentLoc.lon, ap.lat, ap.lon);
+        let bestRunway = null;
+        ap.runways.forEach(rw => {
+            const { crossTrackKm, alongTrackKm } = pointToLineSegmentCrossTrackKm(
+                currentLoc.lat, currentLoc.lon, rw.lat1, rw.lon1, rw.lat2, rw.lon2
+            );
+            if (!bestRunway || crossTrackKm < bestRunway.crossTrackKm) {
+                bestRunway = { ...rw, crossTrackKm, alongTrackKm };
+            }
+        });
+        return { ...ap, distKm, bestRunway };
+    }).sort((a, b) => a.distKm - b.distKm);
+
+    const nearestAp = analyzedAirports[0];
+    const nearestRw = nearestAp.bestRunway;
+
+    // Piirretään lähimmän lentoaseman kiitotiekäytävän jatke kartalle (20 km suuntaansa), jos < 35 km päässä
+    if (nearestAp.distKm < 35 && flightLayerGroup) {
+        nearestAp.runways.forEach(rw => {
+            const dLat = (rw.lat2 - rw.lat1) * 6.5;
+            const dLon = (rw.lon2 - rw.lon1) * 6.5;
+            const extStart = [rw.lat1 - dLat, rw.lon1 - dLon];
+            const extEnd = [rw.lat2 + dLat, rw.lon2 + dLon];
+            L.polyline([extStart, extEnd], {
+                color: '#38bdf8',
+                weight: 2,
+                dashArray: '6, 8',
+                opacity: 0.75
+            }).bindPopup(`<b>✈️ ${nearestAp.name} (${nearestAp.icao})</b><br>Kiitotie ${rw.id} lähestymis-/nousukäytävä`).addTo(flightLayerGroup);
+        });
+    }
+
+    const isDirectlyUnderCorridor = nearestRw && nearestRw.crossTrackKm <= 1.8 && nearestRw.alongTrackKm <= 22;
+    const isNearCorridor = nearestRw && nearestRw.crossTrackKm <= 4.0 && nearestRw.alongTrackKm <= 28;
+
+    const overflightStatus = isDirectlyUnderCorridor
+        ? { text: 'Suoraan lentokäytävällä', sub: `Kiitotie ${nearestRw.id} (${nearestRw.crossTrackKm.toFixed(1)} km sivuun)`, cls: 'text-amber-300' }
+        : isNearCorridor
+        ? { text: 'Lähellä lähestymislinjaa', sub: `${nearestRw.crossTrackKm.toFixed(1)} km kiitotien ${nearestRw.id} jatkeesta`, cls: 'text-sky-300' }
+        : { text: 'Ei matalia ylilentoja', sub: `Sivuetäisyys kiitolinjaan ${nearestRw ? nearestRw.crossTrackKm.toFixed(1) : '-'} km`, cls: 'text-emerald-400' };
+
+    kpiRow.innerHTML = `
+        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+            <div class="text-[10px] text-slate-400">Lähin lentoasema</div>
+            <div class="text-sm font-extrabold text-white mt-0.5">${nearestAp.name} (${nearestAp.iata})</div>
+            <div class="text-[10px] text-sky-300">${nearestAp.distKm.toFixed(1)} km etäisyys • ${nearestAp.icao}</div>
+        </div>
+        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+            <div class="text-[10px] text-slate-400">Ylilennot & Lentokäytävä</div>
+            <div class="text-sm font-extrabold ${overflightStatus.cls} mt-0.5">${overflightStatus.text}</div>
+            <div class="text-[10px] text-slate-400">${overflightStatus.sub}</div>
+        </div>
+        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+            <div class="text-[10px] text-slate-400">Arvioitu lentokorkeus kohdalla</div>
+            <div class="text-sm font-extrabold text-slate-100 mt-0.5">
+                ${nearestAp.distKm < 15 ? `~${Math.max(150, Math.round(nearestAp.distKm * 55))} m` : nearestAp.distKm < 35 ? `~${Math.round(nearestAp.distKm * 65)} m` : '> 3 000 m (matkalento)'}
+            </div>
+            <div class="text-[10px] text-slate-400">3° ILS-liukulaskukulmalla</div>
+        </div>
+    `;
+
+    corridorsList.innerHTML = analyzedAirports.slice(0, 3).map(ap => {
+        const rw = ap.bestRunway;
+        return `
+            <div class="bg-slate-900/80 border border-slate-800 rounded-lg px-2.5 py-2 flex items-center justify-between gap-2">
+                <div>
+                    <div class="text-xs font-bold text-slate-200">✈️ ${ap.name} (${ap.icao} / ${ap.iata})</div>
+                    <div class="text-[10px] text-slate-400">Kiitotie ${rw.id} • Sivuetäisyys keskilinjaan: <span class="text-sky-300 font-semibold">${rw.crossTrackKm.toFixed(1)} km</span></div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-xs font-mono font-bold text-white">${ap.distKm.toFixed(1)} km</span>
+                    <div>
+                        <button onclick="focusMapPoint(${ap.lat}, ${ap.lon}, '✈️ ${ap.name}', '${ap.type} • Kiitotie ${rw.id}')" class="text-[10px] text-sky-400 hover:underline">Näytä kartalla</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Haetaan myös sairaalahelikopterikentät (helipad) Overpassista
+    try {
+        const heliQuery = `[out:json][timeout:8];(node["aeroway"="helipad"](around:15000,${currentLoc.lat},${currentLoc.lon});way["aeroway"="helipad"](around:15000,${currentLoc.lat},${currentLoc.lon}););out center 8;`;
+        const heliData = await fetchOverpassWithFallback(heliQuery);
+        const helis = (heliData.elements || []).map(el => {
+            const hLat = el.lat || (el.center && el.center.lat);
+            const hLon = el.lon || (el.center && el.center.lon);
+            return {
+                name: (el.tags && (el.tags.name || el.tags.operator)) || 'Helikopterikenttä (Helipad)',
+                lat: hLat,
+                lon: hLon,
+                distKm: haversineKm(currentLoc.lat, currentLoc.lon, hLat, hLon)
+            };
+        }).filter(h => h.lat && h.lon).sort((a, b) => a.distKm - b.distKm);
+
+        if (helis.length > 0) {
+            const h = helis[0];
+            corridorsList.insertAdjacentHTML('beforeend', `
+                <div class="bg-slate-900/80 border border-sky-500/30 rounded-lg px-2.5 py-2 flex items-center justify-between gap-2">
+                    <div>
+                        <div class="text-xs font-bold text-sky-200">🚁 Lähin helikopterikenttä: ${h.name}</div>
+                        <div class="text-[10px] text-slate-400">Pelastus-/lääkärihelikopteriliikenne (${helis.length} kenttää 15 km säteellä)</div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-sky-300">${h.distKm.toFixed(1)} km</span>
+                </div>
+            `);
+        }
+    } catch (e) { /* valinnainen */ }
+
+    // 2. Haetaan reaaliaikaiset ilma-alukset (OpenSky Network + Open Glider Network FLARM/OGN XML)
+    let livePlanes = [];
+    const lamin = (currentLoc.lat - 0.85).toFixed(4);
+    const lamax = (currentLoc.lat + 0.85).toFixed(4);
+    const lomin = (currentLoc.lon - 1.75).toFixed(4);
+    const lomax = (currentLoc.lon + 1.75).toFixed(4);
+
+    // A) OpenSky Network
+    try {
+        const osRes = await fetchWithTimeout(`https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`, {}, 6500);
+        if (osRes.ok) {
+            const osData = await osRes.json();
+            if (Array.isArray(osData.states)) {
+                osData.states.forEach(s => {
+                    const lon = s[5];
+                    const lat = s[6];
+                    if (!lat || !lon) return;
+                    const callsign = (s[1] || '').trim() || s[0] || 'Tuntematon';
+                    const country = s[2] || 'FI';
+                    const altM = Math.round(s[7] || s[13] || 0);
+                    const speedKmh = Math.round((s[9] || 0) * 3.6);
+                    const heading = Math.round(s[10] || 0);
+                    const onGround = Boolean(s[8]);
+                    livePlanes.push({
+                        id: s[0] || callsign,
+                        callsign,
+                        country,
+                        lat,
+                        lon,
+                        altM,
+                        speedKmh,
+                        heading,
+                        onGround,
+                        source: 'ADS-B',
+                        distKm: haversineKm(currentLoc.lat, currentLoc.lon, lat, lon)
+                    });
+                });
+            }
+        }
+    } catch (e) { /* siirrytään OGN-hakuun */ }
+
+    // B) Open Glider Network / pienkone- ja helikopteri-FLARM (CORS: https://osoitetutka.web.app)
+    try {
+        const ognUrl = `https://live.glidernet.org/lxml.php?a=0&b=${lamax}&c=${lamin}&d=${lomax}&e=${lomin}`;
+        const ognRes = await fetchWithTimeout(ognUrl, {}, 6500);
+        if (ognRes.ok) {
+            const xmlText = await ognRes.text();
+            const matches = xmlText.matchAll(/<m a="([^"]+)"\s*\/?>/g);
+            for (const m of matches) {
+                const parts = m[1].split(',');
+                if (parts.length >= 7) {
+                    const lat = parseFloat(parts[0]);
+                    const lon = parseFloat(parts[1]);
+                    const callsign = parts[2] || parts[3] || 'OGN-Ilma-alus';
+                    const altM = parseInt(parts[4], 10) || 0;
+                    const heading = parseInt(parts[6], 10) || 0;
+                    const speedKmh = parseInt(parts[7], 10) || 0;
+                    if (!isNaN(lat) && !isNaN(lon)) {
+                        livePlanes.push({
+                            id: callsign,
+                            callsign,
+                            country: 'FI',
+                            lat,
+                            lon,
+                            altM,
+                            speedKmh,
+                            heading,
+                            onGround: altM < 40 && speedKmh < 15,
+                            source: 'OGN/FLARM',
+                            distKm: haversineKm(currentLoc.lat, currentLoc.lon, lat, lon)
+                        });
+                    }
+                }
+            }
+        }
+    } catch (e) { /* valinnainen */ }
+
+    livePlanes.sort((a, b) => a.distKm - b.distKm);
+
+    if (countBadge) {
+        countBadge.textContent = `${livePlanes.length} kpl lähialueen ilmatilassa`;
+    }
+
+    // Piirretään lentokoneet kartalle
+    if (flightLayerGroup) {
+        livePlanes.slice(0, 25).forEach(pl => {
+            const icon = L.divIcon({
+                className: '',
+                html: `<div class="flight-marker-badge" title="${pl.callsign}">✈️ ${pl.callsign}</div>`,
+                iconSize: [74, 22],
+                iconAnchor: [37, 11]
+            });
+            L.marker([pl.lat, pl.lon], { icon })
+                .bindPopup(`<b>✈️ ${pl.callsign}</b> (${pl.source})<br>Korkeus: <b>${pl.altM} m</b> • Nopeus: <b>${pl.speedKmh} km/h</b><br>Etäisyys osoitteesta: ${pl.distKm.toFixed(1)} km`)
+                .addTo(flightLayerGroup);
+        });
+    }
+
+    if (livePlanes.length === 0) {
+        aircraftList.innerHTML = `
+            <div class="text-xs text-slate-400 bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
+                Ilmatilassa (n. 85 km säteellä) ei juuri tällä sekunnilla ole matalalla lentäviä ADS-B/OGN-lähettimellä varustettuja koneita tai ADS-B-raja tuli täyteen. Voit avata suoran tutkanäkymän yllä olevasta <b>ADS-B Live Tutka</b> -linkistä.
+            </div>
+        `;
+    } else {
+        aircraftList.innerHTML = livePlanes.slice(0, 10).map(pl => `
+            <div onclick="focusMapPoint(${pl.lat}, ${pl.lon}, '✈️ ${pl.callsign}', 'Korkeus ${pl.altM} m • ${pl.speedKmh} km/h')" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-xs transition">
+                <div>
+                    <span class="font-bold text-sky-300">✈️ ${pl.callsign}</span>
+                    <span class="text-[10px] text-slate-400 ml-1.5">${pl.onGround ? 'Maassa' : `Korkeus ${pl.altM.toLocaleString('fi-FI')} m`} • ${pl.speedKmh} km/h</span>
+                </div>
+                <span class="font-mono font-bold text-white">${pl.distKm.toFixed(1)} km</span>
+            </div>
+        `).join('');
+    }
+}
+
+// =========================================================
+// 11F. LAIVALIIKENNE (Fintraffic Marine AIS) & VESISTÖJEN LÄHEISYYS
+// =========================================================
+const AIS_SHIP_TYPES = {
+    30: 'Kalastusalus', 31: 'Hinaaja', 32: 'Hinaaja', 35: 'Viranomais-/Sota-alus',
+    36: 'Purjevene', 37: 'Huvivene / Jahti', 50: 'Luotsivene', 51: 'Meripelastusalus (SAR)',
+    52: 'Hinaaja', 55: 'Poliisi-/Rajavartioalus', 60: 'Matkustajalaiva / Autolautta',
+    69: 'Matkustaja-alus', 70: 'Rahtilaiva', 71: 'Konttilaiva', 79: 'Rahtialus',
+    80: 'Tankkeri / Säiliöalus', 89: 'Säiliöalus', 90: 'Erikoisalus'
+};
+
+function getAisShipTypeLabel(code) {
+    const c = Number(code || 0);
+    if (AIS_SHIP_TYPES[c]) return AIS_SHIP_TYPES[c];
+    if (c >= 60 && c < 70) return 'Matkustajalaiva / Lautta';
+    if (c >= 70 && c < 80) return 'Rahtilaiva';
+    if (c >= 80 && c < 90) return 'Tankkeri';
+    if (c >= 30 && c < 40) return 'Huvivene / Erikoisalus';
+    return 'Alus (AIS)';
+}
+
+async function ensureMarineVesselMetadata() {
+    if (marineVesselsMetaCache.size > 0 && (Date.now() - marineVesselsMetaFetchedAt) < 15 * 60 * 1000) {
+        return;
+    }
+    try {
+        const res = await fetchWithTimeout('https://meri.digitraffic.fi/api/ais/v1/vessels', {}, 9000);
+        if (!res.ok) return;
+        const vessels = await res.json();
+        if (Array.isArray(vessels)) {
+            vessels.forEach(v => {
+                if (v.mmsi) {
+                    marineVesselsMetaCache.set(Number(v.mmsi), {
+                        name: (v.name || '').trim(),
+                        shipType: v.shipType,
+                        destination: (v.destination || '').trim(),
+                        callSign: v.callSign || ''
+                    });
+                }
+            });
+            marineVesselsMetaFetchedAt = Date.now();
+        }
+    } catch (e) { /* metadata valinnainen */ }
+}
+
+async function fetchMarineAndWaterProximity(manualRefresh = false) {
+    const kpiRow = document.getElementById('marineKpiRow');
+    const waterList = document.getElementById('waterBodiesList');
+    const vesselsList = document.getElementById('liveMarineVesselsList');
+    const countBadge = document.getElementById('liveVesselCountBadge');
+
+    if (marineLayerGroup) marineLayerGroup.clearLayers();
+
+    // 1. Haetaan Fintraffic Digitraffic Marine AIS -reaaliaikaiset alukset (35 km säteellä)
+    let vessels = [];
+    try {
+        const locUrl = `https://meri.digitraffic.fi/api/ais/v1/locations?latitude=${currentLoc.lat.toFixed(4)}&longitude=${currentLoc.lon.toFixed(4)}&radius=35`;
+        const [locRes] = await Promise.all([
+            fetchWithTimeout(locUrl, {}, 8500),
+            ensureMarineVesselMetadata()
+        ]);
+
+        if (locRes.ok) {
+            const locGeo = await locRes.json();
+            const feats = locGeo.features || [];
+            vessels = feats.map(f => {
+                const coords = (f.geometry && f.geometry.coordinates) || [];
+                const lon = coords[0];
+                const lat = coords[1];
+                const props = f.properties || {};
+                const mmsi = Number(f.mmsi || props.mmsi || 0);
+                const meta = marineVesselsMetaCache.get(mmsi) || {};
+                const sogKnots = Number(props.sog || 0);
+                const cog = Number(props.cog || 0);
+                const distKm = (lat && lon) ? haversineKm(currentLoc.lat, currentLoc.lon, lat, lon) : 999;
+                return {
+                    mmsi,
+                    name: meta.name || `Alus MMSI ${mmsi}`,
+                    typeLabel: getAisShipTypeLabel(meta.shipType),
+                    destination: meta.destination || '',
+                    sogKnots,
+                    cog,
+                    lat,
+                    lon,
+                    distKm
+                };
+            }).filter(v => v.lat && v.lon && v.distKm <= 38).sort((a, b) => a.distKm - b.distKm);
+        }
+    } catch (err) {
+        console.warn('Digitraffic Marine AIS error:', err);
+    }
+
+    if (countBadge) {
+        countBadge.textContent = `${vessels.length} alusta 35 km säteellä`;
+    }
+
+    // Piirretään laivat kartalle
+    if (marineLayerGroup) {
+        vessels.slice(0, 35).forEach(v => {
+            const icon = L.divIcon({
+                className: '',
+                html: `<div class="ship-marker-badge" title="${v.name} (${v.sogKnots} kn)">⛴️ ${v.name.slice(0, 14)}</div>`,
+                iconSize: [90, 22],
+                iconAnchor: [45, 11]
+            });
+            L.marker([v.lat, v.lon], { icon })
+                .bindPopup(`<b>⛴️ ${v.name}</b><br>${v.typeLabel} (MMSI: ${v.mmsi})<br>Nopeus: <b>${v.sogKnots.toFixed(1)} kn</b> (${(v.sogKnots * 1.852).toFixed(1)} km/h)<br>${v.destination ? `Määränpää: <b>${v.destination}</b><br>` : ''}Etäisyys: ${v.distKm.toFixed(2)} km`)
+                .addTo(marineLayerGroup);
+        });
+    }
+
+    // Renderöidään aluslista
+    if (vessels.length === 0) {
+        vesselsList.innerHTML = `
+            <div class="text-xs text-slate-400 bg-slate-900/60 border border-slate-800 rounded-lg p-2.5">
+                35 km säteellä ei ole tällä hetkellä aktiivisia AIS-laivoja (tai kohde on sisämaassa kaukana kauppamerenkulun väylistä).
+            </div>
+        `;
+    } else {
+        vesselsList.innerHTML = vessels.slice(0, 12).map(v => `
+            <div onclick="focusMapPoint(${v.lat}, ${v.lon}, '⛴️ ${v.name.replace(/'/g, "\\'")}', '${v.typeLabel} • ${v.sogKnots.toFixed(1)} kn')" class="cursor-pointer bg-slate-900/90 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 text-xs transition">
+                <div class="truncate">
+                    <span class="font-bold text-blue-300">⛴️ ${v.name}</span>
+                    <span class="text-[10px] text-slate-400 ml-1">${v.typeLabel}</span>
+                    <div class="text-[10px] text-slate-400 truncate">
+                        ${v.sogKnots > 0.3 ? `🟢 Liikkeessä ${v.sogKnots.toFixed(1)} kn` : '⚓ Satamassa / Ankkurissa'}
+                        ${v.destination ? ` • Määränpää: <span class="text-slate-200">${v.destination}</span>` : ''}
+                    </div>
+                </div>
+                <span class="font-mono font-bold text-white shrink-0">${v.distKm < 1 ? (v.distKm * 1000).toFixed(0) + ' m' : v.distKm.toFixed(1) + ' km'}</span>
+            </div>
+        `).join('');
+    }
+
+    // 2. Haetaan lähimmät rannat, vesistöt, vierasvenesatamat ja laiturit (Overpass)
+    try {
+        const waterQuery = `[out:json][timeout:10];(way["natural"~"coastline|water"](around:3500,${currentLoc.lat},${currentLoc.lon});node["leisure"~"marina|slipway"](around:6000,${currentLoc.lat},${currentLoc.lon});way["leisure"~"marina"](around:6000,${currentLoc.lat},${currentLoc.lon});node["mooring"="yes"](around:5000,${currentLoc.lat},${currentLoc.lon});node["seamark:type"~"harbour|small_craft_facility"](around:6000,${currentLoc.lat},${currentLoc.lon}););out center 35;`;
+        const wData = await fetchOverpassWithFallback(waterQuery);
+        const els = wData.elements || [];
+
+        let nearestWaterDistKm = null;
+        let nearestWaterName = 'Vesistö / Ranta';
+        const marinasAndShores = [];
+
+        els.forEach(el => {
+            const wLat = el.lat || (el.center && el.center.lat);
+            const wLon = el.lon || (el.center && el.center.lon);
+            if (!wLat || !wLon) return;
+            const dKm = haversineKm(currentLoc.lat, currentLoc.lon, wLat, wLon);
+            const tags = el.tags || {};
+            const isMarina = tags.leisure === 'marina' || tags.leisure === 'slipway' || tags['seamark:type'];
+            const name = tags.name || (tags.natural === 'coastline' ? 'Merenranta' : isMarina ? 'Venesatama / Veneenlaskupaikka' : 'Järvi / Jokiranta');
+
+            if (nearestWaterDistKm === null || dKm < nearestWaterDistKm) {
+                nearestWaterDistKm = dKm;
+                nearestWaterName = name;
+            }
+            if (tags.name || isMarina || tags.natural === 'coastline') {
+                marinasAndShores.push({
+                    name,
+                    type: isMarina ? '⚓ Venesatama / Laituri' : (tags.natural === 'coastline' ? '🌊 Merenranta' : '💧 Vesistö'),
+                    lat: wLat,
+                    lon: wLon,
+                    distKm: dKm
+                });
+            }
+        });
+
+        marinasAndShores.sort((a, b) => a.distKm - b.distKm);
+        const uniqueWaters = [];
+        const seenNames = new Set();
+        for (const item of marinasAndShores) {
+            const key = `${item.name}_${Math.round(item.distKm * 2)}`;
+            if (!seenNames.has(key)) {
+                seenNames.add(key);
+                uniqueWaters.push(item);
+            }
+            if (uniqueWaters.length >= 5) break;
+        }
+
+        const movingCount = vessels.filter(v => v.sogKnots > 0.5).length;
+
+        kpiRow.innerHTML = `
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">Etäisyys rantaan / veteen</div>
+                <div class="text-sm font-extrabold ${nearestWaterDistKm !== null && nearestWaterDistKm < 1.0 ? 'text-cyan-300' : 'text-white'} mt-0.5">
+                    ${nearestWaterDistKm !== null ? (nearestWaterDistKm < 1 ? `${Math.round(nearestWaterDistKm * 1000)} m` : `${nearestWaterDistKm.toFixed(2)} km`) : '> 3.5 km'}
+                </div>
+                <div class="text-[10px] text-slate-400 truncate">${nearestWaterName}</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">AIS-alukset (35 km säteellä)</div>
+                <div class="text-sm font-extrabold text-blue-300 mt-0.5">${vessels.length} alusta</div>
+                <div class="text-[10px] text-slate-400">${movingCount} liikkeessä • ${vessels.length - movingCount} satamassa</div>
+            </div>
+            <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                <div class="text-[10px] text-slate-400">Lähin AIS-alus</div>
+                <div class="text-sm font-extrabold text-white mt-0.5 truncate">${vessels[0] ? vessels[0].name : 'Ei lähialuksia'}</div>
+                <div class="text-[10px] text-blue-300">${vessels[0] ? `${vessels[0].distKm.toFixed(2)} km (${vessels[0].typeLabel})` : '-'}</div>
+            </div>
+        `;
+
+        if (uniqueWaters.length === 0) {
+            waterList.innerHTML = `<div class="text-xs text-slate-400 bg-slate-900/60 border border-slate-800 rounded-lg p-2">Ei nimettyjä venesatamia tai rantaviivaa 3,5 km säteellä.</div>`;
+        } else {
+            waterList.innerHTML = uniqueWaters.map(w => `
+                <div onclick="focusMapPoint(${w.lat}, ${w.lon}, '${w.name.replace(/'/g, "\\'")}', '${w.type}')" class="cursor-pointer bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-xs transition">
+                    <div>
+                        <span class="font-semibold text-slate-200">${w.type}: ${w.name}</span>
+                    </div>
+                    <span class="font-mono font-bold text-cyan-300">${w.distKm < 1 ? (w.distKm * 1000).toFixed(0) + ' m' : w.distKm.toFixed(2) + ' km'}</span>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.warn('Water proximity error:', err);
+    }
 }
 </script>
 </body>
