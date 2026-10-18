@@ -346,6 +346,68 @@
                     </div>
 
                     <div class="collapsible-body mt-3">
+                        <!-- Kaupungin & Valtakunnalliset Avoimet Kartta- ja Paikkatietovalikot (WMS, WFS & OGC API) -->
+                        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 mb-3 space-y-2.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                        🛰️ Paikkatiedon avoimet rajapintapalvelut (WMS / WFS / OGC API)
+                                    </span>
+                                    <span id="openGisCityBadge" class="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+                                        Turku & Suomi
+                                    </span>
+                                </div>
+                                <div id="openGisExternalLinks" class="flex flex-wrap items-center gap-1.5 text-[11px]"></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-end">
+                                <!-- 1. WMS-karttatasot (Kaavat, Ilmakuvat eri vuosilta, Historialliset kartat, Opas- & Kantakartat, Maanomistus) -->
+                                <div class="md:col-span-5">
+                                    <label for="cityWmsSelect" class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">
+                                        🗺️ 1. Karttataso / Kaava / Ilmakuva / Historiallinen kartta (WMS):
+                                    </label>
+                                    <select id="cityWmsSelect" onchange="onCityWmsLayerSelect(this.value)"
+                                            class="w-full bg-slate-900 border border-slate-700 hover:border-emerald-500/60 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                        <option value="">— Ei päällyskarttaa (Peruskartta) —</option>
+                                    </select>
+                                </div>
+
+                                <!-- 2. WFS / OGC API -vektoriaineistot (Korttelit, puut, suojelualueet, skuuttialueet, koirapuistot, venesatamat, oppilasalueet...) -->
+                                <div class="md:col-span-5">
+                                    <label for="cityWfsSelect" class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">
+                                        📐 2. Vektoriaineisto / Aluerajaus / Kohteet kartalle (WFS & OGC):
+                                    </label>
+                                    <select id="cityWfsSelect" onchange="onCityWfsLayerSelect(this.value)"
+                                            class="w-full bg-slate-900 border border-slate-700 hover:border-cyan-500/60 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                        <option value="">— Valitse kartalle ladattava paikkatietoaineisto —</option>
+                                    </select>
+                                </div>
+
+                                <!-- 3. Läpinäkyvyyssäädin & Tyhjennys -->
+                                <div class="md:col-span-2 flex flex-col gap-1">
+                                    <div class="flex items-center justify-between text-[10px] text-slate-400">
+                                        <span>Läpinäkyvyys:</span>
+                                        <span id="wmsOpacityLabel" class="font-bold text-emerald-400">80 %</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <input type="range" id="wmsOpacitySlider" min="15" max="100" value="80"
+                                               oninput="onWmsOpacityChange(this.value)"
+                                               class="w-full accent-emerald-500 cursor-pointer">
+                                        <button onclick="clearCustomGisLayers()" title="Tyhjennä valitut WMS- ja WFS-karttatasot"
+                                                class="bg-slate-800 hover:bg-rose-900/50 border border-slate-700 hover:border-rose-500/40 text-slate-300 hover:text-rose-200 text-[11px] px-2 py-1 rounded-lg transition shrink-0">
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aktiivisen tason tila- ja tekijänoikeuspalkki -->
+                            <div id="openGisStatusRow" class="hidden flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-slate-800/80 text-[11px] text-slate-300">
+                                <div id="openGisActiveLayerInfo" class="flex items-center gap-2"></div>
+                                <div id="openGisAttributionInfo" class="text-[10px] text-slate-400"></div>
+                            </div>
+                        </div>
+
                         <!-- Leaflet Kartta -->
                         <div id="map" class="w-full h-[500px] rounded-lg border border-slate-800 z-0"></div>
 
@@ -1605,6 +1667,11 @@ let eventLayerGroup = null;
 let flightLayerGroup = null;
 let marineLayerGroup = null;
 let sewerLayerGroup = null;
+let customWfsLayerGroup = null;
+let customWmsOverlayLayer = null;
+let activeOpenGisCityKey = '';
+let activeWmsLayerMeta = null;
+let activeWfsLayerMeta = null;
 let wmsStormwaterLayer = null;
 let wmsGeoenergyLayer = null;
 let wmsHsySewerLayer = null;
@@ -1981,11 +2048,12 @@ function initOrUpdateMap() {
         flightLayerGroup = L.layerGroup();
         marineLayerGroup = L.layerGroup();
         sewerLayerGroup = L.layerGroup();
+        customWfsLayerGroup = L.layerGroup();
 
         map = L.map('map', {
             center: [lat, lon],
             zoom: 15,
-            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup, eventLayerGroup, flightLayerGroup, marineLayerGroup]
+            layers: [osm, parcelLayerGroup, buildingLayerGroup, liveTransitLayerGroup, poiLayerGroup, teslaLayerGroup, weatherCamLayerGroup, eventLayerGroup, flightLayerGroup, marineLayerGroup, customWfsLayerGroup]
         });
 
         const baseMaps = {
@@ -1998,6 +2066,7 @@ function initOrUpdateMap() {
         const overlayMaps = {
             "📐 Kiinteistörajat & Tontit (Vektori)": parcelLayerGroup,
             "🏢 Rakennukset tontilla": buildingLayerGroup,
+            "🛰️ Valittu WFS/OGC-paikkatietoaineisto": customWfsLayerGroup,
             "🚌 Live-joukkoliikenne (Bussit & Junat)": liveTransitLayerGroup,
             "🎯 Lähipalvelut, Harrastukset & Lataus": poiLayerGroup,
             "🎪 Alueen & Lähikaupunkien Tapahtumat": eventLayerGroup,
@@ -2019,6 +2088,8 @@ function initOrUpdateMap() {
     } else {
         map.setView([lat, lon], 15);
     }
+
+    populateOpenGisDropdowns();
 
     if (marker) map.removeLayer(marker);
     marker = L.marker([lat, lon]).addTo(map)
@@ -8436,6 +8507,1049 @@ async function fetchGeoPhotosAndNotablePeople() {
             }
         }
     })();
+}
+
+// ============================================================================
+// 13. PAIKKATIEDON AVOIMET RAJAPINTAPALVELUT (WMS, WFS & OGC API) PUDOTUSVALIKOT
+// Kattaa kaikki Turun kaupungin (turku.fi/tietoa-turusta/kartat-ja-paikkatieto)
+// WMS-, WFS- ja OGC API -karttavaihtoehdot, palveluportaalit sekä vastaavat
+// kunnalliset & valtakunnalliset paikkatietorajapinnat muilla paikkakunnilla.
+// ============================================================================
+
+const TURKU_WMS_URL = 'https://turku.asiointi.fi/teklaogcweb/wms.ashx';
+const TURKU_WFS_URL = 'https://turku.asiointi.fi/teklaogcweb/wfs.ashx';
+
+const NATIONAL_WMS_GROUPS = [
+    {
+        group: '🇫🇮 Valtakunnalliset Geologia-, Ympäristö- & Suojelukartat (Koko Suomi)',
+        items: [
+            { id: 'nat_gtk_maapera', label: '🪨 GTK Maaperäkartta 1:20 000 / 1:200 000 (Savi, moreeni, kallio)', url: 'https://gtkdata.gtk.fi/arcgis/services/Maankamara/Maapera/MapServer/WMSServer', layers: '34,40', transparent: true, attr: '© Geologian tutkimuskeskus (GTK)' },
+            { id: 'nat_gtk_kallio', label: '⛰️ GTK Suomen Kallioperäkartta (Kivilajit)', url: 'https://gtkdata.gtk.fi/arcgis/services/Maankamara/2023Kalliopera/MapServer/WMSServer', layers: '24', transparent: true, attr: '© Geologian tutkimuskeskus (GTK)' },
+            { id: 'nat_gtk_geoenergia', label: '♨️ GTK Geoenergiapotentiaali & Maalämpö (WMS)', url: 'https://gtkdata.gtk.fi/arcgis/services/GTKKartat/Geoenergiapotentiaali/MapServer/WMSServer', layers: '0,1,2', transparent: true, attr: '© GTK Geoenergiapotentiaali' },
+            { id: 'nat_syke_hulevesi', label: '🌧️ SYKE Hulevesitulvakartta (Rankkasade 52 mm / 1 h)', url: 'https://paikkatiedot.ymparisto.fi/geoserver/tulva/wms', layers: 'Valumavesi_100a_52mm_1h', transparent: true, attr: '© SYKE Tulvakeskus' },
+            { id: 'nat_stat_postinro', label: '📮 Tilastokeskus Paavo Postinumeroalueet (WMS)', url: 'https://geo.stat.fi/geoserver/postialue/wms', layers: 'postialue:pno_tilasto_2026', transparent: true, attr: '© Tilastokeskus Paavo' },
+            { id: 'nat_stat_kunnat', label: '🏛️ Tilastokeskus Kuntajako 2026 (WMS)', url: 'https://geo.stat.fi/geoserver/tilastointialueet/wms', layers: 'tilastointialueet:kunta1000k_2026', transparent: true, attr: '© Tilastokeskus' }
+        ]
+    }
+];
+
+const NATIONAL_WFS_GROUPS = [
+    {
+        group: '🇫🇮 Valtakunnalliset Vektoriaineistot (Koko Suomi WFS)',
+        items: [
+            { id: 'nat_wfs_oppilaitokset', label: '🏫 Tilastokeskus: Oppilaitosrekisteri (Koulut, lukiot, korkeakoulut)', type: 'geojson_wfs', url: 'https://geo.stat.fi/geoserver/oppilaitokset/wfs', typeName: 'oppilaitokset:oppilaitokset', color: '#10b981', radiusKm: 3.5, attr: '© Tilastokeskus Oppilaitokset' },
+            { id: 'nat_wfs_lipas_liikunta', label: '🏟️ LIPAS: Kaikki liikunta- ja ulkoilupaikat (Pisteet)', type: 'geojson_wfs', url: 'https://liikuntapaikat.lipas.fi/geoserver/lipas/wfs', typeName: 'lipas:lipas_kaikki_pisteet', color: '#38bdf8', radiusKm: 3.0, attr: '© LIPAS Jyväskylän yliopisto' },
+            { id: 'nat_wfs_lipas_reitit', label: '🎿 LIPAS: Ulkoilureitit, hiihtoladut ja luontopolut (Viivat)', type: 'geojson_wfs', url: 'https://liikuntapaikat.lipas.fi/geoserver/lipas/wfs', typeName: 'lipas:lipas_kaikki_viivat', color: '#f59e0b', radiusKm: 3.5, attr: '© LIPAS Liikuntareitit' },
+            { id: 'nat_wfs_paavo_pno', label: '📮 Tilastokeskus: Paavo-postinumeroalueet ja väestörajat', type: 'geojson_wfs', url: 'https://geo.stat.fi/geoserver/postialue/wfs', typeName: 'postialue:pno_tilasto_2026', color: '#a855f7', radiusKm: 4.0, attr: '© Tilastokeskus Paavo' }
+        ]
+    }
+];
+
+function getCityOpenGisCatalog(cityRaw) {
+    const c = (cityRaw || '').trim().toLowerCase();
+    const { lat, lon } = currentLoc;
+
+    // 1. TURKU & TURUN SEUTU (Kaarina, Raisio, Lieto, Naantali, Rusko, Paimio)
+    // Sisältää KAIKKI https://www.turku.fi/tietoa-turusta/kartat-ja-paikkatieto#anchor-paikkatiedon-avoimet-rajapintapalvelut
+    // WMS-karttatasot (66 kpl) ja keskeisimmät WFS / OGC API (GIS:*, kanta:*, akaava:*, ykaava:*) -aineistot!
+    if (['turku', 'kaarina', 'raisio', 'naantali', 'lieto', 'rusko', 'paimio', 'piikkiö'].includes(c)) {
+        return {
+            cityLabel: 'Turun kaupunki & Turun seutu (CC BY 4.0)',
+            copyright: '© Turun kaupunki, käyttölupa CC BY 4.0',
+            portals: [
+                { label: '🗺️ Turun seudun karttapalvelu', url: `https://opaskartta.turku.fi/IMS/?layers=Opaskartta&lon=${lon.toFixed(5)}&lat=${lat.toFixed(5)}&z=16` },
+                { label: '🚲 Turun palvelukartta (Liikkuminen)', url: 'https://palvelukartta.turku.fi/' },
+                { label: '🏢 3D-Kaupunkitietomalli', url: 'https://opaskartta.turku.fi/IMS/' },
+                { label: '🚌 Fölin reittiopas', url: 'https://reittiopas.foli.fi/' },
+                { label: '🥾 Citynomadi ulkoilureitit', url: 'https://app.citynomadi.com/' },
+                { label: '🔌 OGC API -kokoelmat', url: 'https://turku.asiointi.fi/TrimbleOGCApi' },
+                { label: '📐 Johtokartta- & Karttatilaus', url: 'https://www.turku.fi/tietoa-turusta/kartat-ja-paikkatieto#anchor-johtokartat' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Turun Opaskartat, Maastokartat, KTJ & Kunnossapito',
+                    items: [
+                        { id: 'tku_opaskartta', label: '🗺️ Turun opaskartta (Ajantasainen)', url: TURKU_WMS_URL, layers: 'Opaskartta', transparent: false, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_opaskartta_mv', label: '🗺️ Turun opaskartta (Mustavalkoinen)', url: TURKU_WMS_URL, layers: 'Opaskartta mv', transparent: false, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_maastokartta', label: '🌲 Turun maastokartta', url: TURKU_WMS_URL, layers: 'Maastokartta', transparent: false, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_maastokartta_mv', label: '🌲 Turun maastokartta (Mustavalkoinen)', url: TURKU_WMS_URL, layers: 'Maastokartta mv', transparent: false, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_maastokartta_ktj', label: '📐 Turun maastokartta KTJ (Kiinteistörajat & Tunnukset)', url: TURKU_WMS_URL, layers: 'Maastokartta KTJ', transparent: true, attr: '© Turun kaupunki KTJ, CC BY 4.0' },
+                        { id: 'tku_maastokartta_riisuttu', label: '📐 Turun maastokartta (Riisuttu)', url: TURKU_WMS_URL, layers: 'Maastokartta riisuttu', transparent: false, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_maanvuokraus', label: '🏛️ Turun maanvuokrauskartta', url: TURKU_WMS_URL, layers: 'Maanvuokraus', transparent: true, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_talvikunnossapito', label: '❄️ Turun talvikunnossapitokartta (Aurausluokat)', url: TURKU_WMS_URL, layers: 'Talvikunnossapito', transparent: true, attr: '© Turun kaupunki, CC BY 4.0' }
+                    ]
+                },
+                {
+                    group: '🏗️ Turun Asemakaava & Yleiskaavat (1951–2029)',
+                    items: [
+                        { id: 'tku_asemakaava', label: '📜 Turun ajantasa-asemakaava', url: TURKU_WMS_URL, layers: 'Asemakaava', transparent: true, attr: '© Turun kaupunki Asemakaava, CC BY 4.0' },
+                        { id: 'tku_asemakaava_kaarina', label: '📜 Asemakaava luonnosvaihe (Kaarina)', url: TURKU_WMS_URL, layers: 'Asemakaava_luonnosvaihe_Kaarina', transparent: true, attr: '© Kaarinan kaupunki / Turun seutu' },
+                        { id: 'tku_yleiskaava', label: '🗺️ Turun voimassa oleva yleiskaava', url: TURKU_WMS_URL, layers: 'Yleiskaava', transparent: true, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_yleiskaava_suunn', label: '🗺️ Yleiskaava suunnittelu', url: TURKU_WMS_URL, layers: 'Yleiskaava suunnittelu', transparent: true, attr: '© Turun kaupunki, CC BY 4.0' },
+                        { id: 'tku_yk2029_1', label: '🏙️ Yleiskaava 2029: Kartta 1 – Yhdyskuntarakenne', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 1 Yhdyskuntarakenne', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_2', label: '🏠 Yleiskaava 2029: Kartta 2 – Asuminen', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 2 Asuminen', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_3', label: '🏢 Yleiskaava 2029: Kartta 3 – Palvelut ja elinkeinot', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 3 Palvelut ja elinkeinot', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_4', label: '🚆 Yleiskaava 2029: Kartta 4 – Liikenne', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 4 Liikenne', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_5', label: '💧 Yleiskaava 2029: Kartta 5 – Kestävä vesien hallinta', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 5 Kestava vesien hallinta', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_6', label: '⚡ Yleiskaava 2029: Kartta 6 – Yhdyskuntatekniikka', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 6 Yhdyskuntatekniikka', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_7', label: '🌳 Yleiskaava 2029: Kartta 7 – Viherympäristö, maisema & muinaisjäännökset', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 7 Viherymparisto ja maisema seka muinaisjaannokset', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk2029_8', label: '🏛️ Yleiskaava 2029: Kartta 8 – Arvokkaat rakennetun ympäristön kohteet', url: TURKU_WMS_URL, layers: 'Yleiskaava 2029: Kartta 8 Arvokkaat rakennetun ympariston kohteet', transparent: true, attr: '© Turun kaupunki YK 2029' },
+                        { id: 'tku_yk_tausta', label: '🗺️ Yleiskaavan taustakartta', url: TURKU_WMS_URL, layers: 'Yleiskaavan tausta', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_yk_hirvensalo2020', label: '📜 Vanha yleiskaava: Hirvensalo 2020', url: TURKU_WMS_URL, layers: 'Vanha yleiskaava Hirvensalo 2020', transparent: true, attr: '© Turun kaupunki' },
+                        { id: 'tku_yk_2010', label: '📜 Vanha yleiskaava: Turku 2010', url: TURKU_WMS_URL, layers: 'Vanha yleiskaava Turku 2010', transparent: true, attr: '© Turun kaupunki' },
+                        { id: 'tku_yk_1976', label: '📜 Vanha yleiskaava: Turku 1976', url: TURKU_WMS_URL, layers: 'Vanha yleiskaava Turku 1976', transparent: true, attr: '© Turun kaupunki' },
+                        { id: 'tku_yk_1951', label: '📜 Vanha yleiskaava: Turku 1951', url: TURKU_WMS_URL, layers: 'Vanha yleiskaava Turku 1951', transparent: true, attr: '© Turun kaupunki' }
+                    ]
+                },
+                {
+                    group: '🛰️ Turun Ortoilmakuvat & Lennokkikuvaukset (1939–2025)',
+                    items: [
+                        { id: 'tku_orto_2025', label: '📸 Turun ilmakuva 2025 (Uusin)', url: TURKU_WMS_URL, layers: 'Ilmakuva 2025', transparent: false, attr: '© Turun kaupunki Ilmakuva 2025' },
+                        { id: 'tku_orto_2023', label: '📸 Turun seudun ilmakuva 2023', url: TURKU_WMS_URL, layers: 'Ilmakuva 2023', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2022_true', label: '📸 Turun ilmakuva 2022 (True Ortho)', url: TURKU_WMS_URL, layers: 'Ilmakuva 2022 True ortho', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2022_kpl', label: '📸 Kaarina, Paimio & Lieto ilmakuva 2022', url: TURKU_WMS_URL, layers: 'Kaarina Paimio Lieto ilmakuva 2022', transparent: false, attr: '© Turun seutu' },
+                        { id: 'tku_orto_2021', label: '📸 Turun ilmakuva 2021', url: TURKU_WMS_URL, layers: 'Ilmakuva 2021', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2018_true', label: '📸 Turun ilmakuva 2018 (True Ortho)', url: TURKU_WMS_URL, layers: 'Ilmakuva 2018 True ortho', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2018_seutu', label: '📸 Turun seudun ilmakuva 2018', url: TURKU_WMS_URL, layers: 'Turunseutu ilmakuva 2018', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_lennokki', label: '🛸 Turun tarkat lennokkikuvaukset (Drone)', url: TURKU_WMS_URL, layers: 'Turun lennokkikuvaukset', transparent: true, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_kartoitus', label: '✈️ Turun kartoituskuvaukset', url: TURKU_WMS_URL, layers: 'Turun kartoituskuvaukset', transparent: true, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2013', label: '📸 Turun seudun ilmakuva 2013', url: TURKU_WMS_URL, layers: 'Turunseutu ilmakuva 2013', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_ruissalo2011', label: '📸 Turun ilmakuva Ruissalo 2011', url: TURKU_WMS_URL, layers: 'Turku ilmakuva Ruissalo 2011', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2010', label: '📸 Turun ilmakuva 2010', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 2010', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2010_vv', label: '🌿 Turun vääräväri-ilmakuva 2010 (Kasvillisuus)', url: TURKU_WMS_URL, layers: 'Vaaravari-ilmakuva 2010', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_piikkio2008', label: '📸 Piikkiö ilmakuva 2008', url: TURKU_WMS_URL, layers: 'Piikkio ilmakuva 2008', transparent: false, attr: '© Kaarina / Turun seutu' },
+                        { id: 'tku_orto_kaarina2007', label: '📸 Kaarina ilmakuva 2007', url: TURKU_WMS_URL, layers: 'Kaarina ilmakuva 2007', transparent: false, attr: '© Kaarina / Turun seutu' },
+                        { id: 'tku_orto_2005', label: '📸 Turun ilmakuva 2005', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 2005', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2005_vv', label: '🌿 Turun ilmakuva 2005 (Vääräväri)', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 2005 vaaravari', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2003_vv', label: '🌿 Turun ilmakuva 2003 (Vääräväri)', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 2003 vaaravari', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_2002', label: '📸 Turun seudun ilmakuva 2002', url: TURKU_WMS_URL, layers: 'Turunseutu ilmakuva 2002', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1998', label: '🎞️ Turun historiallinen ilmakuva 1998', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1998', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1986', label: '🎞️ Turun historiallinen ilmakuva 1986', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1986', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1973', label: '🎞️ Turun historiallinen ilmakuva 1973', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1973', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1967', label: '🎞️ Turun historiallinen ilmakuva 1967', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1967', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1958', label: '🎞️ Turun historiallinen ilmakuva 1958', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1958', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1956', label: '🎞️ Turun historiallinen ilmakuva 1956', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1956', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1948', label: '🎞️ Turun historiallinen ilmakuva 1948', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1948', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_orto_1939', label: '🎞️ Turun sota-ajan ilmakuva 1939 (Vanhin)', url: TURKU_WMS_URL, layers: 'Turku ilmakuva 1939', transparent: false, attr: '© Turun kaupunki 1939' }
+                    ]
+                },
+                {
+                    group: '📜 Turun Historialliset Osoite- ja Virastokartat (1945–1989)',
+                    items: [
+                        { id: 'tku_osoite_1984', label: '🗺️ Turun osoitekartta 1984', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1984', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1979', label: '🗺️ Turun osoitekartta 1979', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1979', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1977', label: '🗺️ Turun osoitekartta 1977', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1977', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1974', label: '🗺️ Turun osoitekartta 1974', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1974', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1972', label: '🗺️ Turun osoitekartta 1972', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1972', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1968', label: '🗺️ Turun osoitekartta 1968', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1968', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1962', label: '🗺️ Turun osoitekartta 1962', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1962', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1958', label: '🗺️ Turun osoitekartta 1958', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1958', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1954', label: '🗺️ Turun osoitekartta 1954', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1954', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1950', label: '🗺️ Turun osoitekartta 1950', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1950', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_osoite_1945', label: '🗺️ Turun osoitekartta 1945', url: TURKU_WMS_URL, layers: 'Turun Osoitekartta 1945', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_virasto_8089', label: '📐 Turun virastokartta 1980–1989', url: TURKU_WMS_URL, layers: 'Virastokartta 1980-89', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_virasto_5861', label: '📐 Turun virastokartta 1958–1961', url: TURKU_WMS_URL, layers: 'Virastokartta 1958-61', transparent: false, attr: '© Turun kaupunki' },
+                        { id: 'tku_virasto_5054', label: '📐 Turun virastokartta 1950–1954', url: TURKU_WMS_URL, layers: 'Virastokartta 1950-54', transparent: false, attr: '© Turun kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '🏗️ Turun Kaavoitus, Maanomistus, Kiinteistöt & Keskustahistoria (WFS & OGC)',
+                    items: [
+                        { id: 'tku_wfs_akaava_alueet', label: '📜 Asemakaava-alueet (Voimassa olevat)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Akaava_Asemakaava_alueet', color: '#38bdf8', radiusKm: 1.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_akaava_vireilla', label: '🚧 Vireillä olevat asemakaava-alueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Akaava_Asemakaava_alueet_vireilla', color: '#f59e0b', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_akaava_maanalainen', label: '🚇 Maanalaiset asemakaava-alueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Akaava_Asemakaava_alueet_maanalainen', color: '#a855f7', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_maanomistus_tku', label: '🏛️ Kaupungin omistamat kiinteistöt (Turun maanomistus)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Maanomistus_Turku', color: '#10b981', radiusKm: 1.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_maanomistus_kaarina', label: '🏛️ Kaarinan kaupungin omistamat kiinteistöt', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Maanomistus_Kaarina', color: '#10b981', radiusKm: 2.0, attr: '© Kaarinan kaupunki WFS' },
+                        { id: 'tku_wfs_miljootyypitys', label: '🏙️ Turun keskustan miljöötyyppiluokitus (Yleiskaava 2029)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Turun_keskustan_miljootyypitys', color: '#ec4899', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_vanhat_korttelit', label: '🏛️ Engelin kaavan 1828 vanhat korttelit', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Vanhat_korttelit_alueet', color: '#f97316', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_palokujanteet', label: '🔥 Turun keskustan palokujanteet (1867 asemakaava)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Turun_keskustan_palokujanteet', color: '#ef4444', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_vanhatkylat', label: '🏡 Turun historialliset vanhat kylät', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Vanhatkylat', color: '#eab308', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_kaavoitus_vastuu', label: '👷 Kaavoituksen vastuualueet ja yhteyshenkilöt', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kaavoituksen_vastuualueet', color: '#6366f1', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_rakval_vastuu', label: '🏢 Rakennusvalvonnan vastuualueet ja tarkastajat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Rakennusvalvonnan_vastuualueet', color: '#14b8a6', radiusKm: 3.0, attr: '© Turun kaupunki WFS' }
+                    ]
+                },
+                {
+                    group: '🚋 Liikenne, Raitiotie, Pyöräily, Pysäköinti & Skuutit (Turku WFS)',
+                    items: [
+                        { id: 'tku_wfs_raitiotie', label: '🚋 Turun raitiotiesuunnitelman linjaus', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Raitiotielinjaus', color: '#ef4444', radiusKm: 5.0, attr: '© Turun kaupunki Raitiotie' },
+                        { id: 'tku_wfs_raitiotie_pysakit', label: '🚏 Turun raitiotiesuunnitelman pysäkit', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Raitiotielinjaus_pysakit', color: '#f43f5e', radiusKm: 5.0, attr: '© Turun kaupunki Raitiotie' },
+                        { id: 'tku_wfs_follari', label: '🚲 Fölläriasemat (Kaupunkipyöräasemat)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Follariasemat', color: '#eab308', radiusKm: 4.0, attr: '© Turun kaupunki Fölläri' },
+                        { id: 'tku_wfs_pyora_paareitti', label: '🚴 Pyöräilyverkoston pääreitit & tavoiteverkko 2035', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Pyorailyverkoston_paareitti', color: '#06b6d4', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_harjasuolatut', label: '❄️ Talvipyöräily: Harjasuolatut pyörätiet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Harjasuolatut_pyoratiet', color: '#3b82f6', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_harjahiekoitetut', label: '❄️ Talvipyöräily: Harjahiekoitetut pyörätiet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Harjahiekoitetut_pyoratiet', color: '#60a5fa', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_pysakointi_vyoh', label: '🅿️ Pysäköinnin maksuvyöhykkeet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Pysakoinnin_maksuvyohykkeet', color: '#f59e0b', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_lupapysakointi', label: '🅿️ Asukas- ja lupapysäköintialueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Lupapysakointialueet', color: '#10b981', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_pysakointiautomaatit', label: '🅿️ Pysäköintiautomaatit ja yhteiskäyttöautopaikat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Pysakointiautomaatit', color: '#38bdf8', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_invapaikat', label: '♿ Liikennemerkit: Invapysäköintipaikat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Liikennemerkit_invapaikat', color: '#0ea5e9', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_nopeusrajoitus', label: '🚗 Nopeusrajoitusalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Nopeusrajoitusalueet', color: '#f97316', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_skuutti_nopeus', label: '🛴 Sähköpotkulautojen nopeusrajoitus- & pysäköintikieltoalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Skuutti_nopeusrajoitusalue', color: '#a855f7', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_skuutti_parkki', label: '🛴 Sähköpotkulautojen pysäköintipaikat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Skuutti_pysakointipaikka', color: '#c084fc', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_kaivuluvat', label: '🚧 Aktiiviset kaivuluvat ja katutyöt', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kaivuluvat', color: '#ef4444', radiusKm: 2.5, attr: '© Turun kaupunki WFS' }
+                    ]
+                },
+                {
+                    group: '🌳 Luonto, Liito-oravat, Puut, Ulkoilu & Venesatamat (Turku WFS)',
+                    items: [
+                        { id: 'tku_wfs_luonnonsuojelu', label: '🦉 Luonnonsuojelualueet (Turku ja Kaarina)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Luonnonsuojelualueet', color: '#22c55e', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_arvokas_luonto', label: '🌿 Arvokkaat luontokohteet ja luontotyypit', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Arvokas_luontokohde', color: '#10b981', radiusKm: 3.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_liito_orava', label: '🐿️ Metsäverkosto: Liito-oravan elinympäristöt & ydinalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Metsaverkosto_liito-orava_elinymparistot', color: '#84cc16', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_kaupunkipuisto', label: '🌳 Kansallinen kaupunkipuisto', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kansallinen_kaupunkipuisto', color: '#16a34a', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_puut', label: '🌲 Kaupungin puurekisteri (Katu- ja puistopuut lähistöllä)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Puut', color: '#4ade80', radiusKm: 0.6, attr: '© Turun kaupunki Puurekisteri' },
+                        { id: 'tku_wfs_viheralueet', label: '🏞️ Viheralueet ja puistot', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Viheralueet', color: '#22c55e', radiusKm: 1.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_leikkipaikat', label: '🛝 Kaupungin leikkipaikat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Leikkipaikat', color: '#f43f5e', radiusKm: 3.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_ulkoliikunta', label: '🏋️ Ulkoliikuntasalit', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Ulkoliikuntasalit', color: '#06b6d4', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_koirapuistot', label: '🐕 Koirapuistot ja koira-aitaukset', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Koirapuistot', color: '#f59e0b', radiusKm: 4.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_kuntopolut', label: '🏃 Kuntopolut, luontopolut ja Paavonpolut', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kuntopolut', color: '#10b981', radiusKm: 3.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_venesatamat', label: '⛵ Venesatamat ja laituripaikat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Venesatamat', color: '#0ea5e9', radiusKm: 5.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_kalastus', label: '🎣 Virkistyskalastus- ja kalastuskieltoalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Virkistyskalastusalueet', color: '#3b82f6', radiusKm: 5.0, attr: '© Turun kaupunki WFS' }
+                    ]
+                },
+                {
+                    group: '🏫 Koulu-, Palvelu-, Vesihuolto- & Hallintoalueet (Turku WFS)',
+                    items: [
+                        { id: 'tku_wfs_oppilas_fi', label: '🏫 Koulujen oppilaaksiottoalueet (Suomenkielinen 1–9 lk)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Oppilasalueet_suomi', color: '#a855f7', radiusKm: 3.0, attr: '© Turun kaupunki Oppilasalueet' },
+                        { id: 'tku_wfs_oppilas_sv', label: '🏫 Koulujen oppilaaksiottoalueet (Ruotsinkielinen 1–9 lk)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Oppilasalueet_ruotsi_1-9', color: '#ec4899', radiusKm: 3.5, attr: '© Turun kaupunki Oppilasalueet' },
+                        { id: 'tku_wfs_kaupunginosat', label: '📍 Turun viralliset kaupunginosarajat', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kaupunginosat', color: '#38bdf8', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_pienalueet', label: '📊 Tilastolliset pienalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Pienalueet', color: '#818cf8', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_aanestys', label: '🗳️ Äänestysalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Aanestysalueet', color: '#f43f5e', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_vesi', label: '🚰 Talousveden toiminta-alue', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Talousvesi_toiminta_alue', color: '#06b6d4', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_jatevesi', label: '🚰 Jätevesiviemärin toiminta-alue', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Jatevesi_toiminta_alue', color: '#0891b2', radiusKm: 2.5, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_yllapito', label: '🚜 Katujen ja viheralueiden kunnossapidon ylläpitoalueet', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Yllapitoalueet_katu_viher', color: '#f59e0b', radiusKm: 2.0, attr: '© Turun kaupunki WFS' },
+                        { id: 'tku_wfs_korkeuskayra', label: '⛰️ Kantakartan korkeuskäyrät (Lähiympäristö)', type: 'tekla_wfs', url: TURKU_WFS_URL, typeName: 'GIS:Kanta_Korkeuskayra', color: '#d97706', radiusKm: 0.6, attr: '© Turun kaupunki Kantakartta' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 2. HELSINKI (kartta.hel.fi)
+    if (c === 'helsinki') {
+        const HEL_WMS = 'https://kartta.hel.fi/ws/geoserver/avoindata/wms';
+        const HEL_WFS = 'https://kartta.hel.fi/ws/geoserver/avoindata/wfs';
+        return {
+            cityLabel: 'Helsingin kaupunki Avoin Paikkatieto (CC BY 4.0)',
+            copyright: '© Helsingin kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Helsingin karttapalvelu', url: `https://kartta.hel.fi/?setlanguage=fi&e=${lon.toFixed(5)}&n=${lat.toFixed(5)}` },
+                { label: '🚲 Pääkaupunkiseudun Palvelukartta', url: 'https://palvelukartta.hel.fi/fi/' },
+                { label: '🏢 Kalasataman & Helsingin 3D-malli', url: 'https://kartta.hel.fi/3d/' },
+                { label: '🚌 HSL Reittiopas', url: 'https://reittiopas.hsl.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Helsingin Opaskartat, Kantakartat & Kiinteistökartta',
+                    items: [
+                        { id: 'hel_opas', label: '🗺️ Helsingin opaskartta', url: HEL_WMS, layers: 'avoindata:Opaskartta_Helsinki', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_opas_harmaa', label: '🗺️ Helsingin opaskartta (Harmaa)', url: HEL_WMS, layers: 'avoindata:Opaskartta_Helsinki_harmaa', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_kanta_vari', label: '📐 Helsingin kantakartta (Värillinen)', url: HEL_WMS, layers: 'avoindata:Kantakartta_varillinen', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_kiinteisto', label: '📐 Helsingin kiinteistökartta & tonttirajat', url: HEL_WMS, layers: 'avoindata:Kiinteistokartta', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_karttasarja', label: '🗺️ Helsingin karttasarja kiinteistörajoilla', url: HEL_WMS, layers: 'avoindata:Karttasarja_kiinteistorajoilla', transparent: false, attr: '© Helsingin kaupunki' }
+                    ]
+                },
+                {
+                    group: '🏗️ Helsingin Asemakaavat, Maanalainen kaava & Yleiskaava',
+                    items: [
+                        { id: 'hel_akaava_vari', label: '📜 Ajantasa-asemakaava (Maanpäällinen, värillinen)', url: HEL_WMS, layers: 'avoindata:Ajantasa_asemakaava_maanpaallinen_varillinen', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_akaava_mv', label: '📜 Ajantasa-asemakaava (Mustavalkoinen)', url: HEL_WMS, layers: 'avoindata:Ajantasa_asemakaava', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_akaava_maanala', label: '🚇 Ajantasa-asemakaava (Maanalaiset tilat ja tunnelit)', url: HEL_WMS, layers: 'avoindata:Ajantasa_asemakaava_maanalainen', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_kaava_vireilla', label: '🚧 Vireillä olevat asemakaavat', url: HEL_WMS, layers: 'avoindata:Kaavahakemisto_alue_kaava_vireilla', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_yk2016', label: '🏙️ Helsingin yleiskaava 2016', url: HEL_WMS, layers: 'avoindata:Yleiskaava_2016', transparent: true, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_yk2002', label: '🗺️ Helsingin yleiskaava 2002', url: HEL_WMS, layers: 'avoindata:Yleiskaava_2002', transparent: true, attr: '© Helsingin kaupunki' }
+                    ]
+                },
+                {
+                    group: '🛰️ Helsingin Tarkat Ortoilmakuvat (1932–2025)',
+                    items: [
+                        { id: 'hel_orto_2025', label: '📸 Ortoilmakuva 2025 (5 cm tarkkuus)', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2025_5cm', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2024', label: '📸 Ortoilmakuva 2024 (5 cm)', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2024_5cm', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2025_vv', label: '🌿 Vääräväriortoilmakuva 2025 (Kasvillisuus)', url: HEL_WMS, layers: 'avoindata:Vaaravariortoilmakuva_2025_5cm', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2020', label: '📸 Ortoilmakuva 2020', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2020', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2015', label: '📸 Ortoilmakuva 2015', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2015_10cm', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2010', label: '📸 Ortoilmakuva 2010', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2010', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_2001', label: '📸 Ortoilmakuva 2001', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_2001', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1988', label: '🎞️ Historiallinen ilmakuva 1988', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1988', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1976', label: '🎞️ Historiallinen ilmakuva 1976', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1976', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1964', label: '🎞️ Historiallinen ilmakuva 1964', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1964', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1950', label: '🎞️ Historiallinen ilmakuva 1950', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1950', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1943', label: '🎞️ Sota-ajan ilmakuva 1943', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1943', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_orto_1932', label: '🎞️ Historiallinen ilmakuva 1932 (Vanhin)', url: HEL_WMS, layers: 'avoindata:Ortoilmakuva_1932', transparent: false, attr: '© Helsingin kaupunki' }
+                    ]
+                },
+                {
+                    group: '📜 Helsingin Historialliset Kartat (1749–1989) & Meluselvitys',
+                    items: [
+                        { id: 'hel_hist_1749', label: '📜 Pitäjänkuvauskartta 1749', url: HEL_WMS, layers: 'avoindata:Pitajakuvauskartta_1749', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_hist_1820', label: '📜 Asemakaavakartta 1820 (Engel)', url: HEL_WMS, layers: 'avoindata:Asemakaavakartta_1820', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_hist_1870', label: '📜 Senaatinkartta 1870', url: HEL_WMS, layers: 'avoindata:Senaatinkartta_1870', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_hist_1909', label: '📜 Kartta Helsingin kaupungista 1909', url: HEL_WMS, layers: 'avoindata:Kartta_Helsingin_kaupungista_ja_sen_alueista_1909', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_hist_1940', label: '📜 Helsinki 1940', url: HEL_WMS, layers: 'avoindata:Helsinki_1940', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_hist_1965', label: '📜 Opaskartta 1965', url: HEL_WMS, layers: 'avoindata:Opaskartta_1965', transparent: false, attr: '© Helsingin kaupunki' },
+                        { id: 'hel_melu_yhteis', label: '🔊 Helsingin yhteismeluselvitys 2022 (Päivä LAeq)', url: HEL_WMS, layers: 'avoindata:Meluselvitys_2022_Helsinki_yhteismelu_LAeg_7-22_NPM', transparent: true, attr: '© Helsingin kaupunki Meluselvitys' },
+                        { id: 'hel_melu_tie', label: '🚗 Helsingin katu- ja maantiemelu 2022 (Lden)', url: HEL_WMS, layers: 'avoindata:Meluselvitys_2022_Helsinki_kadut_ja_maantiet_Lden', transparent: true, attr: '© Helsingin kaupunki Meluselvitys' },
+                        { id: 'hel_luonto', label: '🦉 Helsingin rauhoitetut luonnonsuojelualueet', url: HEL_WMS, layers: 'avoindata:LTJ_avoin_rauhoitettu_luonnonsuojelualueet', transparent: true, attr: '© Helsingin kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '📐 Helsingin Avoimet WFS-aineistot',
+                    items: [
+                        { id: 'hel_wfs_kiinteistot', label: '📐 Kiinteistörajat ja tontit (Helsinki WFS)', type: 'geojson_wfs', url: HEL_WFS, typeName: 'avoindata:Kiinteisto_alue', color: '#10b981', radiusKm: 0.6, attr: '© Helsingin kaupunki WFS' },
+                        { id: 'hel_wfs_liikennemaarat', label: '🚗 Ajoneuvoliikenteen liikennemäärät kaduilla', type: 'geojson_wfs', url: HEL_WFS, typeName: 'avoindata:Ajoneuvoliikenne_liikennemaarat_viiva', color: '#f59e0b', radiusKm: 1.5, attr: '© Helsingin kaupunki WFS' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 3. ESPOO & KAUNIAINEN (kartat.espoo.fi)
+    if (['espoo', 'kauniainen'].includes(c)) {
+        const ESP_WMS = 'https://kartat.espoo.fi/teklaogcweb/wms.ashx';
+        const ESP_WFS = 'https://kartat.espoo.fi/teklaogcweb/wfs.ashx';
+        return {
+            cityLabel: 'Espoon & Kauniaisten Avoin Paikkatieto',
+            copyright: '© Espoon kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Espoon karttapalvelu', url: 'https://kartat.espoo.fi/' },
+                { label: '🚲 Palvelukartta', url: 'https://palvelukartta.hel.fi/fi/' },
+                { label: '🚌 HSL Reittiopas', url: 'https://reittiopas.hsl.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Espoon Opas-, Kanta-, Kaava- & Maanomistuskartat',
+                    items: [
+                        { id: 'esp_opas', label: '🗺️ Espoon opaskartta', url: ESP_WMS, layers: 'Opaskartta', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_kanta', label: '📐 Espoon karsittu kantakartta', url: ESP_WMS, layers: 'Karsittu_kantakartta', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_kiinteisto', label: '📐 PKS-kiinteistökartta & Tonttijako', url: ESP_WMS, layers: 'PKSkiinteistokartta,Tonttijako', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_akaava', label: '📜 Espoon ajantasa-asemakaava (Värillinen)', url: ESP_WMS, layers: 'Ajantasa_asemakaava_vektori', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_akaava_vireilla', label: '🚧 Espoon vireillä olevat asemakaavat', url: ESP_WMS, layers: 'AsemakaavatVireillaOlevat', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_yleiskaava', label: '🗺️ Yleis- ja osayleiskaavojen yhdistelmä', url: ESP_WMS, layers: 'Yleis_ja_osayleiskaavojen_yhdistelma', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_maanomistus', label: '🏛️ Espoon kaupungin maanomistus', url: ESP_WMS, layers: 'Kaupungin_maanomistus', transparent: true, attr: '© Espoon kaupunki' }
+                    ]
+                },
+                {
+                    group: '🪨 Espoon Maaperä-, Savensyvyys-, Johto- & Melukartat',
+                    items: [
+                        { id: 'esp_rakennettavuus', label: '🏗️ Espoon rakennettavuuskartta', url: ESP_WMS, layers: 'Espoon rakennettavuuskartta', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_savi', label: '🪨 Espoon savensyvyydet & pohjatutkimukset', url: ESP_WMS, layers: 'Espoon savensyvyydet', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_geoenergia', label: '♨️ Espoon geoenergiakartta', url: ESP_WMS, layers: 'Geoenergiakartta', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_johdot', label: '🚰 Maanalaiset vesi-, jätevesi- ja sadevesijohdot', url: ESP_WMS, layers: 'Johtoreitit_vesi,Johtoreitit_jate,Johtoreitit_sade', transparent: true, attr: '© Espoon kaupunki' },
+                        { id: 'esp_melu', label: '🔊 Espoon tieliikenteen meluselvitys 2022 (Lden)', url: ESP_WMS, layers: 'Espoo_tieliikenne Lden_EU (kadut ja maantiet)', transparent: true, attr: '© Espoon kaupunki' }
+                    ]
+                },
+                {
+                    group: '🛰️ Espoon Ilmakuvat & Historialliset Kartat (1950–2026)',
+                    items: [
+                        { id: 'esp_orto_2026', label: '📸 Espoon ortokartta 2026 (Uusin)', url: ESP_WMS, layers: 'Ortokartta', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_orto_2024', label: '📸 Espoon ortokartta 2024', url: ESP_WMS, layers: 'Ortokartta_2024', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_orto_2015', label: '📸 Espoon ortokartta 2015', url: ESP_WMS, layers: 'Ortokartta_2015', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_orto_2001', label: '📸 Espoon ortokartta 2001', url: ESP_WMS, layers: 'Ortokartta_2001', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_orto_1976', label: '🎞️ Historiallinen ortokartta 1976', url: ESP_WMS, layers: 'Ortokartta_1976', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_orto_1950', label: '🎞️ Historiallinen ortokartta 1950', url: ESP_WMS, layers: 'Ortokartta_1950', transparent: false, attr: '© Espoon kaupunki' },
+                        { id: 'esp_kartta_1958', label: '📜 Espoon kartta 1958', url: ESP_WMS, layers: 'Kartta_1958', transparent: false, attr: '© Espoon kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '📐 Espoon WFS-aineistot',
+                    items: [
+                        { id: 'esp_wfs_korttelit', label: '🏗️ Asemakaavan korttelit (Espoo WFS)', type: 'tekla_wfs', url: ESP_WFS, typeName: 'akaava:Kortteli', color: '#38bdf8', radiusKm: 1.0, attr: '© Espoon kaupunki WFS' },
+                        { id: 'esp_wfs_suojelu', label: '🏛️ Asemakaavan suojelualueet', type: 'tekla_wfs', url: ESP_WFS, typeName: 'akaava:Suojelualue', color: '#f59e0b', radiusKm: 1.5, attr: '© Espoon kaupunki WFS' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 4. VANTAA (gis.vantaa.fi)
+    if (c === 'vantaa') {
+        const VAN_WMS = 'https://gis.vantaa.fi/geoserver/wms';
+        const VAN_WFS = 'https://gis.vantaa.fi/geoserver/wfs';
+        return {
+            cityLabel: 'Vantaan kaupunki Avoin Paikkatieto',
+            copyright: '© Vantaan kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Vantaan karttapalvelu', url: 'https://kartta.vantaa.fi/' },
+                { label: '🚌 HSL Reittiopas', url: 'https://reittiopas.hsl.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Vantaan Kaavat, Opaskartat & Kiinteistökartta',
+                    items: [
+                        { id: 'van_kaupunki', label: '🗺️ Vantaan kaupunkikartta', url: VAN_WMS, layers: 'taustakartta:PKS_kaupunkikartta_Vantaa', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_kiinteisto', label: '📐 Vantaan kiinteistökartta & tontit', url: VAN_WMS, layers: 'kiinteisto:PKS_kiinteistokartta', transparent: true, attr: '© Vantaan kaupunki' },
+                        { id: 'van_akaava_vari', label: '📜 Ajantasa-asemakaavan väripinnat', url: VAN_WMS, layers: 'kaava:asemakaava_varipinta', transparent: true, attr: '© Vantaan kaupunki' },
+                        { id: 'van_akaava_mv', label: '📜 Ajantasa-asemakaava (Viivapiirros)', url: VAN_WMS, layers: 'kaava:asemakaava_mv', transparent: true, attr: '© Vantaan kaupunki' },
+                        { id: 'van_kaavat_vireilla', label: '🚧 Vireillä olevat kaavat', url: VAN_WMS, layers: 'kaava:kaavat_vireilla', transparent: true, attr: '© Vantaan kaupunki' },
+                        { id: 'van_yleiskaava', label: '🗺️ Yleiskaavayhdistelmä 2023', url: VAN_WMS, layers: 'kaava:Yleiskaavayhdistelma_11012023', transparent: true, attr: '© Vantaan kaupunki' },
+                        { id: 'van_pohjatutk', label: '🪨 Pohjatutkimukset (Julkinen)', url: VAN_WMS, layers: 'geo_public:geo_pohjatutkimukset_public', transparent: true, attr: '© Vantaan kaupunki' }
+                    ]
+                },
+                {
+                    group: '🛰️ Vantaan Ilmakuvat & Historialliset Kartat (1749–2026)',
+                    items: [
+                        { id: 'van_orto_2026', label: '📸 Vantaan ortoilmakuva 2026 (Uusin)', url: VAN_WMS, layers: 'taustakartta:orto_2026', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_orto_2023', label: '📸 Ortoilmakuva 2023', url: VAN_WMS, layers: 'historia:orto_2023', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_orto_2015', label: '📸 Ortoilmakuva 2015', url: VAN_WMS, layers: 'historia:orto_2015', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_orto_1998', label: '🎞️ Ortoilmakuva 1998', url: VAN_WMS, layers: 'historia:orto_1998', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_orto_1976', label: '🎞️ Ortoilmakuva 1976', url: VAN_WMS, layers: 'historia:orto_1976', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_orto_1954', label: '🎞️ Ortoilmakuva 1954', url: VAN_WMS, layers: 'historia:orto_1954', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_hist_1872', label: '📜 Senaatin kartta 1872', url: VAN_WMS, layers: 'historia:senaattikartta_1872', transparent: false, attr: '© Vantaan kaupunki' },
+                        { id: 'van_hist_1749', label: '📜 Pitäjänkartta 1749', url: VAN_WMS, layers: 'historia:pitajankartta_1749', transparent: false, attr: '© Vantaan kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '📐 Vantaan WFS-aineistot',
+                    items: [
+                        { id: 'van_wfs_suojellut', label: '🏛️ Asemakaavalla suojellut rakennukset', type: 'geojson_wfs', url: VAN_WFS, typeName: 'kaava:asemakaavalla_suojellut_rakennukset', color: '#f59e0b', radiusKm: 2.5, attr: '© Vantaan kaupunki WFS' },
+                        { id: 'van_wfs_kunnossapito', label: '❄️ Katujen kunnossapidon vastuualueet', type: 'geojson_wfs', url: VAN_WFS, typeName: 'liikenne:katujen_kunnossapito_vastuualueet', color: '#38bdf8', radiusKm: 2.0, attr: '© Vantaan kaupunki WFS' },
+                        { id: 'van_wfs_maalampo', label: '♨️ Maalämpökaivot', type: 'geojson_wfs', url: VAN_WFS, typeName: 'gis:maalampokaivot', color: '#10b981', radiusKm: 1.5, attr: '© Vantaan kaupunki WFS' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 5. TAMPERE & PIRKANMAA (geodata.tampere.fi)
+    if (['tampere', 'pirkkala', 'nokia', 'ylöjärvi', 'kangasala', 'lempäälä'].includes(c)) {
+        const TRE_WMS = 'https://geodata.tampere.fi/geoserver/wms';
+        const TRE_WFS = 'https://geodata.tampere.fi/geoserver/wfs';
+        return {
+            cityLabel: 'Tampereen kaupunki Avoin Paikkatieto',
+            copyright: '© Tampereen kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Tampereen Oskari-karttapalvelu', url: 'https://kartat.tampere.fi/oskari/' },
+                { label: '🚌 Nysse Reittiopas', url: 'https://reittiopas.tampere.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🏗️ Tampereen Kaavoitus, Kiinteistöt, Melu & Viheralueet (WMS)',
+                    items: [
+                        { id: 'tre_akaava_kaytto', label: '📜 Ajantasa-asemakaavan käyttötarkoitusalueet', url: TRE_WMS, layers: 'julkinen:KAYTTOTARKOITUSALUEET_PUBLIC_MVIEW', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_akaava_vireilla', label: '🚧 Vireillä olevat asemakaavat', url: TRE_WMS, layers: 'maankaytto:AK_KAAVATYOT_GSVIEW', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_suojelu', label: '🏛️ Asemakaavojen rakennus- ja alueellinen suojelu', url: TRE_WMS, layers: 'maankaytto:AK_S,maankaytto:AK_SR_GSVIEW', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_kiinteistot', label: '📐 Kiinteistöt alueina kuntarekisteristä', url: TRE_WMS, layers: 'kiinteistot:KIINTEISTOT_ALUE_JULKINEN_GSVIEW', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_oppilasalueet', label: '🏫 Perusopetuksen oppilaaksiottoalueet', url: TRE_WMS, layers: 'hallinnolliset_yksikot:KH_OPPILASALUEET', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_melu_paiva', label: '🔊 Meluselvitys 2022 päiväajan keskiäänitaso', url: TRE_WMS, layers: 'ymparisto_ja_terveys:yv_melu_paiva_2022_keskiaani_gsview', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_melu_2040', label: '🔊 Meluennuste 2040 päiväajan keskiäänitaso', url: TRE_WMS, layers: 'ymparisto_ja_terveys:yv_melu_paiva_2040_ennuste_keskiaani_gsview', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_maalampo', label: '♨️ Maalämpökaivot (Tampere)', url: TRE_WMS, layers: 'maapera:MAALAMPOKAIVOT', transparent: true, attr: '© Tampereen kaupunki' },
+                        { id: 'tre_puistot', label: '🌳 Puistot ja suojaviheralueet (Kunnossapitoluokat)', url: TRE_WMS, layers: 'locus:Asemakaavoitettu_vihera_RpaParkPart_Polygon_gsview', transparent: true, attr: '© Tampereen kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '📐 Tampereen Avoimet WFS-aineistot',
+                    items: [
+                        { id: 'tre_wfs_oppilas', label: '🏫 Perusopetuksen oppilasalueet (Tampere WFS)', type: 'geojson_wfs', url: TRE_WFS, typeName: 'hallinnolliset_yksikot:KH_OPPILASALUEET', color: '#a855f7', radiusKm: 3.0, attr: '© Tampereen kaupunki WFS' },
+                        { id: 'tre_wfs_suojelu', label: '🏛️ Asemakaavojen suojelukohteet', type: 'geojson_wfs', url: TRE_WFS, typeName: 'maankaytto:AK_SR_GSVIEW', color: '#f59e0b', radiusKm: 2.0, attr: '© Tampereen kaupunki WFS' },
+                        { id: 'tre_wfs_leikkipaikat', label: '🛝 Kaupungin leikkipaikat', type: 'geojson_wfs', url: TRE_WFS, typeName: 'locus:Leikkipaikat_t_RpaParkPart_Point_gsview', color: '#ec4899', radiusKm: 3.0, attr: '© Tampereen kaupunki WFS' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 6. OULU (kartta.ouka.fi)
+    if (['oulu', 'kempele', 'liminka', 'muhos', 'ii'].includes(c)) {
+        const OUL_WMS = 'https://kartta.ouka.fi/teklaogcweb/wms.ashx';
+        const OUL_WFS = 'https://kartta.ouka.fi/TeklaOGCWeb/WFS.ashx';
+        return {
+            cityLabel: 'Oulun kaupunki Avoin Paikkatieto',
+            copyright: '© Oulun kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Oulun karttapalvelu', url: 'https://kartta.ouka.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Oulun Opaskartta, Kantakartta, Kaavat & Ilmakuvat (1939–2025)',
+                    items: [
+                        { id: 'oul_opas', label: '🗺️ Oulun opaskartta', url: OUL_WMS, layers: 'Opaskartta', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_kanta', label: '📐 Oulun kantakartta', url: OUL_WMS, layers: 'Kantakartta', transparent: true, attr: '© Oulun kaupunki' },
+                        { id: 'oul_akaava', label: '📜 Oulun ajantasa-asemakaava', url: OUL_WMS, layers: 'Asemakaava', transparent: true, attr: '© Oulun kaupunki' },
+                        { id: 'oul_yleiskaava', label: '🗺️ Oulun yleiskaavayhdistelmä', url: OUL_WMS, layers: 'Yleiskaavayhdelma', transparent: true, attr: '© Oulun kaupunki' },
+                        { id: 'oul_maanomistus', label: '🏛️ Oulun kaupungin maanomistus', url: OUL_WMS, layers: 'Maanomistus', transparent: true, attr: '© Oulun kaupunki' },
+                        { id: 'oul_bussit', label: '🚌 Oulun bussireitit', url: OUL_WMS, layers: 'Bussireitit', transparent: true, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_2025', label: '📸 Oulun ilmakuva 2025 (Uusin)', url: OUL_WMS, layers: 'Ilmakuva 2025', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_2022', label: '📸 Oulun ilmakuva 2022', url: OUL_WMS, layers: 'Ilmakuva 2022', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_1999', label: '🎞️ Oulun ilmakuva 1999', url: OUL_WMS, layers: 'Ilmakuva 1999 Oulu', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_1980', label: '🎞️ Oulun keskustan ilmakuva 1980', url: OUL_WMS, layers: 'Ilmakuva 1980 keskusta', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_1947', label: '🎞️ Oulun suiston ilmakuva 1947', url: OUL_WMS, layers: 'Ilmakuva 1947 suisto', transparent: false, attr: '© Oulun kaupunki' },
+                        { id: 'oul_orto_1939', label: '🎞️ Oulun keskustan ilmakuva 1939', url: OUL_WMS, layers: 'Ilmakuva 1939 keskusta', transparent: false, attr: '© Oulun kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: [
+                {
+                    group: '📐 Oulun WFS-aineistot',
+                    items: [
+                        { id: 'oul_wfs_korttelit', label: '🏗️ Asemakaavan korttelit (Oulu WFS)', type: 'tekla_wfs', url: OUL_WFS, typeName: 'akaava:Kortteli', color: '#38bdf8', radiusKm: 1.2, attr: '© Oulun kaupunki WFS' },
+                        { id: 'oul_wfs_virkistys', label: '🌳 Asemakaavan virkistysalueet', type: 'tekla_wfs', url: OUL_WFS, typeName: 'akaava:Virkistysalue', color: '#22c55e', radiusKm: 1.5, attr: '© Oulun kaupunki WFS' }
+                    ]
+                },
+                ...NATIONAL_WFS_GROUPS
+            ]
+        };
+    }
+
+    // 7. JYVÄSKYLÄ (kartta.jkl.fi)
+    if (['jyväskylä', 'muurame', 'laukaa'].includes(c)) {
+        const JKL_WMS = 'https://kartta.jkl.fi/TeklaOGCWeb/WMS.ashx';
+        return {
+            cityLabel: 'Jyväskylän kaupunki Avoin Paikkatieto',
+            copyright: '© Jyväskylän kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Jyväskylän karttapalvelu', url: 'https://kartta.jkl.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Jyväskylän Opaskartta, Asemakaava, Ilmakuva & Verkostot',
+                    items: [
+                        { id: 'jkl_opas', label: '🗺️ Jyväskylän opaskartta', url: JKL_WMS, layers: 'Opaskartta', transparent: false, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_maasto', label: '🌲 Jyväskylän maastokartta', url: JKL_WMS, layers: 'Maastokartta', transparent: false, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_akaava', label: '📜 Jyväskylän ajantasa-asemakaava', url: JKL_WMS, layers: 'Asemakaavakartta', transparent: true, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_suojelu', label: '🏛️ Asemakaavan suojelualueet ja -rakennukset', url: JKL_WMS, layers: 'Asemakaavan suojelualueet,Asemakaavan suojelurakennukset', transparent: true, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_maanomistus', label: '🏛️ Jyväskylän kaupungin maanomistus', url: JKL_WMS, layers: 'Maanomistus', transparent: true, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_orto', label: '📸 Jyväskylän seudun ilmakuva', url: JKL_WMS, layers: 'Ilmakuva JKL Seutu', transparent: false, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_ulkoilu', label: '🏃 Ulkoilu- ja pyöräilykartta', url: JKL_WMS, layers: 'Ulkoilukartta,Pyöräilykartta', transparent: true, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_hoito', label: '❄️ Väylien talvihoitoluokitus', url: JKL_WMS, layers: 'Vaylien hoitoluokitus', transparent: true, attr: '© Jyväskylän kaupunki' },
+                        { id: 'jkl_sadevesi', label: '🚰 Sadevesiviemärit ja -kaivot', url: JKL_WMS, layers: 'Sadevesiviemarit ja -kaivot', transparent: true, attr: '© Jyväskylän kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: NATIONAL_WFS_GROUPS
+        };
+    }
+
+    // 8. KUOPIO (kartta.kuopio.fi)
+    if (['kuopio', 'siilinjärvi'].includes(c)) {
+        const KUO_WMS = 'https://kartta.kuopio.fi/teklaogcweb/wms.ashx';
+        return {
+            cityLabel: 'Kuopion kaupunki Avoin Paikkatieto',
+            copyright: '© Kuopion kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Kuopion karttapalvelu', url: 'https://kartta.kuopio.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Kuopion Opas-, Kanta-, Kaava- & Ilmakuvakartat',
+                    items: [
+                        { id: 'kuo_opas', label: '🗺️ Kuopion opaskartta', url: KUO_WMS, layers: 'avoin:opaskartta', transparent: false, attr: '© Kuopion kaupunki' },
+                        { id: 'kuo_kanta', label: '📐 Kuopion kantakartta & kiinteistöt', url: KUO_WMS, layers: 'avoin:kantakartta', transparent: true, attr: '© Kuopion kaupunki' },
+                        { id: 'kuo_akaava', label: '📜 Kuopion ajantasa-asemakaava', url: KUO_WMS, layers: 'avoin:asemakaava', transparent: true, attr: '© Kuopion kaupunki' },
+                        { id: 'kuo_yleiskaava', label: '🗺️ Kuopion yleiskaava', url: KUO_WMS, layers: 'avoin:yleiskaava', transparent: true, attr: '© Kuopion kaupunki' },
+                        { id: 'kuo_orto', label: '📸 Kuopion ortoilmakuvat', url: KUO_WMS, layers: 'avoin:ortokuvat', transparent: false, attr: '© Kuopion kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: NATIONAL_WFS_GROUPS
+        };
+    }
+
+    // 9. LAHTI & PÄIJÄT-HÄME (kartta.lahti.fi)
+    if (['lahti', 'hollola', 'orimattila', 'kärkölä'].includes(c)) {
+        const LAH_WMS = 'https://kartta.lahti.fi/teklaogcweb/wms.ashx';
+        return {
+            cityLabel: 'Lahden seudun Avoin Paikkatieto',
+            copyright: '© Lahden kaupunki, CC BY 4.0',
+            portals: [
+                { label: '🗺️ Lahden karttapalvelu', url: 'https://kartta.lahti.fi/' }
+            ],
+            wmsGroups: [
+                {
+                    group: '🧭 Lahden Opas-, Kanta-, Kaava- & Ilmakuvakartat (1946–2025)',
+                    items: [
+                        { id: 'lah_opas', label: '🗺️ Lahden seudun opaskartta', url: LAH_WMS, layers: 'Opaskartta', transparent: false, attr: '© Lahden kaupunki' },
+                        { id: 'lah_kanta', label: '📐 Lahden kantakartta', url: LAH_WMS, layers: 'Kantakartta', transparent: true, attr: '© Lahden kaupunki' },
+                        { id: 'lah_akaava', label: '📜 Lahden seudun ajantasa-asemakaava', url: LAH_WMS, layers: 'AjantasaAsemakaava', transparent: true, attr: '© Lahden kaupunki' },
+                        { id: 'lah_yleiskaava', label: '🗺️ Lahden Yleiskaava 2030', url: LAH_WMS, layers: 'Lahden Yleiskaava 2030', transparent: true, attr: '© Lahden kaupunki' },
+                        { id: 'lah_maanomistus', label: '🏛️ Kaupungin maanomistus', url: LAH_WMS, layers: 'KaupunginMaanomistus', transparent: true, attr: '© Lahden kaupunki' },
+                        { id: 'lah_orto_2025', label: '🛸 Lahden OrtoDrone 2025', url: LAH_WMS, layers: 'OrtoDrone2025', transparent: true, attr: '© Lahden kaupunki' },
+                        { id: 'lah_orto_2024', label: '📸 Lahden Ortoilmakuva 2024', url: LAH_WMS, layers: 'OrtoIlmakuva_2024', transparent: false, attr: '© Lahden kaupunki' },
+                        { id: 'lah_orto_1986', label: '🎞️ Lahden Ortoilmakuva 1986', url: LAH_WMS, layers: 'OrtoIlmakuva_1986', transparent: false, attr: '© Lahden kaupunki' },
+                        { id: 'lah_orto_1946', label: '🎞️ Lahden Ortoilmakuva 1946', url: LAH_WMS, layers: 'OrtoIlmakuva_1946', transparent: false, attr: '© Lahden kaupunki' }
+                    ]
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: NATIONAL_WFS_GROUPS
+        };
+    }
+
+    // 10. KOUVOLA, LAPPEENRANTA, HÄMEENLINNA, VAASA, SEINÄJOKI, ROVANIEMI, PORI
+    const otherCityMap = {
+        'kouvola': {
+            name: 'Kouvola', url: 'https://kartta.kouvola.fi/TeklaOGCWeb/WMS.ashx', portal: 'https://kartta.kouvola.fi/',
+            items: [
+                { id: 'kv_opas', label: '🗺️ Kouvolan opaskartta', layers: 'Opaskartta', transparent: false },
+                { id: 'kv_akaava', label: '📜 Kouvolan ajantasa-asemakaava', layers: 'Kouvolan Ajantasa-asemakaava', transparent: true },
+                { id: 'kv_maasto', label: '🌲 Kouvolan maastokartta', layers: 'Maastokartta', transparent: false },
+                { id: 'kv_maa', label: '🏛️ Kouvolan maaomaisuus', layers: 'Maaomaisuus', transparent: true },
+                { id: 'kv_orto', label: '📸 Kouvolan ilmakuvakokoelma', layers: 'Orto_kokoelma', transparent: false }
+            ]
+        },
+        'lappeenranta': {
+            name: 'Lappeenranta', url: 'https://kartta.lappeenranta.fi/teklaogcweb/wms.ashx', portal: 'https://kartta.lappeenranta.fi/',
+            items: [
+                { id: 'lpr_opas', label: '🗺️ Lappeenrannan opaskartta', layers: 'opaskartta', transparent: false },
+                { id: 'lpr_orto', label: '📸 Lappeenrannan ortoilmakuva', layers: 'ortoilmakuva', transparent: false },
+                { id: 'lpr_orto_1939', label: '🎞️ Historiallinen ilmakuva 1939', layers: 'ortoilmakuva_1939_MML', transparent: false }
+            ]
+        },
+        'hämeenlinna': {
+            name: 'Hämeenlinna', url: 'https://kartta.hameenlinna.fi/teklaogcweb/wms.ashx', portal: 'https://kartta.hameenlinna.fi/',
+            items: [
+                { id: 'hml_opas', label: '🗺️ Hämeenlinnan opaskartta', layers: 'Opaskartta', transparent: false },
+                { id: 'hml_kanta', label: '📐 Hämeenlinnan kantakartta & KTJ', layers: 'Kantakartta', transparent: true },
+                { id: 'hml_akaava', label: '📜 Hämeenlinnan asemakaava', layers: 'Asemakaava', transparent: true },
+                { id: 'hml_yk', label: '🗺️ Hämeenlinnan yleiskaava', layers: 'Yleiskaava', transparent: true },
+                { id: 'hml_maa', label: '🏛️ Maanomistuskartta', layers: 'Maanomistuskartta', transparent: true },
+                { id: 'hml_melu', label: '🔊 Meluselvitys nykytila päivä', layers: 'Melu_nykytila_paiva', transparent: true },
+                { id: 'hml_orto', label: '📸 Hämeenlinnan ilmakuva', layers: 'Ilmakuva', transparent: false }
+            ]
+        },
+        'vaasa': {
+            name: 'Vaasa', url: 'https://kartta.vaasa.fi/TeklaOGCWeb/WMS.ashx', portal: 'https://kartta.vaasa.fi/',
+            items: [
+                { id: 'vaa_opas', label: '🗺️ Vaasan opaskartta', layers: 'Opaskartta_Web_Mercator', transparent: false },
+                { id: 'vaa_pohja', label: '📐 Vaasan pohjakartta ja kiinteistöt', layers: 'Pohjakartta_Web_Mercator', transparent: true },
+                { id: 'vaa_akaava', label: '📜 Vaasan asemakaava', layers: 'Asemakaava_WGS84', transparent: true },
+                { id: 'vaa_yk', label: '🗺️ Vaasan yleiskaava 2030', layers: 'Yleiskaava_2030_WGS84', transparent: true },
+                { id: 'vaa_orto', label: '📸 Vaasan ilmakuva 2020', layers: 'Ilmakuva_2020_Web_Mercator', transparent: false }
+            ]
+        },
+        'seinäjoki': {
+            name: 'Seinäjoki', url: 'https://kartat.seinajoki.fi/teklaogcweb/wms.ashx', portal: 'https://kartat.seinajoki.fi/',
+            items: [
+                { id: 'sjk_opas', label: '🗺️ Seinäjoen opaskartta', layers: 'Opaskartta', transparent: false },
+                { id: 'sjk_kanta', label: '📐 Seinäjoen kantakartta & kiinteistörajat', layers: 'Kantakartta,Kiinteistorajat', transparent: true },
+                { id: 'sjk_akaava', label: '📜 Seinäjoen asemakaavakartta', layers: 'Asemakaavakartta', transparent: true },
+                { id: 'sjk_yk', label: '🗺️ Seinäjoen yleiskaavayhdistelmä', layers: 'Yleiskaavayhdistelma', transparent: true },
+                { id: 'sjk_orto', label: '📸 Seinäjoen ilmakuva (Ortokuva 2025)', layers: 'Ortokuva_2025_MML', transparent: false }
+            ]
+        },
+        'rovaniemi': {
+            name: 'Rovaniemi', url: 'https://kartta.rovaniemi.fi/teklaogcweb/wms.ashx', portal: 'https://kartta.rovaniemi.fi/',
+            items: [
+                { id: 'roi_opas', label: '🗺️ Rovaniemen opaskartta', layers: 'Opaskartta', transparent: false },
+                { id: 'roi_akaava', label: '📜 Rovaniemen asemakaava', layers: 'Rovaniemen Asemakaava', transparent: true },
+                { id: 'roi_yk', label: '🗺️ Rovaniemen yleiskaava', layers: 'Yleiskaava', transparent: true },
+                { id: 'roi_kiint', label: '📐 Kiinteistöt ja tunnukset', layers: 'Kiinteistot ja tunnukset', transparent: true },
+                { id: 'roi_maa', label: '🏛️ Rovaniemen kaupungin maaomaisuus', layers: 'Rovaniemen kaupungin maaomaisuus', transparent: true },
+                { id: 'roi_orto', label: '📸 Rovaniemen ilmakuva 2025', layers: 'Ilmakuva 2025', transparent: false }
+            ]
+        },
+        'pori': {
+            name: 'Pori', url: 'https://kartta.pori.fi/TeklaOGCWeb/WMS.ashx', portal: 'https://kartta.pori.fi/',
+            items: [
+                { id: 'por_opas', label: '🗺️ Porin opaskartta', layers: 'Opaskartta', transparent: false },
+                { id: 'por_akaava', label: '📜 Porin asemakaava', layers: 'Asemakaava', transparent: true },
+                { id: 'por_pohja', label: '📐 Porin pohjakartta & korkeuskäyrät', layers: 'Pohjakartta,Korkeuskayrat', transparent: true },
+                { id: 'por_orto', label: '📸 Porin ilmakuva', layers: 'Ilmakuva', transparent: false }
+            ]
+        }
+    };
+
+    if (otherCityMap[c]) {
+        const cfg = otherCityMap[c];
+        return {
+            cityLabel: `${cfg.name} – Avoin Paikkatieto & Valtakunnalliset Kartat`,
+            copyright: `© ${cfg.name}, CC BY 4.0`,
+            portals: [
+                { label: `🗺️ ${cfg.name} karttapalvelu`, url: cfg.portal },
+                { label: '🇫🇮 Paikkatietoikkuna', url: 'https://kartta.paikkatietoikkuna.fi/' },
+                { label: '📐 MML Karttapaikka', url: `https://asiointi.maanmittauslaitos.fi/karttapaikka/?lang=fi` }
+            ],
+            wmsGroups: [
+                {
+                    group: `🧭 ${cfg.name}: Kaupungin Omat Karttatasot (WMS)`,
+                    items: cfg.items.map(it => ({ ...it, url: cfg.url, attr: `© ${cfg.name}` }))
+                },
+                ...NATIONAL_WMS_GROUPS
+            ],
+            wfsGroups: NATIONAL_WFS_GROUPS
+        };
+    }
+
+    // 11. KAIKKI MUUT SUOMEN PAIKKAKUNNAT: Valtakunnalliset kartat + linkki Turun seudun valikoimaan
+    return {
+        cityLabel: `${cityRaw || 'Suomi'} – Valtakunnalliset Avoimet Paikkatietorajapinnat`,
+        copyright: '© GTK, SYKE, Tilastokeskus & MML (CC BY 4.0)',
+        portals: [
+            { label: '🇫🇮 Paikkatietoikkuna', url: 'https://kartta.paikkatietoikkuna.fi/' },
+            { label: '📐 MML Karttapaikka', url: 'https://asiointi.maanmittauslaitos.fi/karttapaikka/' },
+            { label: '🪨 GTK Maankamara', url: 'https://gtkdata.gtk.fi/maankamara/' }
+        ],
+        wmsGroups: NATIONAL_WMS_GROUPS,
+        wfsGroups: NATIONAL_WFS_GROUPS
+    };
+}
+
+window._openGisWmsLookup = {};
+window._openGisWfsLookup = {};
+
+function populateOpenGisDropdowns() {
+    const wmsSelect = document.getElementById('cityWmsSelect');
+    const wfsSelect = document.getElementById('cityWfsSelect');
+    const badgeEl = document.getElementById('openGisCityBadge');
+    const linksEl = document.getElementById('openGisExternalLinks');
+    if (!wmsSelect || !wfsSelect) return;
+
+    const city = currentLoc.city || 'Turku';
+    const catalog = getCityOpenGisCatalog(city);
+
+    if (badgeEl) {
+        badgeEl.textContent = catalog.cityLabel;
+    }
+
+    if (linksEl) {
+        linksEl.innerHTML = (catalog.portals || []).map(p => `
+            <a href="${p.url}" target="_blank" rel="noopener"
+               class="bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700/90 hover:border-emerald-500/40 px-2 py-0.5 rounded-md transition whitespace-nowrap">
+                ${p.label} ↗
+            </a>
+        `).join('');
+    }
+
+    window._openGisWmsLookup = {};
+    window._openGisWfsLookup = {};
+
+    let wmsHtml = `<option value="">— Ei päällyskarttaa (Peruskartta OSM) —</option>`;
+    for (const grp of (catalog.wmsGroups || [])) {
+        wmsHtml += `<optgroup label="${grp.group.replace(/"/g, '&quot;')}">`;
+        for (const item of grp.items) {
+            window._openGisWmsLookup[item.id] = item;
+            wmsHtml += `<option value="${item.id}">${item.label}</option>`;
+        }
+        wmsHtml += `</optgroup>`;
+    }
+    wmsSelect.innerHTML = wmsHtml;
+
+    let wfsHtml = `<option value="">— Valitse kartalle ladattava paikkatietoaineisto (WFS / OGC) —</option>`;
+    for (const grp of (catalog.wfsGroups || [])) {
+        wfsHtml += `<optgroup label="${grp.group.replace(/"/g, '&quot;')}">`;
+        for (const item of grp.items) {
+            window._openGisWfsLookup[item.id] = item;
+            wfsHtml += `<option value="${item.id}">${item.label}</option>`;
+        }
+        wfsHtml += `</optgroup>`;
+    }
+    wfsSelect.innerHTML = wfsHtml;
+
+    // Jos kaupunki vaihtui, tyhjennetään vanhan kaupungin WMS/WFS-taso
+    const newCityKey = (city || '').trim().toLowerCase();
+    if (activeOpenGisCityKey && activeOpenGisCityKey !== newCityKey) {
+        clearCustomGisLayers(true);
+    }
+    activeOpenGisCityKey = newCityKey;
+}
+
+function onCityWmsLayerSelect(itemId) {
+    if (!map) return;
+    if (customWmsOverlayLayer) {
+        try { map.removeLayer(customWmsOverlayLayer); } catch (e) {}
+        customWmsOverlayLayer = null;
+    }
+    activeWmsLayerMeta = null;
+
+    if (!itemId || !window._openGisWmsLookup[itemId]) {
+        updateOpenGisStatusBar();
+        return;
+    }
+
+    const item = window._openGisWmsLookup[itemId];
+    activeWmsLayerMeta = item;
+
+    const sliderVal = parseInt(document.getElementById('wmsOpacitySlider')?.value || '80', 10);
+    const opacity = Math.max(0.15, Math.min(1.0, sliderVal / 100));
+
+    customWmsOverlayLayer = L.tileLayer.wms(item.url, {
+        layers: item.layers,
+        format: 'image/png',
+        transparent: item.transparent !== false,
+        opacity: opacity,
+        maxZoom: 20,
+        attribution: item.attr || '© Avoin paikkatieto WMS'
+    }).addTo(map);
+
+    updateOpenGisStatusBar();
+    showToast(`Karttataso aktivoitu: ${item.label}`);
+}
+
+function onWmsOpacityChange(val) {
+    const pct = parseInt(val || '80', 10);
+    const lbl = document.getElementById('wmsOpacityLabel');
+    if (lbl) lbl.textContent = `${pct} %`;
+    if (customWmsOverlayLayer && typeof customWmsOverlayLayer.setOpacity === 'function') {
+        customWmsOverlayLayer.setOpacity(pct / 100);
+    }
+}
+
+async function onCityWfsLayerSelect(itemId) {
+    if (!map) return;
+    if (!customWfsLayerGroup) {
+        customWfsLayerGroup = L.layerGroup().addTo(map);
+    } else {
+        customWfsLayerGroup.clearLayers();
+        if (!map.hasLayer(customWfsLayerGroup)) customWfsLayerGroup.addTo(map);
+    }
+    activeWfsLayerMeta = null;
+
+    if (!itemId || !window._openGisWfsLookup[itemId]) {
+        updateOpenGisStatusBar();
+        return;
+    }
+
+    const item = window._openGisWfsLookup[itemId];
+    activeWfsLayerMeta = { ...item, loading: true, count: 0 };
+    updateOpenGisStatusBar();
+
+    const { lat, lon } = currentLoc;
+    const radKm = item.radiusKm || 2.5;
+    const dLat = radKm / 111.32;
+    const dLon = radKm / (111.32 * Math.cos(lat * Math.PI / 180));
+    const minLon = (lon - dLon).toFixed(5);
+    const minLat = (lat - dLat).toFixed(5);
+    const maxLon = (lon + dLon).toFixed(5);
+    const maxLat = (lat + dLat).toFixed(5);
+
+    try {
+        let count = 0;
+        if (item.type === 'geojson_wfs') {
+            const wfsUrl = `${item.url}?service=WFS&version=1.0.0&request=GetFeature&typeName=${encodeURIComponent(item.typeName)}&outputFormat=application/json&srsName=EPSG:4326&bbox=${minLon},${minLat},${maxLon},${maxLat},EPSG:4326&maxFeatures=250`;
+            const res = await fetchWithTimeout(wfsUrl, {}, 9000);
+            if (!res.ok) throw new Error('WFS HTTP ' + res.status);
+            const geo = await res.json();
+            const feats = geo.features || [];
+            count = feats.length;
+
+            L.geoJSON(geo, {
+                style: () => ({
+                    color: item.color || '#06b6d4',
+                    weight: 2.5,
+                    fillColor: item.color || '#06b6d4',
+                    fillOpacity: 0.18
+                }),
+                pointToLayer: (feat, latlng) => L.circleMarker(latlng, {
+                    radius: 6,
+                    color: '#ffffff',
+                    weight: 1.5,
+                    fillColor: item.color || '#06b6d4',
+                    fillOpacity: 0.9
+                }),
+                onEachFeature: (feat, layer) => {
+                    const props = feat.properties || {};
+                    const rows = Object.entries(props)
+                        .filter(([k, v]) => v !== null && v !== undefined && String(v).trim() !== '' && !['bbox', 'geom', 'the_geom', 'geometry'].includes(k.toLowerCase()))
+                        .slice(0, 8)
+                        .map(([k, v]) => `<div><span class="text-slate-500">${k}:</span> <b>${String(v).slice(0, 120)}</b></div>`)
+                        .join('');
+                    layer.bindPopup(`<div class="text-xs space-y-0.5"><div class="font-bold text-slate-900 border-b pb-1 mb-1">${item.label}</div>${rows || 'Paikkatietokohde'}</div>`);
+                }
+            }).addTo(customWfsLayerGroup);
+        } else {
+            // Tekla OGC Web WFS 1.0.0 GML -jäsennin (Turku, Espoo, Oulu)
+            const wfsUrl = `${item.url}?SERVICE=WFS&VERSION=1.0.0&REQUEST=GetFeature&TYPENAME=${encodeURIComponent(item.typeName)}&SRSNAME=EPSG:4326&BBOX=${minLon},${minLat},${maxLon},${maxLat}&MAXFEATURES=250`;
+            const res = await fetchWithTimeout(wfsUrl, {}, 9500);
+            if (!res.ok) throw new Error('WFS GML HTTP ' + res.status);
+            const xmlText = await res.text();
+            count = renderGenericGmlFeaturesToLayerGroup(xmlText, item, customWfsLayerGroup);
+        }
+
+        activeWfsLayerMeta = { ...item, loading: false, count };
+        updateOpenGisStatusBar();
+        showToast(count > 0 ? `Ladattiin ${count} kohdetta kartalle (${item.label})` : `Ei kohteita lähialueella (${radKm} km säteellä) tasolla: ${item.label}`);
+    } catch (e) {
+        console.warn('WFS-aineiston latausvirhe:', e);
+        activeWfsLayerMeta = { ...item, loading: false, count: 0, error: true };
+        updateOpenGisStatusBar();
+        showToast('Paikkatietoaineiston haku epäonnistui tilapäisesti.');
+    }
+}
+
+function renderGenericGmlFeaturesToLayerGroup(xmlText, itemMeta, targetLayerGroup) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    const members = doc.getElementsByTagNameNS('*', 'featureMember');
+    let renderedCount = 0;
+    const color = itemMeta.color || '#06b6d4';
+
+    const parseCoordsString = (str) => {
+        const pairs = (str || '').trim().split(/\s+/);
+        const latLngs = [];
+        for (const pair of pairs) {
+            const parts = pair.split(',');
+            if (parts.length >= 2) {
+                const lon = parseFloat(parts[0]);
+                const lat = parseFloat(parts[1]);
+                if (!isNaN(lat) && !isNaN(lon)) latLngs.push([lat, lon]);
+            }
+        }
+        return latLngs;
+    };
+
+    for (let i = 0; i < members.length; i++) {
+        const fm = members[i];
+        const featureNode = fm.firstElementChild;
+        if (!featureNode) continue;
+
+        // Poimitaan attribuuttikentät popupia varten
+        const attrLines = [];
+        for (let c = 0; c < featureNode.children.length; c++) {
+            const ch = featureNode.children[c];
+            const localName = (ch.localName || ch.tagName || '').replace(/^.*:/, '');
+            if (['Geometry', 'boundedBy', 'polygonProperty', 'pointProperty', 'lineStringProperty'].includes(localName)) continue;
+            if (ch.children.length === 0) {
+                const val = (ch.textContent || '').trim();
+                if (val && val.length < 160) {
+                    attrLines.push(`<div><span style="color:#64748b;">${localName.replace(/_/g, ' ')}:</span> <b>${val}</b></div>`);
+                }
+            }
+        }
+        const popupHtml = `
+            <div class="text-xs space-y-0.5" style="min-width:190px;">
+                <div style="font-weight:bold;color:#0f172a;border-bottom:1px solid #cbd5e1;padding-bottom:3px;margin-bottom:4px;">${itemMeta.label}</div>
+                ${attrLines.slice(0, 9).join('') || '<div>Avoin WFS-paikkatietokohde</div>'}
+                <div style="font-size:10px;color:#64748b;padding-top:3px;">${itemMeta.attr || '© Turun kaupunki, CC BY 4.0'}</div>
+            </div>
+        `;
+
+        let featureRendered = false;
+
+        // 1. Polygonit
+        const polys = featureNode.getElementsByTagNameNS('*', 'Polygon');
+        for (let p = 0; p < polys.length; p++) {
+            const coordNode = polys[p].getElementsByTagNameNS('*', 'coordinates')[0];
+            if (!coordNode) continue;
+            const latLngs = parseCoordsString(coordNode.textContent);
+            if (latLngs.length >= 3) {
+                L.polygon(latLngs, {
+                    color,
+                    weight: 2.2,
+                    fillColor: color,
+                    fillOpacity: 0.18
+                }).bindPopup(popupHtml).addTo(targetLayerGroup);
+                featureRendered = true;
+            }
+        }
+
+        // 2. Viivat (LineString)
+        const lines = featureNode.getElementsByTagNameNS('*', 'LineString');
+        for (let l = 0; l < lines.length; l++) {
+            const coordNode = lines[l].getElementsByTagNameNS('*', 'coordinates')[0];
+            if (!coordNode) continue;
+            const latLngs = parseCoordsString(coordNode.textContent);
+            if (latLngs.length >= 2) {
+                L.polyline(latLngs, {
+                    color,
+                    weight: 3.5,
+                    opacity: 0.9
+                }).bindPopup(popupHtml).addTo(targetLayerGroup);
+                featureRendered = true;
+            }
+        }
+
+        // 3. Pisteet (Point)
+        const pts = featureNode.getElementsByTagNameNS('*', 'Point');
+        for (let pt = 0; pt < pts.length; pt++) {
+            const coordNode = pts[pt].getElementsByTagNameNS('*', 'coordinates')[0];
+            const posNode = pts[pt].getElementsByTagNameNS('*', 'pos')[0];
+            let latLng = null;
+            if (coordNode) {
+                const parsed = parseCoordsString(coordNode.textContent);
+                if (parsed.length > 0) latLng = parsed[0];
+            } else if (posNode) {
+                const parts = posNode.textContent.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    const lon = parseFloat(parts[0]);
+                    const lat = parseFloat(parts[1]);
+                    if (!isNaN(lat) && !isNaN(lon)) latLng = [lat, lon];
+                }
+            }
+            if (latLng) {
+                L.circleMarker(latLng, {
+                    radius: 6,
+                    color: '#ffffff',
+                    weight: 1.5,
+                    fillColor: color,
+                    fillOpacity: 0.92
+                }).bindPopup(popupHtml).addTo(targetLayerGroup);
+                featureRendered = true;
+            }
+        }
+
+        if (featureRendered) renderedCount++;
+    }
+    return renderedCount;
+}
+
+function clearCustomGisLayers(silent = false) {
+    if (customWmsOverlayLayer && map) {
+        try { map.removeLayer(customWmsOverlayLayer); } catch (e) {}
+        customWmsOverlayLayer = null;
+    }
+    if (customWfsLayerGroup) {
+        customWfsLayerGroup.clearLayers();
+    }
+    activeWmsLayerMeta = null;
+    activeWfsLayerMeta = null;
+
+    const wmsSel = document.getElementById('cityWmsSelect');
+    const wfsSel = document.getElementById('cityWfsSelect');
+    if (wmsSel) wmsSel.value = '';
+    if (wfsSel) wfsSel.value = '';
+
+    updateOpenGisStatusBar();
+    if (!silent) showToast('Valitut WMS- ja WFS-karttatasot tyhjennetty.');
+}
+
+function updateOpenGisStatusBar() {
+    const row = document.getElementById('openGisStatusRow');
+    const infoEl = document.getElementById('openGisActiveLayerInfo');
+    const attrEl = document.getElementById('openGisAttributionInfo');
+    if (!row || !infoEl || !attrEl) return;
+
+    if (!activeWmsLayerMeta && !activeWfsLayerMeta) {
+        row.classList.add('hidden');
+        return;
+    }
+
+    row.classList.remove('hidden');
+    const badges = [];
+    const attrs = new Set();
+
+    if (activeWmsLayerMeta) {
+        badges.push(`<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-md font-medium">🗺️ WMS: ${activeWmsLayerMeta.label}</span>`);
+        if (activeWmsLayerMeta.attr) attrs.add(activeWmsLayerMeta.attr);
+    }
+    if (activeWfsLayerMeta) {
+        const statusTxt = activeWfsLayerMeta.loading
+            ? 'Haetaan kohteita...'
+            : `${activeWfsLayerMeta.count || 0} kohdetta kartalla`;
+        badges.push(`<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-md font-medium">📐 WFS: ${activeWfsLayerMeta.label} (${statusTxt})</span>`);
+        if (activeWfsLayerMeta.attr) attrs.add(activeWfsLayerMeta.attr);
+    }
+
+    infoEl.innerHTML = badges.join(' ');
+    attrEl.textContent = [...attrs].join(' • ') || 'Pohjakartta & aineisto © Kaupungin avoin paikkatieto, CC BY 4.0';
 }
 </script>
 </body>
