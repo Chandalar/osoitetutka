@@ -1,4 +1,6 @@
-# Osoitetutka PRO - Automaattinen Julkaisuskripti (GitHub Pages & osoitetutka.web.app)
+param(
+    [string]$Message = "Paivita Osoitetutka PRO"
+)
 
 Write-Host "Aloitetaan paivitysten julkaisu osoitteeseen https://osoitetutka.web.app ..." -ForegroundColor Cyan
 
@@ -10,7 +12,7 @@ if (Test-Path "index.html") {
 
 # 1. Tallenna ja tyonna GitHubiin (main & gh-pages)
 git add .
-git commit -m "Paivita Osoitetutka PRO (Tilannehuoneen ja Fintrafficin lahihalytykset karttapaikannuksella, paikallislehdet ja tuoreimmat paaotsikot seka Poliisin ja ulkoisten linkkien korjaus)"
+git commit -m $Message
 git push origin main
 git checkout -B gh-pages
 git merge main
