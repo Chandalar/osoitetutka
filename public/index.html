@@ -215,6 +215,65 @@
         </div>
     </div>
 
+    <!-- Kohteiden Vertailu Modaali (A vs B vs C) -->
+    <div id="compareModal" class="no-print fixed inset-0 z-[9998] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">⚖️ Osoitteiden & Kohteiden Vertailu</h3>
+                    <p class="text-xs text-slate-400">Vertaile jopa 3 tallennettua kohdetta rinnakkain (pisteet, maaperä, lämmityskulut, riskit ja palvelut).</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearComparedAddresses()" class="text-xs bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-lg transition">🗑️ Tyhjennä lista</button>
+                    <button onclick="closeCompareModal()" class="text-slate-400 hover:text-white text-lg px-2">✕</button>
+                </div>
+            </div>
+            <div id="compareModalBody" class="p-6 overflow-y-auto text-xs space-y-4">
+                <div class="text-slate-400 text-center py-8">Ei vielä vertailtavia kohteita.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Välittäjän White-Label PDF-brändäys Modaali -->
+    <div id="brokerBrandModal" class="no-print fixed inset-0 z-[9998] hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">🏢 Välittäjän PDF-brändäys (White-Label)</h3>
+                <button onclick="closeBrokerBrandModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                Lisää oma nimesi, toimistosi ja yhteystietosi tulostettavan PDF-kohderaportin yläotsikkoon. Tiedot tallennetaan vain oman selaimesi muistiin.
+            </p>
+            <div class="space-y-2.5 text-xs mb-4">
+                <div>
+                    <label class="text-slate-400 block mb-1">Toimiston / yrityksen nimi</label>
+                    <input type="text" id="brandCompanyInput" placeholder="esim. Turun Kiinteistönvälitys LKV" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                </div>
+                <div>
+                    <label class="text-slate-400 block mb-1">Välittäjän nimi & titteli</label>
+                    <input type="text" id="brandAgentInput" placeholder="esim. Matti Meikäläinen, LKV, LVV" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-slate-400 block mb-1">Puhelinnumero</label>
+                        <input type="text" id="brandPhoneInput" placeholder="040 123 4567" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1">Sähköposti</label>
+                        <input type="text" id="brandEmailInput" placeholder="matti@toimisto.fi" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-2 text-xs">
+                <button onclick="clearBrokerBranding()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg transition">Poista brändäys</button>
+                <div class="flex gap-2">
+                    <button onclick="saveBrokerBranding(false)" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg transition">Tallenna</button>
+                    <button onclick="saveBrokerBranding(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg transition">Tallenna & Tulosta PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Yläpalkki -->
     <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -320,34 +379,111 @@
                 </div>
             </div>
 
-            <!-- Käyttöliittymän näkymänhallinta: Avaa / Tiivistä laatikot + Pikanavigaatio + Jaa & PDF -->
+            <!-- Välittäjän White-Label PDF-otsikkopalkki (näkyy jos brändäys asetettu) -->
+            <div id="printBrokerHeader" class="hidden bg-slate-900 border border-emerald-500/40 rounded-xl px-5 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <div id="printBrokerCompany" class="text-sm font-extrabold text-emerald-400"></div>
+                    <div id="printBrokerAgent" class="text-xs text-white font-medium"></div>
+                </div>
+                <div class="text-right text-xs text-slate-300">
+                    <div id="printBrokerContact"></div>
+                    <div id="printReportDate" class="text-[10px] text-slate-400"></div>
+                </div>
+            </div>
+
+            <!-- Käyttöliittymän näkymänhallinta: Avaa / Tiivistä laatikot + Pikanavigaatio + Vertailu + Jaa & PDF -->
             <div class="no-print bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-col gap-2.5">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
                         <span class="text-emerald-400 font-bold mr-1">🧭 Pikahyppy:</span>
                         <button onclick="scrollToCard('buildingtech')" class="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg font-medium transition">🏠 Talo & Lämmitys</button>
+                        <button onclick="scrollToCard('investor')" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-medium transition">💰 Sijoittajalaskuri</button>
                         <button onclick="scrollToCard('housingcompany')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏢 Taloyhtiö</button>
                         <button onclick="scrollToCard('pois')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏫 Palvelut</button>
                         <button onclick="scrollToCard('paavo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">📊 Aluetilastot</button>
                         <button onclick="scrollToCard('crime')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🚓 Turvallisuus</button>
-                        <button onclick="scrollToCard('climate')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🌦️ Ilmasto</button>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="copyShareableReportUrl()" class="bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
-                            <span>🔗</span><span>Jaa raportti</span>
+                        <button onclick="addCurrentAddressToCompare()" class="bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                            <span>➕</span><span>Vertailuun</span>
                         </button>
-                        <button onclick="printAddressReport()" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
-                            <span>📄</span><span>Tulosta / PDF</span>
+                        <button onclick="openCompareModal()" id="openCompareBtn" class="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                            <span>⚖️</span><span>Vertaa (<span id="compareCountBadge">0</span>)</span>
                         </button>
-                        <button onclick="setAllCollapsibleCards(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-2.5 py-1.5 rounded-lg transition" title="Avaa kaikki laatikot">
-                            📂 Avaa kaikki
+                        <button onclick="copyShareableReportUrl()" class="bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                            <span>🔗</span><span>Jaa</span>
                         </button>
-                        <button onclick="setAllCollapsibleCards(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs px-2.5 py-1.5 rounded-lg transition" title="Tiivistä laatikot">
-                            📁 Tiivistä
+                        <button onclick="openBrokerBrandModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-2.5 py-1.5 rounded-lg transition" title="Lisää välittäjän/toimiston nimi PDF-raporttiin">
+                            🏢 Brändää
                         </button>
-                        <button onclick="resetDefaultCollapsibleState()" class="bg-slate-800/70 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg transition" title="Palauta oletusnäkymä">
-                            🔄
+                        <button onclick="printAddressReport()" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
+                            <span>📄</span><span>PDF</span>
                         </button>
+                        <button onclick="setAllCollapsibleCards(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-2 py-1.5 rounded-lg transition" title="Avaa kaikki laatikot">📂</button>
+                        <button onclick="setAllCollapsibleCards(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs px-2 py-1.5 rounded-lg transition" title="Tiivistä laatikot">📁</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🏆 ASUNNONOSTAJAN PIKAYHTEENVETO: OSOITETUTKA-PISTEET (0–100), VAHVUUDET & PUNAISET LIPUT -->
+            <div data-collapsible-card="buyersummary" data-default-open="true" class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-emerald-500/30 rounded-xl p-5 shadow-lg">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            🏆 Asunnonostajan Pikayhteenveto & Riskitutka
+                            <span id="buyerScoreVerdictBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-semibold">Lasketaan pisteitä...</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Automaattinen kokonaisarvio (0–100), vahvuudet ja tärkeimmät tarkistuskohteet ennen ostopäätöstä.</p>
+                    </div>
+                </div>
+
+                <div class="collapsible-body mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                    <!-- Kokonaispistemäärä & 4 osa-aluetta (5/12) -->
+                    <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between gap-3">
+                        <div class="flex items-center gap-4">
+                            <div id="buyerScoreCircle" class="w-16 h-16 rounded-2xl bg-emerald-500/15 border-2 border-emerald-400/60 flex flex-col items-center justify-center shrink-0">
+                                <span id="buyerTotalScore" class="text-2xl font-black text-emerald-400 leading-none">--</span>
+                                <span class="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">/ 100</span>
+                            </div>
+                            <div class="space-y-1 flex-1 min-w-0">
+                                <div id="buyerScoreHeadline" class="text-sm font-bold text-white">Analysoidaan kohdetta...</div>
+                                <div id="buyerScoreSubtext" class="text-[11px] text-slate-400 leading-snug">Pisteytys päivittyy automaattisesti, kun WFS-, GTK-, palvelu- ja tilastohaut valmistuvat.</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-[11px]">
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+                                <span class="text-slate-400">🏫 Sijainti & Palvelut</span>
+                                <strong id="scoreSubLocation" class="text-emerald-400">-</strong>
+                            </div>
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+                                <span class="text-slate-400">⚡ Talo & Energia</span>
+                                <strong id="scoreSubBuilding" class="text-cyan-300">-</strong>
+                            </div>
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+                                <span class="text-slate-400">🪨 Tontti & Riskit</span>
+                                <strong id="scoreSubRisks" class="text-amber-300">-</strong>
+                            </div>
+                            <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+                                <span class="text-slate-400">📊 Alue & Profiili</span>
+                                <strong id="scoreSubArea" class="text-indigo-300">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vahvuudet (3.5/12 -> 3/12) -->
+                    <div class="lg:col-span-3 bg-slate-950/90 border border-emerald-900/40 rounded-xl p-4">
+                        <div class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1.5">✅ Kohteen Vahvuudet</div>
+                        <ul id="buyerProsList" class="space-y-1.5 text-[11px] text-slate-300 leading-snug">
+                            <li class="text-slate-500 italic">Kerätään vahvuuksia...</li>
+                        </ul>
+                    </div>
+
+                    <!-- Punaiset liput / Tarkista ennen kauppaa (4/12) -->
+                    <div class="lg:col-span-4 bg-slate-950/90 border border-rose-900/40 rounded-xl p-4">
+                        <div class="text-xs font-bold text-rose-300 mb-2 flex items-center gap-1.5">🚩 Punaiset Liput & Tarkistuslista</div>
+                        <ul id="buyerRedFlagsList" class="space-y-1.5 text-[11px] text-slate-300 leading-snug">
+                            <li class="text-slate-500 italic">Tarkistetaan riskitekijöitä (savi, radon, asbesti, tulva, remontit)...</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -1570,6 +1706,68 @@
                 </div>
             </div>
 
+            <!-- RIVI 4F-3: ASUNTOSIJOITTAJAN & OSTAJAN KASSAVIRTA-, LAINA- & VUOKRATUOTTOLASKURI -->
+            <div data-collapsible-card="investor" data-default-open="false" class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            💰 Asuntosijoittajan & Ostajan Kassavirta- ja Vuokratuottolaskuri
+                            <span id="investorYieldBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-semibold">Tuotto - %</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Laske kohteen neliöhinta, vuokratuotto, oman pääoman tuotto (ROE) ja kuukausittainen kassavirta.</p>
+                    </div>
+                </div>
+                <div class="collapsible-body mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 text-xs">
+                    <!-- Syöttökentät (7/12) -->
+                    <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Velaton hinta (€)</label>
+                            <input type="number" id="invPriceInput" value="220000" step="5000" min="10000" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Pinta-ala (m²)</label>
+                            <input type="number" id="invAreaInput" value="65" step="1" min="10" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Arvioitu vuokra (€/kk)</label>
+                            <input type="number" id="invRentInput" value="980" step="20" min="0" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-emerald-300 font-mono font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Vastike / ylläpito (€/kk)</label>
+                            <input type="number" id="invMaintInput" value="280" step="10" min="0" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Oma raha (%)</label>
+                            <input type="number" id="invEquityPctInput" value="30" step="5" min="5" max="100" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1">Lainakorko (% / 20 v)</label>
+                            <input type="number" id="invRateInput" value="3.5" step="0.1" min="0" max="15" oninput="recalcInvestorMetrics()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono font-semibold">
+                        </div>
+                    </div>
+                    <!-- Tulokset (5/12) -->
+                    <div class="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-2.5">
+                                <div class="text-[10px] text-slate-400">Vuokratuotto (netto)</div>
+                                <div id="invOutYield" class="text-base font-extrabold text-emerald-400">- %</div>
+                                <div id="invOutSqmPrice" class="text-[10px] text-slate-400">- €/m²</div>
+                            </div>
+                            <div class="bg-slate-900 border border-slate-800 rounded-lg p-2.5">
+                                <div class="text-[10px] text-slate-400">Oman pääoman tuotto (ROE)</div>
+                                <div id="invOutRoe" class="text-base font-extrabold text-cyan-300">- %</div>
+                                <div id="invOutEquityEur" class="text-[10px] text-slate-400">Oma raha: - €</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-2.5 space-y-1 text-[11px]">
+                            <div class="flex justify-between"><span class="text-slate-400">Lainanhoitoerä (20 v annuiteetti):</span><strong id="invOutLoanPmt" class="text-white">- €/kk</strong></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Kassavirta ennen veroja:</span><strong id="invOutCashflow" class="text-emerald-400">- €/kk</strong></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Kassavirta verojen jälkeen (30%):</span><strong id="invOutCashflowAfterTax" class="text-amber-300">- €/kk</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- RIVI 4G: TALOYHTIÖN PERUSTIEDOT (PRH YTJ), YHTEISET TILAT, TILAHISTORIA, ASBESTI- & STUK RADONTIEDOT -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
@@ -2034,12 +2232,35 @@ function setPresetDate(monthIndex, day) {
     updateSunInteractive();
 }
 
+function normalizeAddressQuery(raw) {
+    let q = (raw || '').trim();
+    if (!q) return '';
+    // Poistetaan Etuovi / Oikotie / Kiinteistömaailma -portaalien otsikkotekstit jos käyttäjä liitti koko otsikon
+    q = q.replace(/\s*[\|–—-]\s*(etuovi\.com|oikotie(\.fi)?|kiinteistömaailma|op koti|huoneistokeskus|bo lkv).*$/i, '').trim();
+    q = q.replace(/^(myytävät asunnot|myytävä|vuokrattavat asunnot|kerrostalo|omakotitalo|rivitalo|paritalo|erillistalo|tontti)[\s,:-]+/i, '').trim();
+    // Jos käyttäjä liitti Etuovi/Oikotie-URL:n, opastetaan käyttämään selainlaajennusta tai kopioimaan osoite
+    if (/^https?:\/\//i.test(q)) {
+        const m = q.match(/[?&](?:q|address|osoite)=([^&]+)/i);
+        if (m) return decodeURIComponent(m[1]).replace(/\+/g, ' ').trim();
+    }
+    return q;
+}
+
 async function executeSearch() {
-    const query = document.getElementById('addressInput').value.trim();
+    const rawQuery = document.getElementById('addressInput').value.trim();
+    const query = normalizeAddressQuery(rawQuery);
     const errorBox = document.getElementById('errorBox');
     const searchBtn = document.getElementById('searchBtn');
 
     if (!query) return;
+    if (/^https?:\/\//i.test(query)) {
+        errorBox.textContent = 'Liitä osoite tekstinä (esim. "Yliopistonkatu 20, Turku") tai käytä Osoitetutkan Etuovi/Oikotie-selainlaajennusta yhden klikkauksen analyysiin.';
+        errorBox.classList.remove('hidden');
+        return;
+    }
+    if (query !== rawQuery) {
+        document.getElementById('addressInput').value = query;
+    }
 
     errorBox.classList.add('hidden');
     searchBtn.textContent = 'Haetaan...';
@@ -2069,10 +2290,14 @@ async function executeSearch() {
 
         fetchedRadiusMeters = 0;
         rawFetchedPois = [];
+        resetBuyerSummaryState();
 
         document.getElementById('emptyState').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
         initCollapsibleCards();
+        applyBrokerBrandingHeader();
+        updateCompareCountUI();
+        recalcInvestorMetrics();
 
         const newUrl = `${window.location.pathname}?q=${encodeURIComponent(query)}`;
         window.history.replaceState({}, '', newUrl);
@@ -3159,6 +3384,7 @@ function filterAndRenderPoisByRadius() {
     allPois = rawFetchedPois.filter(p => p.dist <= searchRadiusMeters);
     allPois.sort((a, b) => a.dist - b.dist);
     updatePoiCountsAndRender();
+    if (typeof scheduleBuyerScoreUpdate === 'function') scheduleBuyerScoreUpdate();
 }
 
 async function fetchEverythingNearbyOverpass(forceRefresh = false) {
@@ -4168,6 +4394,7 @@ async function fetchGtkSoilAndBedrock() {
             const tot = fp * (activeBuildingItem.levels || 1);
             renderGeoAndSolarPotential(tot, fp, (currentLoc.city || '').trim().toLowerCase());
         }
+        if (typeof scheduleBuyerScoreUpdate === 'function') scheduleBuyerScoreUpdate();
 
         box.innerHTML = `
             <div class="flex justify-between py-1 border-b border-slate-800 gap-2">
@@ -5786,6 +6013,7 @@ function resolveKuntaCode(paavoKunta, cityName) {
 
 async function fetchStatFinForeignAndPrices(zip, kuntaRaw, paavoProps) {
     if (paavoProps) lastPaavoProps = paavoProps;
+    if (typeof scheduleBuyerScoreUpdate === 'function') scheduleBuyerScoreUpdate();
     const foreignContainer = document.getElementById('statfinForeignBreakdown') || document.getElementById('statfinForeignContainer');
     const pricesContainer = document.getElementById('statfinPriceBreakdown') || document.getElementById('statfinHousingPrices');
     const paavoForeignShareEl = document.getElementById('paavoForeignShare');
@@ -10313,6 +10541,9 @@ function renderBuildingTechUI(bld) {
 
     // Täytetään Tekninen elinkaari & Remontit
     renderBuildingRenovationTimeline(buildYear, age);
+
+    // Päivitetään ostajan pikayhteenveto ja pisteytys
+    if (typeof scheduleBuyerScoreUpdate === 'function') scheduleBuyerScoreUpdate();
 }
 
 function updateBldHeatingCalculations(fromClimateSync = false) {
@@ -10540,9 +10771,459 @@ function copyShareableReportUrl() {
 }
 
 function printAddressReport() {
+    applyBrokerBrandingHeader();
     showToast('📄 Avataan tulostus- / PDF-näkymä...');
     setTimeout(() => window.print(), 250);
 }
+
+// ============================================================================
+// OSA 5: ASUNNONOSTAJAN PIKAYHTEENVETO & OSOITETUTKA-PISTEET (0–100)
+// ============================================================================
+let _buyerScoreDebounce = null;
+let lastComputedBuyerScore = null;
+
+function resetBuyerSummaryState() {
+    lastComputedBuyerScore = null;
+    const totalEl = document.getElementById('buyerTotalScore');
+    if (totalEl) totalEl.textContent = '--';
+    const badge = document.getElementById('buyerScoreVerdictBadge');
+    if (badge) badge.textContent = 'Lasketaan pisteitä...';
+    const headline = document.getElementById('buyerScoreHeadline');
+    if (headline) headline.textContent = 'Analysoidaan kohdetta...';
+    scheduleBuyerScoreUpdate();
+}
+
+function scheduleBuyerScoreUpdate() {
+    clearTimeout(_buyerScoreDebounce);
+    _buyerScoreDebounce = setTimeout(updateBuyerSummaryScore, 220);
+}
+
+function updateBuyerSummaryScore() {
+    const totalEl = document.getElementById('buyerTotalScore');
+    if (!totalEl) return;
+
+    const pros = [];
+    const flags = [];
+    const currentYear = new Date().getFullYear();
+
+    // 1. Sijainti & Palvelut (0–100)
+    const pois = rawFetchedPois || [];
+    const eduCount = pois.filter(p => p.cat === 'edu' && p.dist <= 1500).length;
+    const dailyCount = pois.filter(p => p.cat === 'daily' && p.dist <= 1500).length;
+    const transitCount = pois.filter(p => p.cat === 'transit' && p.dist <= 800).length;
+    let locScore = 58 + Math.min(18, eduCount * 4) + Math.min(14, dailyCount * 3) + Math.min(10, transitCount * 2);
+    locScore = Math.max(35, Math.min(99, Math.round(locScore)));
+
+    if (eduCount >= 3) pros.push(`🏫 Hyvä koulu- ja päiväkotitarjonta (${eduCount} kohdetta < 1,5 km)`);
+    if (dailyCount >= 3) pros.push(`🛒 Kattavat arjen lähipalvelut (${dailyCount} kauppaa/palvelua lähellä)`);
+    if (transitCount >= 2) pros.push(`🚌 Hyvät joukkoliikenneyhteydet (${transitCount} pysäkkiä < 800 m)`);
+    if (pois.length > 0 && dailyCount === 0) flags.push(`🚗 Lähin päivittäistavarakauppa kauempana (> 1,5 km) — oma auto tarpeen`);
+
+    // 2. Talo & Energia (0–100)
+    let bldScore = 72;
+    const bld = activeBuildingItem;
+    const buildYear = (bld && bld.year) ? bld.year : null;
+    const age = buildYear ? Math.max(0, currentYear - buildYear) : null;
+    const heatingVal = document.getElementById('bldHeatingTypeSelect')?.value || 'geo';
+
+    if (buildYear) {
+        if (buildYear >= 2012) {
+            bldScore = 92;
+            pros.push(`🏢 Uudehko rakennus (${buildYear}) — moderni energiatehokkuus ja vähäinen remonttitarve`);
+        } else if (buildYear >= 1995) {
+            bldScore = 80;
+            pros.push(`🏠 Hyvä ikäluokka (${buildYear}) — ei lakisääteistä asbestikartoitusvelvoitetta`);
+        } else if (buildYear >= 1975) {
+            bldScore = 66;
+        } else {
+            bldScore = 58;
+        }
+
+        if (buildYear < 1994) {
+            flags.push(`☢️ Valmistunut ennen 1994 (${buildYear}) — lakisääteinen asbestikartoitus pakollinen remonteissa`);
+        }
+        if (age >= 30 && age <= 52) {
+            flags.push(`🛠️ Tekninen peruskorjausikä (${age} v) — tarkista käyttövesi-, viemäri- (LVIS) ja kattoremonttien toteutuma`);
+        }
+    }
+
+    if (heatingVal === 'geo' || heatingVal === 'district') {
+        bldScore = Math.min(98, bldScore + 6);
+        pros.push(heatingVal === 'district' ? '🔥 Kaukolämpöverkko — vaivaton ja vakaa lämmitysmuoto' : '🪨 Maalämpöpotentiaali — edulliset käyttökustannukset');
+    } else if (heatingVal === 'oil') {
+        bldScore = Math.max(40, bldScore - 15);
+        flags.push('🛢️ Öljylämmitys — korkeat käyttökulut ja CO₂-päästöt (tarkista ELY:n 4 000 € vaihtotuki)');
+    }
+
+    // 3. Tontti & Riskit (0–100)
+    let riskScore = 84;
+    const soilText = (lastKnownSoilCasingNote || '').toLowerCase();
+    const rockText = (lastKnownRockLabel || '').toLowerCase();
+    const floodText = (document.getElementById('statFloodRisk')?.textContent || '').toLowerCase();
+    const radonBadge = document.getElementById('buildingHealthBadge')?.textContent || '';
+    const radonMatch = radonBadge.match(/(\d+)\s*Bq/i);
+    const radonBq = radonMatch ? parseInt(radonMatch[1], 10) : 110;
+
+    if (soilText.includes('savi') || soilText.includes('pehmeikkö')) {
+        riskScore -= 16;
+        flags.push('⚠️ Savimaa / pehmeikköalue (GTK) — tarkista paalutus, salaojat ja painumariski');
+    } else if (soilText.includes('kallio') || rockText.includes('graniit')) {
+        riskScore = Math.min(96, riskScore + 6);
+        pros.push(`🪨 Kantava kalliopohja (${lastKnownRockLabel.split('(')[0].trim()}) — erinomainen perustuksille ja maalämmölle`);
+    }
+
+    if (floodText.includes('korkea') || floodText.includes('huomioi') || floodText.includes('matala')) {
+        riskScore -= 14;
+        flags.push('🌊 Matala korkeusasema / tulvariski — tarkista pintavesien ohjaus ja tulvakartta');
+    }
+
+    if (radonBq >= 180) {
+        riskScore -= 8;
+        flags.push(`☢️ Kohonnut STUK-radonkeskiarvo kunnassa (~${radonBq} Bq/m³) — tarkista radonmittaus / radonsuojaus`);
+    }
+    riskScore = Math.max(35, Math.min(98, Math.round(riskScore)));
+
+    // 4. Alue & Profiili (0–100)
+    let areaScore = 76;
+    if (lastPaavoProps) {
+        const medIncome = lastPaavoProps.hr_mtu || 0;
+        const ownerPct = lastPaavoProps.te_taly > 0 ? Math.round((lastPaavoProps.te_omis_as / lastPaavoProps.te_taly) * 100) : 0;
+        if (medIncome >= 28000) {
+            areaScore += 10;
+            pros.push(`📈 Vakavarainen postinumeroalue (mediaanitulo ${medIncome.toLocaleString('fi-FI')} €/v)`);
+        } else if (medIncome > 0 && medIncome < 19000) {
+            areaScore -= 6;
+        }
+        if (ownerPct >= 55) {
+            areaScore += 6;
+            pros.push(`🏡 Vakiintunut omistusasuntoalue (${ownerPct} % omistusasuntoja)`);
+        }
+    }
+    areaScore = Math.max(45, Math.min(98, Math.round(areaScore)));
+
+    const totalScore = Math.round(locScore * 0.30 + bldScore * 0.25 + riskScore * 0.25 + areaScore * 0.20);
+    lastComputedBuyerScore = { totalScore, locScore, bldScore, riskScore, areaScore, pros, flags };
+
+    // Päivitetään DOM
+    totalEl.textContent = totalScore;
+    document.getElementById('scoreSubLocation').textContent = `${locScore}/100`;
+    document.getElementById('scoreSubBuilding').textContent = `${bldScore}/100`;
+    document.getElementById('scoreSubRisks').textContent = `${riskScore}/100`;
+    document.getElementById('scoreSubArea').textContent = `${areaScore}/100`;
+
+    const circle = document.getElementById('buyerScoreCircle');
+    const verdictBadge = document.getElementById('buyerScoreVerdictBadge');
+    const headline = document.getElementById('buyerScoreHeadline');
+    const subtext = document.getElementById('buyerScoreSubtext');
+
+    if (totalScore >= 82) {
+        if (circle) circle.className = 'w-16 h-16 rounded-2xl bg-emerald-500/15 border-2 border-emerald-400 flex flex-col items-center justify-center shrink-0';
+        totalEl.className = 'text-2xl font-black text-emerald-400 leading-none';
+        if (verdictBadge) verdictBadge.textContent = '🌟 Erinomainen kokonaisuus';
+        if (headline) headline.textContent = 'Vahva kohde — vähän riskejä, hyvät puitteet';
+    } else if (totalScore >= 68) {
+        if (circle) circle.className = 'w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400 flex flex-col items-center justify-center shrink-0';
+        totalEl.className = 'text-2xl font-black text-amber-300 leading-none';
+        if (verdictBadge) verdictBadge.textContent = '👍 Hyvä kohde (tarkista huomiot)';
+        if (headline) headline.textContent = 'Tasapainoinen kohde — käy läpi tarkistuslista';
+    } else {
+        if (circle) circle.className = 'w-16 h-16 rounded-2xl bg-rose-500/15 border-2 border-rose-400 flex flex-col items-center justify-center shrink-0';
+        totalEl.className = 'text-2xl font-black text-rose-400 leading-none';
+        if (verdictBadge) verdictBadge.textContent = '⚠️ Vaatii tarkemman selvityksen';
+        if (headline) headline.textContent = 'Useita huomioitavia riskitekijöitä — varaa kuntotarkastus';
+    }
+    if (subtext) {
+        subtext.textContent = `${currentLoc.street || ''} ${currentLoc.num || ''}, ${currentLoc.city || ''} • Päivitetty live-rekistereistä`;
+    }
+
+    const prosEl = document.getElementById('buyerProsList');
+    if (prosEl) {
+        prosEl.innerHTML = pros.length > 0
+            ? pros.slice(0, 5).map(p => `<li class="flex items-start gap-1.5"><span class="text-emerald-400 shrink-0">•</span><span>${p}</span></li>`).join('')
+            : `<li class="text-slate-400">• Peruspuitteet kunnossa — tutki tarkemmat tiedot korteista alta.</li>`;
+    }
+
+    const flagsEl = document.getElementById('buyerRedFlagsList');
+    if (flagsEl) {
+        flagsEl.innerHTML = flags.length > 0
+            ? flags.slice(0, 5).map(f => `<li class="flex items-start gap-1.5"><span class="text-rose-400 shrink-0">•</span><span>${f}</span></li>`).join('')
+            : `<li class="text-emerald-300">✅ Ei merkittäviä automaattisesti havaittuja punaisia lippuja! Varmista silti isännöitsijäntodistus ja kuntotarkastus.</li>`;
+    }
+}
+
+// ============================================================================
+// OSA 6: KOHTEIDEN VERTAILUTILA (A vs B vs C, localStorage)
+// ============================================================================
+const COMPARE_STORAGE_KEY = 'osoitetutka_compared_v1';
+
+function getComparedAddresses() {
+    try {
+        return JSON.parse(localStorage.getItem(COMPARE_STORAGE_KEY) || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveComparedAddresses(list) {
+    localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(list.slice(0, 3)));
+    updateCompareCountUI();
+}
+
+function updateCompareCountUI() {
+    const count = getComparedAddresses().length;
+    const badge = document.getElementById('compareCountBadge');
+    if (badge) badge.textContent = count;
+}
+
+function addCurrentAddressToCompare() {
+    const queryAddr = `${currentLoc.street || ''} ${currentLoc.num || ''}, ${currentLoc.city || ''}`.trim();
+    if (!currentLoc.lat || !queryAddr || queryAddr === ',') {
+        showToast('Hae ensin osoite ennen vertailuun lisäämistä.');
+        return;
+    }
+
+    if (!lastComputedBuyerScore) updateBuyerSummaryScore();
+
+    const list = getComparedAddresses();
+    const existingIdx = list.findIndex(x => x.address.toLowerCase() === queryAddr.toLowerCase());
+
+    const bld = activeBuildingItem;
+    const snapshot = {
+        address: queryAddr,
+        suburb: `${currentLoc.suburb || 'Keskusta'} (${currentLoc.zip || '-'})`,
+        totalScore: lastComputedBuyerScore ? lastComputedBuyerScore.totalScore : 75,
+        locScore: lastComputedBuyerScore ? lastComputedBuyerScore.locScore : 75,
+        bldScore: lastComputedBuyerScore ? lastComputedBuyerScore.bldScore : 75,
+        riskScore: lastComputedBuyerScore ? lastComputedBuyerScore.riskScore : 75,
+        propertyId: currentLoc.propertyId || '-',
+        parcelArea: currentLoc.propertyAreaM2 ? `${currentLoc.propertyAreaM2.toLocaleString('fi-FI')} m²` : '-',
+        buildYear: bld && bld.year ? (bld.isEstimatedYear ? `~${bld.year}` : String(bld.year)) : '-',
+        floorArea: document.getElementById('bldKpiArea')?.textContent || '-',
+        energyClass: document.getElementById('bldKpiEnergyClass')?.textContent || '-',
+        heating: document.getElementById('bldKpiHeating')?.textContent || '-',
+        heatingCost: document.getElementById('bldCalcYearlyCost')?.textContent || '-',
+        rock: lastKnownRockLabel || '-',
+        soilNote: lastKnownSoilCasingNote || '-',
+        elevation: document.getElementById('statElevation')?.textContent || '-',
+        radon: document.getElementById('buildingHealthBadge')?.textContent || '-',
+        poisCount: (rawFetchedPois || []).length,
+        medIncome: (lastPaavoProps && lastPaavoProps.hr_mtu) ? `${lastPaavoProps.hr_mtu.toLocaleString('fi-FI')} €/v` : '-',
+        redFlagsCount: lastComputedBuyerScore ? lastComputedBuyerScore.flags.length : 0,
+        topFlag: (lastComputedBuyerScore && lastComputedBuyerScore.flags[0]) ? lastComputedBuyerScore.flags[0] : '✅ Ei punaisia lippuja'
+    };
+
+    if (existingIdx >= 0) {
+        list[existingIdx] = snapshot;
+        showToast(`⚖️ Päivitettiin kohde "${queryAddr}" vertailulistalle.`);
+    } else {
+        if (list.length >= 3) {
+            list.shift();
+        }
+        list.push(snapshot);
+        showToast(`⚖️ Lisättiin "${queryAddr}" vertailuun (${list.length}/3).`);
+    }
+    saveComparedAddresses(list);
+}
+
+function openCompareModal() {
+    const modal = document.getElementById('compareModal');
+    const body = document.getElementById('compareModalBody');
+    if (!modal || !body) return;
+
+    const list = getComparedAddresses();
+    if (list.length === 0) {
+        body.innerHTML = `
+            <div class="text-center py-10 space-y-2">
+                <div class="text-3xl">⚖️</div>
+                <div class="text-sm font-bold text-white">Vertailulista on vielä tyhjä</div>
+                <div class="text-xs text-slate-400 max-w-md mx-auto">Hae osoite ja klikkaa <b>"➕ Vertailuun"</b>. Voit tallentaa jopa 3 eri osoitetta ja vertailla niitä rinnakkain tässä näkymässä.</div>
+            </div>
+        `;
+    } else {
+        const rows = [
+            { label: '🏆 Osoitetutka-pisteet', fn: c => `<span class="text-base font-black ${c.totalScore >= 82 ? 'text-emerald-400' : c.totalScore >= 68 ? 'text-amber-300' : 'text-rose-400'}">${c.totalScore} / 100</span>` },
+            { label: '📍 Kaupunginosa', fn: c => c.suburb },
+            { label: '📐 Kiinteistötunnus & Tontti', fn: c => `<span class="font-mono text-cyan-300">${c.propertyId}</span><br><span class="text-slate-400">${c.parcelArea}</span>` },
+            { label: '🏠 Rakennusvuosi & Pinta-ala', fn: c => `<b>${c.buildYear}</b> • ${c.floorArea}` },
+            { label: '⚡ Energialuokka', fn: c => `<span class="text-emerald-300 font-semibold">${c.energyClass}</span>` },
+            { label: '🔥 Lämmitys & Kustannusarvio', fn: c => `<b>${c.heating}</b><br><span class="text-amber-300">${c.heatingCost}</span>` },
+            { label: '🪨 Kallioperä & Maaperä', fn: c => `${c.rock}<br><span class="text-[10px] text-slate-400">${c.soilNote}</span>` },
+            { label: '🌊 Korkeusasema', fn: c => c.elevation },
+            { label: '☢️ STUK Radon', fn: c => c.radon },
+            { label: '🏫 Lähipalvelut (1,5 km)', fn: c => `${c.poisCount} kohdetta (Sijainti ${c.locScore}/100)` },
+            { label: '📊 Alueen mediaanitulo', fn: c => c.medIncome },
+            { label: '🚩 Tärkein huomio / riski', fn: c => `<span class="text-[11px] leading-snug">${c.topFlag}</span>` }
+        ];
+
+        body.innerHTML = `
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800">
+                            <th class="py-2 pr-3 text-slate-400 font-semibold w-44">Vertailukriteeri</th>
+                            ${list.map((c, idx) => `
+                                <th class="py-2 px-3 bg-slate-950/70 rounded-t-xl border-x border-slate-800/60 min-w-[200px]">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div>
+                                            <div class="font-bold text-white text-sm">${c.address}</div>
+                                            <button onclick="closeCompareModal(); quickSearch('${c.address.replace(/'/g, '')}')" class="text-[10px] text-emerald-400 hover:underline mt-0.5">🔍 Avaa raportti ↗</button>
+                                        </div>
+                                        <button onclick="removeComparedAddress(${idx})" class="text-slate-500 hover:text-rose-400 text-xs" title="Poista">✕</button>
+                                    </div>
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/70">
+                        ${rows.map(r => `
+                            <tr>
+                                <td class="py-2.5 pr-3 text-slate-400 font-medium align-top">${r.label}</td>
+                                ${list.map(c => `<td class="py-2.5 px-3 text-slate-200 align-top border-x border-slate-800/40">${r.fn(c)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    modal.classList.remove('hidden');
+}
+
+function closeCompareModal() {
+    document.getElementById('compareModal')?.classList.add('hidden');
+}
+
+function removeComparedAddress(idx) {
+    const list = getComparedAddresses();
+    list.splice(idx, 1);
+    saveComparedAddresses(list);
+    openCompareModal();
+}
+
+function clearComparedAddresses() {
+    saveComparedAddresses([]);
+    openCompareModal();
+    showToast('Vertailulista tyhjennetty.');
+}
+
+// ============================================================================
+// OSA 7: ASUNTOSIJOITTAJAN KASSAVIRTA- & VUOKRATUOTTOLASKURI
+// ============================================================================
+function recalcInvestorMetrics() {
+    const price = Math.max(1000, parseFloat(document.getElementById('invPriceInput')?.value || '220000'));
+    const area = Math.max(10, parseFloat(document.getElementById('invAreaInput')?.value || '65'));
+    const rent = Math.max(0, parseFloat(document.getElementById('invRentInput')?.value || '980'));
+    const maint = Math.max(0, parseFloat(document.getElementById('invMaintInput')?.value || '280'));
+    const equityPct = Math.min(100, Math.max(1, parseFloat(document.getElementById('invEquityPctInput')?.value || '30')));
+    const ratePct = Math.max(0, parseFloat(document.getElementById('invRateInput')?.value || '3.5'));
+
+    const sqmPrice = Math.round(price / area);
+    const equityEur = Math.round(price * (equityPct / 100));
+    const loanEur = Math.max(0, price - equityEur);
+
+    // 20 vuoden (240 kk) annuiteetti
+    const n = 240;
+    const r = (ratePct / 100) / 12;
+    const monthlyPmt = loanEur > 0
+        ? (r > 0 ? Math.round(loanEur * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)) : Math.round(loanEur / n))
+        : 0;
+    const monthlyInterest = Math.round(loanEur * r);
+
+    const netOperatingMonth = rent - maint;
+    const annualYieldPct = ((netOperatingMonth * 12) / price) * 100;
+    const cashflowPreTax = Math.round(netOperatingMonth - monthlyPmt);
+    const taxableMonthly = Math.max(0, netOperatingMonth - monthlyInterest);
+    const monthlyTax = Math.round(taxableMonthly * 0.30);
+    const cashflowAfterTax = cashflowPreTax - monthlyTax;
+
+    // ROE: (vuosituotto - lainan korot) / oma pääoma
+    const annualProfitBeforeTax = (netOperatingMonth - monthlyInterest) * 12;
+    const roePct = equityEur > 0 ? (annualProfitBeforeTax / equityEur) * 100 : 0;
+
+    const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('invOutYield', `${annualYieldPct.toFixed(2)} %`);
+    setTxt('invOutSqmPrice', `${sqmPrice.toLocaleString('fi-FI')} €/m²`);
+    setTxt('invOutRoe', `${roePct.toFixed(1)} %`);
+    setTxt('invOutEquityEur', `Oma raha: ${equityEur.toLocaleString('fi-FI')} €`);
+    setTxt('invOutLoanPmt', `${monthlyPmt.toLocaleString('fi-FI')} €/kk`);
+
+    const cfEl = document.getElementById('invOutCashflow');
+    if (cfEl) {
+        cfEl.textContent = `${cashflowPreTax >= 0 ? '+' : ''}${cashflowPreTax.toLocaleString('fi-FI')} €/kk`;
+        cfEl.className = cashflowPreTax >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+    }
+    const cfTaxEl = document.getElementById('invOutCashflowAfterTax');
+    if (cfTaxEl) {
+        cfTaxEl.textContent = `${cashflowAfterTax >= 0 ? '+' : ''}${cashflowAfterTax.toLocaleString('fi-FI')} €/kk`;
+        cfTaxEl.className = cashflowAfterTax >= 0 ? 'text-emerald-300 font-bold' : 'text-amber-300 font-bold';
+    }
+    const badge = document.getElementById('investorYieldBadge');
+    if (badge) badge.textContent = `Tuotto ${annualYieldPct.toFixed(1)} % • ${cashflowPreTax >= 0 ? '+' : ''}${cashflowPreTax} €/kk`;
+}
+
+// ============================================================================
+// OSA 8: VÄLITTÄJÄN WHITE-LABEL PDF-BRÄNDÄYS (localStorage)
+// ============================================================================
+const BRAND_STORAGE_KEY = 'osoitetutka_broker_brand_v1';
+
+function openBrokerBrandModal() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(BRAND_STORAGE_KEY) || '{}');
+        document.getElementById('brandCompanyInput').value = saved.company || '';
+        document.getElementById('brandAgentInput').value = saved.agent || '';
+        document.getElementById('brandPhoneInput').value = saved.phone || '';
+        document.getElementById('brandEmailInput').value = saved.email || '';
+    } catch (e) {}
+    document.getElementById('brokerBrandModal')?.classList.remove('hidden');
+}
+
+function closeBrokerBrandModal() {
+    document.getElementById('brokerBrandModal')?.classList.add('hidden');
+}
+
+function saveBrokerBranding(andPrint = false) {
+    const data = {
+        company: (document.getElementById('brandCompanyInput')?.value || '').trim(),
+        agent: (document.getElementById('brandAgentInput')?.value || '').trim(),
+        phone: (document.getElementById('brandPhoneInput')?.value || '').trim(),
+        email: (document.getElementById('brandEmailInput')?.value || '').trim()
+    };
+    localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(data));
+    applyBrokerBrandingHeader();
+    closeBrokerBrandModal();
+    showToast('🏢 Välittäjän PDF-brändäys tallennettu!');
+    if (andPrint) printAddressReport();
+}
+
+function clearBrokerBranding() {
+    localStorage.removeItem(BRAND_STORAGE_KEY);
+    applyBrokerBrandingHeader();
+    closeBrokerBrandModal();
+    showToast('Brändäys poistettu.');
+}
+
+function applyBrokerBrandingHeader() {
+    const bar = document.getElementById('printBrokerHeader');
+    if (!bar) return;
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(BRAND_STORAGE_KEY) || '{}'); } catch (e) {}
+    if (saved.company || saved.agent) {
+        document.getElementById('printBrokerCompany').textContent = saved.company || 'Kiinteistö- & Alueraportti';
+        document.getElementById('printBrokerAgent').textContent = saved.agent || '';
+        document.getElementById('printBrokerContact').textContent = [saved.phone, saved.email].filter(Boolean).join(' • ');
+        document.getElementById('printReportDate').textContent = `Osoitetutka PRO -kohderaportti • ${new Date().toLocaleDateString('fi-FI')}`;
+        bar.classList.remove('hidden');
+    } else {
+        bar.classList.add('hidden');
+    }
+}
+
+// Alustetaan vertailulaskuri sivun latautuessa
+document.addEventListener('DOMContentLoaded', () => {
+    updateCompareCountUI();
+    applyBrokerBrandingHeader();
+    recalcInvestorMetrics();
+});
 </script>
 </body>
 </html>

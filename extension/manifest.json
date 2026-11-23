@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Osoitetutka PRO – Etuovi & Oikotie Apuri",
+  "version": "1.0.0",
+  "description": "Lisää yhden klikkauksen 'Analysoi Osoitetutkassa' -painikkeen Etuovi.com ja Oikotie.fi -asuntoilmoituksiin.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.etuovi.com/kohde/*",
+        "https://asunnot.oikotie.fi/myytavat-asunnot/*",
+        "https://asunnot.oikotie.fi/vuokra-asunnot/*",
+        "https://asunnot.oikotie.fi/myytavat-loma-asunnot/*",
+        "https://asunnot.oikotie.fi/myytavat-tontit/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
