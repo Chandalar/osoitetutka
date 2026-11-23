@@ -165,6 +165,22 @@
         .flight-marker-badge:hover {
             transform: scale(1.18);
         }
+        @media print {
+            body {
+                background: #0f172a !important;
+                color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            header, #toast, #mmlModal, .no-print, .collapsible-toggle-btn {
+                display: none !important;
+            }
+            [data-collapsible-card] {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 12px !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-white">
@@ -304,22 +320,35 @@
                 </div>
             </div>
 
-            <!-- Käyttöliittymän näkymänhallinta: Avaa / Tiivistä laatikot + Pikanavigaatio -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-xs text-slate-300">
-                    <span class="text-emerald-400 font-bold">🗂️ Näkymän hallinta:</span>
-                    <span class="text-slate-400 hidden sm:inline">Jokainen tietolaatikko on avattavissa ja suljettavissa otsikosta klikkaamalla.</span>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="setAllCollapsibleCards(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
-                        <span>📂</span><span>Avaa kaikki laatikot</span>
-                    </button>
-                    <button onclick="setAllCollapsibleCards(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
-                        <span>📁</span><span>Tiivistä laatikot (Vain otsikot)</span>
-                    </button>
-                    <button onclick="resetDefaultCollapsibleState()" class="bg-slate-800/70 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg transition">
-                        🔄 Oletusnäkymä
-                    </button>
+            <!-- Käyttöliittymän näkymänhallinta: Avaa / Tiivistä laatikot + Pikanavigaatio + Jaa & PDF -->
+            <div class="no-print bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-col gap-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span class="text-emerald-400 font-bold mr-1">🧭 Pikahyppy:</span>
+                        <button onclick="scrollToCard('buildingtech')" class="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg font-medium transition">🏠 Talo & Lämmitys</button>
+                        <button onclick="scrollToCard('housingcompany')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏢 Taloyhtiö</button>
+                        <button onclick="scrollToCard('pois')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏫 Palvelut</button>
+                        <button onclick="scrollToCard('paavo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">📊 Aluetilastot</button>
+                        <button onclick="scrollToCard('crime')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🚓 Turvallisuus</button>
+                        <button onclick="scrollToCard('climate')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🌦️ Ilmasto</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="copyShareableReportUrl()" class="bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                            <span>🔗</span><span>Jaa raportti</span>
+                        </button>
+                        <button onclick="printAddressReport()" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5">
+                            <span>📄</span><span>Tulosta / PDF</span>
+                        </button>
+                        <button onclick="setAllCollapsibleCards(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-2.5 py-1.5 rounded-lg transition" title="Avaa kaikki laatikot">
+                            📂 Avaa kaikki
+                        </button>
+                        <button onclick="setAllCollapsibleCards(false)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs px-2.5 py-1.5 rounded-lg transition" title="Tiivistä laatikot">
+                            📁 Tiivistä
+                        </button>
+                        <button onclick="resetDefaultCollapsibleState()" class="bg-slate-800/70 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg transition" title="Palauta oletusnäkymä">
+                            🔄
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1508,11 +1537,17 @@
                                 <div class="flex justify-between"><span class="text-slate-400">Ostoenergian kulutus:</span><strong id="bldCalcBoughtEnergy" class="text-cyan-300">- kWh/v</strong></div>
                                 <div class="flex justify-between"><span class="text-slate-400">Arvioitu käyttökulu:</span><strong id="bldCalcYearlyCost" class="text-amber-300">- €/v</strong></div>
                                 <div class="flex justify-between"><span class="text-slate-400">Hiilijalanjälki:</span><strong id="bldCalcCo2" class="text-emerald-400">- kg CO₂/v</strong></div>
+                                <div id="bldHeatingSavingsRow" class="pt-1.5 mt-1 border-t border-slate-800/80 text-[11px] text-emerald-300"></div>
                             </div>
 
                             <!-- GTK Geoenergia & Aurinkopotentiaali -->
                             <div id="bldGeoAndSolarDetails" class="space-y-1.5 text-[11px] text-slate-300 border-t border-slate-800/80 pt-2">
                                 <div class="text-slate-500 italic">Lasketaan maalämpö- ja aurinkosähköpotentiaalia...</div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 pt-1 text-[10px]">
+                                <a href="https://www.energiatodistusrekisteri.fi/" target="_blank" class="text-emerald-400 hover:underline font-medium">📋 ARA Energiatodistusrekisteri ↗</a>
+                                <span class="text-slate-600">•</span>
+                                <a href="https://www.ely-keskus.fi/avustus-oljylammityksesta-luopumiseen" target="_blank" class="text-amber-300 hover:underline font-medium">💰 ELY Lämmitystuet ↗</a>
                             </div>
                         </div>
 
@@ -3178,8 +3213,7 @@ async function fetchEverythingNearbyOverpass(forceRefresh = false) {
         filterAndRenderPoisByRadius();
     };
 
-    // 1. Haetaan rakennukset taustalla
-    fetchNearbyBuildingsFootprints(lat, lon);
+    // (Rakennushaku käynnistetään keskitetysti executeSearch -> fetchBuildingDetailsAndHeating kautta ilman tuplahakua)
 
     // 2. LÄHDE 1: Tilastokeskuksen virallinen Oppilaitosrekisteri WFS (<0.1s)
     const statSchoolsPromise = (async () => {
@@ -4025,6 +4059,11 @@ function recalcHeatingCosts() {
 
     document.getElementById('heatGshpKwh').textContent = `~${gshpElecKwh.toLocaleString('fi-FI')} kWh/v`;
     document.getElementById('heatGshpEuro').textContent = `Arvio: ~${Math.round(gshpElecKwh * elecPricePerKwh).toLocaleString('fi-FI')} €/v`;
+
+    // Synkronoidaan myös Talon Perustiedot & Lämmitys -kortin laskelma päivittyneellä HDD17-luvulla
+    if (typeof updateBldHeatingCalculations === 'function') {
+        updateBldHeatingCalculations(true);
+    }
 }
 
 // 4C. TONTIN MAAPERÄ- JA KALLIOPERÄTUNNISTUS (GTK Maankamara ArcGIS REST API)
@@ -4101,6 +4140,34 @@ async function fetchGtkSoilAndBedrock() {
         const radonNote = combinedStr.includes('graniitti') || combinedStr.includes('harju') || combinedStr.includes('hiekka')
             ? 'Graniitti-/harjualueella suositellaan radonsuojausta.'
             : 'Tavanomainen kallioperä (tarkista STUK radonkartta).';
+
+        // Kytketään GTK kallioperä & maaperä maalämpökaivon lämmönjohtavuuteen
+        const rockLow = (rockName || '').toLowerCase();
+        if (rockLow.includes('kvartsiit') || rockLow.includes('hiekkakiv')) {
+            lastKnownRockThermalCond = 3.5;
+            lastKnownRockLabel = `${rockName} (Erittäin korkea lämmönjohtavuus)`;
+        } else if (rockLow.includes('graniit') || rockLow.includes('granodioriit') || rockLow.includes('tonaliit') || rockLow.includes('pegmatiit')) {
+            lastKnownRockThermalCond = 3.3;
+            lastKnownRockLabel = `${rockName} (Erinomainen maalämmölle)`;
+        } else if (rockLow.includes('gneiss') || rockLow.includes('migmatiit') || rockLow.includes('kiilleliuske')) {
+            lastKnownRockThermalCond = 2.9;
+            lastKnownRockLabel = `${rockName} (Hyvä maalämmölle)`;
+        } else if (rockLow.includes('gabro') || rockLow.includes('diabaas') || rockLow.includes('amfiboliit') || rockLow.includes('basaltt')) {
+            lastKnownRockThermalCond = 2.5;
+            lastKnownRockLabel = `${rockName} (Kohtalainen/Hyvä)`;
+        } else {
+            lastKnownRockThermalCond = 3.1;
+            lastKnownRockLabel = rockName !== 'Ei tietoa' ? rockName : 'Suomalainen peruskallio';
+        }
+        lastKnownSoilCasingNote = (combinedStr.includes('savi') || combinedStr.includes('lieju') || combinedStr.includes('turve'))
+            ? 'Savi-/pehmeikköalue: varaudu terässuojaputkitukseen kallioon asti'
+            : (combinedStr.includes('kallio') ? 'Kallio pinnassa: matala suojaputkitustarve' : 'Tavanomainen pintamaaputkitus (n. 3–8 m)');
+
+        if (typeof activeBuildingItem !== 'undefined' && activeBuildingItem && typeof renderGeoAndSolarPotential === 'function') {
+            const fp = Math.round(activeBuildingItem.areaM2 || 120);
+            const tot = fp * (activeBuildingItem.levels || 1);
+            renderGeoAndSolarPotential(tot, fp, (currentLoc.city || '').trim().toLowerCase());
+        }
 
         box.innerHTML = `
             <div class="flex justify-between py-1 border-b border-slate-800 gap-2">
@@ -7883,6 +7950,7 @@ async function fetchHousingCompanyAndBuildingHealth() {
         const docsLinks = document.getElementById('housingCompanyDocsLinks');
         const badgeEl = document.getElementById('housingCompanyBadge');
 
+        window.lastPrhCompanyFound = null;
         let matchedCompanies = [];
         try {
             // Haetaan PRH:n virallisesta avoimesta rajapinnasta asunto-osakeyhtiöitä kadunnimellä ja paikkakunnalla
@@ -7921,6 +7989,14 @@ async function fetchHousingCompanyAndBuildingHealth() {
             const coManager = addrObj.co || 'Katso isännöitsijäntodistuksesta';
             const postAddr = [addrObj.street, addrObj.buildingNumber, addrObj.entrance].filter(Boolean).join(' ') + (addrObj.postCode ? `, ${addrObj.postCode}` : '');
             const webUrl = top.website && top.website.url ? (top.website.url.startsWith('http') ? top.website.url : 'https://' + top.website.url) : null;
+
+            window.lastPrhCompanyFound = { name: compName, yTunnus, regDate, regYear };
+            if (typeof activeBuildingItem !== 'undefined' && activeBuildingItem && activeBuildingItem.isEstimatedYear && regYear && regYear > 1850) {
+                activeBuildingItem.year = regYear;
+                activeBuildingItem.isEstimatedYear = false;
+                activeBuildingItem.yearSource = 'PRH YTJ';
+                if (typeof renderBuildingTechUI === 'function') renderBuildingTechUI(activeBuildingItem);
+            }
 
             if (badgeEl) badgeEl.textContent = `Y-tunnus ${yTunnus}`;
 
@@ -9738,12 +9814,22 @@ const BUILDING_MATERIALS_FI = {
 
 const BUILDING_FACADE_FI = {
     'wood': 'Puuvuoraus / laudoitus',
+    'puu': 'Puuvuoraus / laudoitus',
+    'timber': 'Hirsi / massiivipuu',
+    'hirsi': 'Hirsi / massiivipuu',
     'brick': 'Tiiliverhous',
+    'tiili': 'Tiiliverhous',
     'concrete': 'Betonielementti / pesubetoni',
+    'betoni': 'Betonielementti / pesubetoni',
     'plaster': 'Mineraalirappaus',
+    'rappaus': 'Mineraalirappaus',
     'metal': 'Metallikasetti / profiilipelti',
+    'metalli': 'Metallikasetti / profiilipelti',
+    'pelti': 'Profiilipelti / kasetti',
     'glass': 'Lasijulkisivu',
-    'stone': 'Kiviverhous'
+    'lasi': 'Lasijulkisivu',
+    'stone': 'Kiviverhous / harkko',
+    'kivi': 'Kiviverhous / harkko'
 };
 
 const BUILDING_TYPES_FI = {
@@ -9765,7 +9851,10 @@ const BUILDING_TYPES_FI = {
 
 let currentBuildingList = [];
 let activeBuildingItem = null;
+let activeBuildingSearchToken = 0;
 let lastKnownRockThermalCond = 3.1; // W/(m·K)
+let lastKnownRockLabel = 'Suomalainen peruskallio';
+let lastKnownSoilCasingNote = 'Tavanomainen pintamaaputkitus (n. 3–8 m)';
 
 async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
     const lat = targetLat || currentLoc.lat;
@@ -9880,13 +9969,15 @@ async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
         console.warn('OSM building Overpass failed:', e);
     }
 
-    // Yhdistetään kunta-WFS ja OSM-data
+    // Yhdistetään kunta-WFS (polygonit JA referenssipisteet) + OSM-rakennuspolygonit
     let allBuildings = [];
-    if (municipalBuildings.length > 0) {
-        municipalBuildings.forEach(mb => {
+    const wfsPolygons = municipalBuildings.filter(mb => mb.latLngs && mb.latLngs.length >= 3);
+    const wfsPoints = municipalBuildings.filter(mb => (!mb.latLngs || mb.latLngs.length < 3) && mb.refPoint);
+
+    if (wfsPolygons.length > 0) {
+        wfsPolygons.forEach(mb => {
             const dist = distToPolygonCenter(lat, lon, mb.latLngs);
-            // Etsitään vastaava OSM-rakennus geometriakeskiön läheltä
-            const matchedOsm = osmBuildings.find(ob => distToPolygonCenter(ob.latLngs[0][0], ob.latLngs[0][1], mb.latLngs) < 15);
+            const matchedOsm = osmBuildings.find(ob => distToPolygonCenter(ob.latLngs[0][0], ob.latLngs[0][1], mb.latLngs) < 18);
             allBuildings.push({
                 id: mb.id || matchedOsm?.id || '',
                 name: matchedOsm?.name || '',
@@ -9894,7 +9985,7 @@ async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
                 levels: mb.levels || matchedOsm?.levels || 1,
                 roofShape: matchedOsm?.roofShape || (mb.levels === 1 ? 'gabled' : 'flat'),
                 roofMaterial: matchedOsm?.roofMaterial || 'metal',
-                facade: mb.facade || matchedOsm?.buildingMaterial || '',
+                facade: (mb.facade || matchedOsm?.buildingMaterial || '').toLowerCase(),
                 buildingMaterial: matchedOsm?.buildingMaterial || mb.facade || '',
                 year: mb.year || matchedOsm?.year || null,
                 flats: matchedOsm?.flats || null,
@@ -9904,14 +9995,32 @@ async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
                 source: mb.source || 'Kunta WFS'
             });
         });
-    }
-
-    // Jos kunta-WFS ei tuonut kohteita, käytetään OSM-rakennuksia
-    if (allBuildings.length === 0 && osmBuildings.length > 0) {
-        allBuildings = osmBuildings.map(ob => ({
-            ...ob,
-            areaM2: Math.round(ob.areaM2)
-        }));
+    } else if (osmBuildings.length > 0) {
+        // Rikastetaan OSM-polygonit lähimmillä kunta-WFS-referenssipisteillä (esim. Turku kanta:Rakennus)
+        allBuildings = osmBuildings.map(ob => {
+            let bestWfs = null;
+            let bestD = 32;
+            wfsPoints.forEach(wp => {
+                const inside = isPointInPolygon(wp.refPoint[0], wp.refPoint[1], ob.latLngs);
+                const d = inside ? 0 : distToPolygonCenter(wp.refPoint[0], wp.refPoint[1], ob.latLngs);
+                if (d < bestD) {
+                    bestD = d;
+                    bestWfs = wp;
+                }
+            });
+            const levels = (bestWfs && bestWfs.levels) || ob.levels || 1;
+            const facade = (bestWfs && bestWfs.facade) || ob.buildingMaterial || '';
+            return {
+                ...ob,
+                id: (bestWfs && bestWfs.id) || ob.id,
+                year: (bestWfs && bestWfs.year) || ob.year || null,
+                levels,
+                facade: facade.toLowerCase(),
+                buildingType: ob.buildingType !== 'yes' ? ob.buildingType : (levels >= 3 ? 'apartments' : 'house'),
+                areaM2: Math.round(ob.areaM2),
+                source: bestWfs ? `${bestWfs.source} + OSM` : 'OpenStreetMap'
+            };
+        });
     }
 
     currentBuildingList = allBuildings;
@@ -9938,14 +10047,13 @@ async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
         }
     }
 
-    // Jos rakennusvuotta ei saatu WFS/OSM:stä, hyödynnetään Paavo-aluetilastoa tai PRH-perustamisvuotta
+    // Jos rakennusvuotta ei saatu WFS/OSM:stä, hyödynnetään PRH-perustamisvuotta (EI Paavo ra_as_ka joka on pinta-ala!)
     if (targetBuilding && !targetBuilding.year) {
-        if (window.lastPrhCompanyFound && window.lastPrhCompanyFound.regDate) {
-            targetBuilding.year = parseInt(window.lastPrhCompanyFound.regDate.slice(0, 4), 10);
-        } else if (window.lastPaavoProps && window.lastPaavoProps.ra_as_ka) {
-            targetBuilding.year = Math.round(window.lastPaavoProps.ra_as_ka);
+        if (window.lastPrhCompanyFound && window.lastPrhCompanyFound.regYear && window.lastPrhCompanyFound.regYear > 1850) {
+            targetBuilding.year = window.lastPrhCompanyFound.regYear;
+            targetBuilding.yearSource = 'PRH YTJ';
         } else {
-            targetBuilding.year = 1988; // Suomen rakennuskannan mediaanivuosi
+            targetBuilding.year = 1988;
             targetBuilding.isEstimatedYear = true;
         }
     }
@@ -9958,6 +10066,7 @@ async function fetchBuildingDetailsAndHeating(targetLat, targetLon) {
         activeBuildingItem = targetBuilding;
         renderBuildingTechUI(targetBuilding);
     } else {
+        activeBuildingItem = null;
         renderBuildingTechFallback();
     }
 }
@@ -9970,34 +10079,44 @@ function parseTeklaRakennusXml(xmlText, sourceLabel = 'Turku Kantakartta WFS') {
         const idMatch = chunk.match(/<kanta:rakennustunnus>([^<]+)/i);
         const facMatch = chunk.match(/<kanta:julkisivumateriaali>([^<]+)/i);
         const levMatch = chunk.match(/<kanta:kerrosluku>([^<]+)/i);
-        const yrMatch = chunk.match(/<kanta:kottovuosi>([^<]+)/i) || chunk.match(/<kanta:alkuPvm>([^<]+)/i);
-        const coordMatch = chunk.match(/<gml:coordinates>([^<]+)/i);
+        const yrMatch = chunk.match(/<kanta:kottovuosi>([^<]+)/i);
+        const allCoordMatches = [...chunk.matchAll(/<gml:coordinates>([^<]+)/gi)];
 
         let latLngs = [];
-        if (coordMatch) {
-            const pairs = coordMatch[1].trim().split(/\s+/);
+        let refPoint = null;
+        allCoordMatches.forEach(m => {
+            const pairs = m[1].trim().split(/\s+/);
+            const pts = [];
             pairs.forEach(p => {
                 const parts = p.split(',');
                 if (parts.length >= 2) {
                     const lon = parseFloat(parts[0]);
                     const lat = parseFloat(parts[1]);
-                    if (!isNaN(lat) && !isNaN(lon)) latLngs.push([lat, lon]);
+                    if (!isNaN(lat) && !isNaN(lon)) pts.push([lat, lon]);
                 }
             });
-        }
+            if (pts.length >= 3 && pts.length > latLngs.length) {
+                latLngs = pts;
+            } else if (pts.length === 1 && !refPoint) {
+                refPoint = pts[0];
+            }
+        });
+        if (!refPoint && latLngs.length > 0) refPoint = latLngs[0];
 
         let yr = null;
         if (yrMatch && /^\d{4}/.test(yrMatch[1])) {
-            yr = parseInt(yrMatch[1].slice(0, 4), 10);
+            const parsed = parseInt(yrMatch[1].slice(0, 4), 10);
+            if (parsed >= 1800 && parsed <= new Date().getFullYear() + 2) yr = parsed;
         }
 
         list.push({
             id: idMatch ? idMatch[1].trim() : '',
             year: yr,
             levels: levMatch ? parseInt(levMatch[1], 10) || 1 : 1,
-            facade: facMatch ? facMatch[1].trim() : '',
+            facade: facMatch ? facMatch[1].trim().toLowerCase() : '',
             latLngs: latLngs.length >= 3 ? latLngs : [],
-            areaM2: latLngs.length >= 3 ? computePolygonAreaM2(latLngs) : 100,
+            refPoint,
+            areaM2: latLngs.length >= 3 ? computePolygonAreaM2(latLngs) : 0,
             source: sourceLabel
         });
     });
@@ -10008,7 +10127,7 @@ function renderBuildingsOnMap(buildings, activeBld) {
     if (!buildingLayerGroup) return;
     buildingLayerGroup.clearLayers();
 
-    buildings.forEach(b => {
+    buildings.forEach((b, idx) => {
         if (!b.latLngs || b.latLngs.length < 3) return;
         const isActive = activeBld && (b === activeBld || (b.id && b.id === activeBld.id));
 
@@ -10021,17 +10140,17 @@ function renderBuildingsOnMap(buildings, activeBld) {
 
         const typeFi = BUILDING_TYPES_FI[b.buildingType] || 'Rakennus';
         poly.bindPopup(`
-            <div class="text-xs space-y-1">
-                <div class="font-bold text-white flex items-center justify-between gap-1.5">
+            <div class="text-xs space-y-1 text-slate-800">
+                <div class="font-bold text-slate-900 flex items-center justify-between gap-1.5">
                     <span>${isActive ? '🎯 Päärakennus' : '🏢 Rakennus'}</span>
-                    <span class="text-[10px] text-amber-300 font-normal">${b.year ? `valm. ${b.year}` : ''}</span>
+                    <span class="text-[10px] text-amber-700 font-semibold">${b.year && !b.isEstimatedYear ? `valm. ${b.year}` : ''}</span>
                 </div>
                 <div><b>Tyyppi:</b> ${typeFi}</div>
                 <div><b>Pohjapinta-ala:</b> ${Math.round(b.areaM2)} m²</div>
                 <div><b>Kerrosluku:</b> ${b.levels || 1} krs</div>
-                ${b.id ? `<div><b>Tunnus:</b> <span class="font-mono text-emerald-400">${b.id}</span></div>` : ''}
+                ${b.id ? `<div><b>Tunnus:</b> <span class="font-mono text-emerald-700">${b.id}</span></div>` : ''}
                 <div class="pt-1.5">
-                    <button onclick="selectInspectedBuilding('${b.id || ''}', ${b.areaM2})" class="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded text-[10px] font-semibold transition">
+                    <button onclick="selectInspectedBuildingByIndex(${idx})" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 px-2 py-1 rounded text-[10px] font-bold transition">
                         🔍 Valitse kohderakennukseksi
                     </button>
                 </div>
@@ -10039,9 +10158,18 @@ function renderBuildingsOnMap(buildings, activeBld) {
         `);
 
         poly.on('click', () => {
-            selectInspectedBuilding(b.id, b.areaM2);
+            selectInspectedBuildingByIndex(idx);
         });
     });
+}
+
+function selectInspectedBuildingByIndex(idx) {
+    if (!currentBuildingList || !currentBuildingList[idx]) return;
+    const found = currentBuildingList[idx];
+    activeBuildingItem = found;
+    renderBuildingsOnMap(currentBuildingList, found);
+    renderBuildingTechUI(found);
+    showToast(`Valittu rakennus: ${BUILDING_TYPES_FI[found.buildingType] || 'Rakennus'} (${Math.round(found.areaM2)} m²)`);
 }
 
 function selectInspectedBuilding(bldId, areaM2) {
@@ -10187,7 +10315,7 @@ function renderBuildingTechUI(bld) {
     renderBuildingRenovationTimeline(buildYear, age);
 }
 
-function updateBldHeatingCalculations() {
+function updateBldHeatingCalculations(fromClimateSync = false) {
     const areaInput = document.getElementById('bldHeatingAreaInput');
     const heatingSelect = document.getElementById('bldHeatingTypeSelect');
     if (!areaInput || !heatingSelect) return;
@@ -10210,6 +10338,9 @@ function updateBldHeatingCalculations() {
     const oilPriceKwh = 0.142; // n. 1,40 €/l, 1 litra = n. 10 kWh, hyötysuhde 85%
     const woodPriceKwh = 0.075; // klapit / pelletit
 
+    const directElecCost = Math.round(totalThermalNeed * elecPriceKwh);
+    const oilCost = Math.round((totalThermalNeed / 0.85) * oilPriceKwh + 180);
+
     if (sys === 'district') {
         boughtEnergyKwh = totalThermalNeed;
         yearlyCostEur = Math.round((totalThermalNeed * districtPriceKwh) + (areaM2 > 150 ? 540 : 360));
@@ -10230,12 +10361,12 @@ function updateBldHeatingCalculations() {
         yearlyCostEur = Math.round(boughtEnergyKwh * elecPriceKwh);
         co2Kg = Math.round(boughtEnergyKwh * 0.060);
     } else if (sys === 'electric') {
-        boughtEnergyKwh = Math.round(totalThermalNeed * 0.88); // ILP:n säästövaikutus huomioitu
+        boughtEnergyKwh = Math.round(totalThermalNeed * 0.88);
         yearlyCostEur = Math.round(boughtEnergyKwh * elecPriceKwh);
         co2Kg = Math.round(boughtEnergyKwh * 0.060);
     } else if (sys === 'oil') {
         boughtEnergyKwh = Math.round(totalThermalNeed / 0.85);
-        yearlyCostEur = Math.round(boughtEnergyKwh * oilPriceKwh + 180);
+        yearlyCostEur = oilCost;
         co2Kg = Math.round(boughtEnergyKwh * 0.267);
     } else if (sys === 'wood') {
         boughtEnergyKwh = Math.round(totalThermalNeed / 0.78);
@@ -10248,13 +10379,39 @@ function updateBldHeatingCalculations() {
     document.getElementById('bldCalcYearlyCost').textContent = `~${yearlyCostEur.toLocaleString('fi-FI')} €/v`;
     document.getElementById('bldCalcCo2').textContent = `~${co2Kg.toLocaleString('fi-FI')} kg CO₂/v`;
 
-    // Synkronoidaan Ilmasto-kortin valitsin
-    const climateSelect = document.getElementById('heatingHouseAreaSelect');
-    if (climateSelect && climateSelect.value !== String(areaM2)) {
-        for (const opt of climateSelect.options) {
-            if (parseInt(opt.value, 10) === areaM2) {
-                climateSelect.value = opt.value;
-                break;
+    // Säästövertailu
+    const savingsEl = document.getElementById('bldHeatingSavingsRow');
+    if (savingsEl) {
+        const saveVsElec = directElecCost - yearlyCostEur;
+        const saveVsOil = oilCost - yearlyCostEur;
+        if (sys === 'oil') {
+            const gshpCost = Math.round((totalThermalNeed / 3.8) * elecPriceKwh);
+            savingsEl.className = 'pt-1.5 mt-1 border-t border-slate-800/80 text-[11px] text-amber-300';
+            savingsEl.innerHTML = `⚠️ Vaihto maalämpöön/VILP:iin säästäisi arviolta <b>~${(oilCost - gshpCost).toLocaleString('fi-FI')} €/v</b> (ELY-tuki jopa 4 000 €).`;
+        } else if (saveVsElec > 100) {
+            savingsEl.className = 'pt-1.5 mt-1 border-t border-slate-800/80 text-[11px] text-emerald-300';
+            savingsEl.innerHTML = `💡 Säästö vs. suora sähkö: <b>+${saveVsElec.toLocaleString('fi-FI')} €/v</b> • vs. öljy: <b>+${Math.max(0, saveVsOil).toLocaleString('fi-FI')} €/v</b>`;
+        } else {
+            savingsEl.className = 'pt-1.5 mt-1 border-t border-slate-800/80 text-[11px] text-slate-400';
+            savingsEl.innerHTML = `ℹ️ Ilmalämpöpumppu (ILP) tai VILP pienentää suoran sähkön kulutusta 25–55 %.`;
+        }
+    }
+
+    // Päivitetään geoenergian poraussyvyys myös jos pinta-ala tai HDD muuttui
+    if (typeof renderGeoAndSolarPotential === 'function') {
+        const fp = activeBuildingItem ? Math.round(activeBuildingItem.areaM2 || areaM2) : areaM2;
+        renderGeoAndSolarPotential(areaM2, fp, (currentLoc.city || '').trim().toLowerCase());
+    }
+
+    // Synkronoidaan Ilmasto-kortin valitsin (vain jos muutos ei tullut sieltä)
+    if (!fromClimateSync) {
+        const climateSelect = document.getElementById('heatingHouseAreaSelect');
+        if (climateSelect && climateSelect.value !== String(areaM2)) {
+            for (const opt of climateSelect.options) {
+                if (parseInt(opt.value, 10) === areaM2) {
+                    climateSelect.value = opt.value;
+                    break;
+                }
             }
         }
     }
@@ -10265,21 +10422,22 @@ function renderGeoAndSolarPotential(totalFloorAreaM2, footprintM2, cityLow) {
     if (!el) return;
 
     const distProvider = FINNISH_DISTRICT_HEATING_PROVIDERS[cityLow] || 'Alueellinen kaukolämpöverkko';
-    
-    // Maalämpökaivon mitoitus: n. 1 metri porakaivoa per 75–85 kWh vuotuista lämmitystarvetta
-    const thermalNeed = totalFloorAreaM2 * ( (lastCalculatedHdd17 || 3850) / 4000 ) * 95 + (totalFloorAreaM2 * 25);
-    const wellDepthM = Math.round(thermalNeed / 80);
+
+    // Maalämpökaivon mitoitus huomioiden kallion lämmönjohtavuuden (perustaso 3.1 W/mK)
+    const thermalNeed = totalFloorAreaM2 * ((lastCalculatedHdd17 || 3850) / 4000) * 95 + (totalFloorAreaM2 * 25);
+    const condFactor = 3.1 / (lastKnownRockThermalCond || 3.1);
+    const wellDepthM = Math.max(90, Math.round((thermalNeed / 80) * condFactor));
 
     // Katon aurinkosähköpotentiaali: oletetaan n. 45% pohjapinta-alasta soveltuvan etelään/länteen
     const usableRoofM2 = Math.round(footprintM2 * 0.45);
-    const kwpPotential = Number((usableRoofM2 * 0.18).toFixed(1)); // n. 180 Wp / m²
-    const solarYieldKwh = Math.round(kwpPotential * 940); // 940 kWh / kWp / v Etelä-/Länsi-Suomessa
+    const kwpPotential = Number((usableRoofM2 * 0.18).toFixed(1));
+    const solarYieldKwh = Math.round(kwpPotential * 940);
     const solarSavingEur = Math.round(solarYieldKwh * 0.138);
 
     el.innerHTML = `
         <div class="space-y-1 pt-1">
             <div class="text-slate-300">🏢 <b>Kaukolämpö:</b> Toimittaja <span class="text-amber-300 font-semibold">${distProvider}</span></div>
-            <div class="text-slate-300">🪨 <b>GTK Geoenergia:</b> Kallion lämmönjohtavuus <span class="text-emerald-400 font-semibold">~${lastKnownRockThermalCond} W/(m·K)</span> • Tarvittava porakaivo: <strong class="text-white">~${wellDepthM} m</strong></div>
+            <div class="text-slate-300">🪨 <b>GTK Geoenergia:</b> ${lastKnownRockLabel} (<span class="text-emerald-400 font-semibold">~${lastKnownRockThermalCond} W/m·K</span>) • Kaivosyvyys: <strong class="text-white">~${wellDepthM} m</strong> <span class="text-slate-400">(${lastKnownSoilCasingNote})</span></div>
             <div class="text-slate-300">☀️ <b>Aurinkosähköpotentiaali:</b> Kattoala <span class="text-white">${usableRoofM2} m²</span> • Paneelisto <strong class="text-cyan-300">~${kwpPotential} kWp</strong> tuottaa <strong class="text-emerald-400">~${solarYieldKwh.toLocaleString('fi-FI')} kWh/v</strong> (säästö <span class="text-amber-300">~${solarSavingEur.toLocaleString('fi-FI')} €/v</span>)</div>
         </div>
     `;
@@ -10327,19 +10485,63 @@ function renderBuildingRenovationTimeline(buildYear, age) {
 }
 
 function renderBuildingTechFallback() {
+    const cityLow = (currentLoc.city || '').trim().toLowerCase();
+    const distProvider = FINNISH_DISTRICT_HEATING_PROVIDERS[cityLow] || 'Alueellinen kaukolämpöverkko';
     const srcBadge = document.getElementById('buildingTechSourceBadge');
     const typeBadge = document.getElementById('buildingTechTypeBadge');
     if (srcBadge) srcBadge.textContent = 'Alueen rakennuskanta';
     if (typeBadge) typeBadge.textContent = 'Alueellinen arvio';
 
+    document.getElementById('bldKpiYear').textContent = 'Arvio ~1988';
+    document.getElementById('bldKpiAge').textContent = 'Ei suoraa WFS-osuma-aluetta';
+    document.getElementById('bldKpiHeating').textContent = 'Maalämpö / VILP';
+    document.getElementById('bldKpiDistrictNet').textContent = distProvider;
+    document.getElementById('bldKpiArea').textContent = '120 m² (oletus)';
+    document.getElementById('bldKpiLevels').textContent = 'Voit säätää neliömäärää alta';
+    document.getElementById('bldKpiEnergyClass').textContent = 'Luokka D / E';
+    document.getElementById('bldKpiEnergyCons').textContent = '~170–210 kWh/m²/v';
+
     const detailsList = document.getElementById('bldTechDetailsList');
     if (detailsList) {
         detailsList.innerHTML = `
-            <div class="text-slate-400 text-xs py-2">
-                Osoitteesta ei löytynyt suoraa rakennustunnusta kantakartasta. Käytetään postinumeroalueen keskimääräisiä rakennustietoja.
+            <div class="text-slate-400 text-xs py-2 leading-relaxed">
+                Osoitteesta ei löytynyt suoraa vektorirakennusta kantakartasta tai OpenStreetMapista. Voit silti laskea lämmityskustannukset, maalämpökaivon syvyyden ja aurinkosähköpotentiaalin syöttämällä oman neliömäärän viereiseen laskuriin.
             </div>
         `;
     }
+
+    updateBldHeatingCalculations();
+    renderGeoAndSolarPotential(120, 120, cityLow);
+    renderBuildingRenovationTimeline(1988, new Date().getFullYear() - 1988);
+}
+
+// Pikanavigaatio, raportin jakaminen & PDF-tulostus
+function scrollToCard(cardKey) {
+    const card = document.querySelector(`[data-collapsible-card="${cardKey}"]`);
+    if (!card) return;
+    if (card.classList.contains('card-collapsed')) {
+        const header = card.querySelector('.collapsible-header');
+        if (header) header.click();
+    }
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyShareableReportUrl() {
+    const url = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            showToast('🔗 Suora kohdelinkki kopioitu leikepöydälle!');
+        }).catch(() => {
+            showToast('Kopioi osoite selaimen osoiteriviltä.');
+        });
+    } else {
+        showToast('Kopioi osoite selaimen osoiteriviltä.');
+    }
+}
+
+function printAddressReport() {
+    showToast('📄 Avataan tulostus- / PDF-näkymä...');
+    setTimeout(() => window.print(), 250);
 }
 </script>
 </body>
