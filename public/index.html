@@ -397,11 +397,11 @@
                     <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
                         <span class="text-emerald-400 font-bold mr-1">🧭 Pikahyppy:</span>
                         <button onclick="scrollToCard('buildingtech')" class="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg font-medium transition">🏠 Talo & Lämmitys</button>
-                        <button onclick="scrollToCard('investor')" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-medium transition">💰 Sijoittajalaskuri</button>
+                        <button onclick="scrollToCard('commute_vibe')" class="bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 px-2.5 py-1 rounded-lg font-medium transition">🚗 Työmatka & Vibe</button>
+                        <button onclick="scrollToCard('envgrid')" class="bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 px-2.5 py-1 rounded-lg font-medium transition">⚡ Sähkö & Melu</button>
+                        <button onclick="scrollToCard('lifestyle')" class="bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 px-2.5 py-1 rounded-lg font-medium transition">🏃 Lipas & Arki</button>
+                        <button onclick="scrollToCard('investor')" class="bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-medium transition">💰 Sijoittaja</button>
                         <button onclick="scrollToCard('housingcompany')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏢 Taloyhtiö</button>
-                        <button onclick="scrollToCard('pois')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🏫 Palvelut</button>
-                        <button onclick="scrollToCard('paavo')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">📊 Aluetilastot</button>
-                        <button onclick="scrollToCard('crime')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-lg transition">🚓 Turvallisuus</button>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="addCurrentAddressToCompare()" class="bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs px-2.5 py-1.5 rounded-lg font-medium transition flex items-center gap-1">
@@ -437,7 +437,18 @@
                     </div>
                 </div>
 
-                <div class="collapsible-body mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                <div class="collapsible-body mt-4 space-y-3">
+                    <!-- 🎯 Käyttäjäprofiilin valitsin (painottaa pisteet käyttäjän elämäntilanteen mukaan) -->
+                    <div class="no-print flex flex-wrap items-center gap-1.5 text-[11px] pb-1 border-b border-slate-800/80">
+                        <span class="text-slate-400 font-semibold mr-1">🎯 Painota arvio profiilillesi:</span>
+                        <button onclick="setBuyerProfile('general')" data-profile-btn="general" class="buyer-profile-btn bg-emerald-600 text-white border border-emerald-500 px-2.5 py-1 rounded-lg font-semibold transition">⚖️ Yleinen</button>
+                        <button onclick="setBuyerProfile('family')" data-profile-btn="family" class="buyer-profile-btn bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg font-medium transition">👨‍👩‍👧‍👦 Lapsiperhe</button>
+                        <button onclick="setBuyerProfile('investor')" data-profile-btn="investor" class="buyer-profile-btn bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg font-medium transition">💼 Sijoittaja</button>
+                        <button onclick="setBuyerProfile('nature')" data-profile-btn="nature" class="buyer-profile-btn bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg font-medium transition">🌲 Omakotitalo & Luonto</button>
+                        <button onclick="setBuyerProfile('senior')" data-profile-btn="senior" class="buyer-profile-btn bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg font-medium transition">👵 Seniori & Esteetön</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
                     <!-- Kokonaispistemäärä & 4 osa-aluetta (5/12) -->
                     <div class="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between gap-3">
                         <div class="flex items-center gap-4">
@@ -484,6 +495,7 @@
                         <ul id="buyerRedFlagsList" class="space-y-1.5 text-[11px] text-slate-300 leading-snug">
                             <li class="text-slate-500 italic">Tarkistetaan riskitekijöitä (savi, radon, asbesti, tulva, remontit)...</li>
                         </ul>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -1768,6 +1780,160 @@
                 </div>
             </div>
 
+            <!-- RIVI 4F-4: SÄHKÖNSIIRTOYHTIÖ, SYKE POHJAVESI & NATURA, MELU & SIITEPÖLYTUTKA -->
+            <div data-collapsible-card="envgrid" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            ⚡ Sähkönsiirtoyhtiö, SYKE Pohjavesi, Melu & Siitepölytutka
+                            <span id="envGridBadge" class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full font-semibold">SYKE & Open-Meteo Live</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Paikallinen sähköverkkoyhtiö ja siirtohinta-arvio, SYKE:n pohjavesi- ja luonnonsuojelurajat, melutaso sekä reaaliaikainen siitepölyennuste.</p>
+                    </div>
+                </div>
+                <div class="collapsible-body mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <!-- 1. Sähkönsiirtoyhtiö -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                        <div class="font-bold text-amber-300 flex items-center justify-between">
+                            <span>⚡ Sähkönsiirtoyhtiö</span>
+                            <span id="gridPriceTierBadge" class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">-</span>
+                        </div>
+                        <div id="gridProviderName" class="text-sm font-extrabold text-white">-</div>
+                        <div id="gridProviderDetails" class="text-[11px] text-slate-300 leading-relaxed">Haetaan alueen verkkoyhtiötä...</div>
+                    </div>
+
+                    <!-- 2. SYKE Pohjavesi & Natura 2000 -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                        <div class="font-bold text-sky-300">💧 Pohjavesi & Suojelualueet</div>
+                        <div id="sykeGroundwaterStatus" class="text-sm font-extrabold text-white">Tarkistetaan SYKE...</div>
+                        <div id="sykeProtectedDetails" class="text-[11px] text-slate-300 leading-relaxed">Haetaan SYKE:n pohjavesi- ja Natura-rajoja...</div>
+                    </div>
+
+                    <!-- 3. Meluarvio & EU-melukartta -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                        <div class="font-bold text-rose-300">🔇 Meluarvio & Melukartta</div>
+                        <div id="noiseLevelEstimate" class="text-sm font-extrabold text-white">Arvioidaan...</div>
+                        <div id="noiseDetailsBox" class="text-[11px] text-slate-300 leading-relaxed">Tarkistetaan teiden, ratojen ja lentoreittien vaikutusta...</div>
+                        <div class="pt-1">
+                            <a id="euNoiseMapLink" href="https://ckan.ymparisto.fi/" target="_blank" class="text-[10px] text-sky-400 hover:underline font-medium">🗺️ Avaa SYKE EU-melukartta ↗</a>
+                        </div>
+                    </div>
+
+                    <!-- 4. Siitepöly- & Allergiatutka -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                        <div class="font-bold text-emerald-300">🌿 Siitepöly & Allergiatutka</div>
+                        <div id="pollenStatusHeadline" class="text-sm font-extrabold text-white">Haetaan...</div>
+                        <div id="pollenBreakdownBox" class="text-[11px] text-slate-300 space-y-0.5">Haetaan reaaliaikaista koivu-, leppä-, heinä- ja pujodataa...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIVI 4F-5: LIPAS.FI LIIKUNTAPAIKAT, SYDÄNISKURI (DEFI), PELASTUSVASTEAIKA, PAKETTIAUTOMAATIT & MARJAMAASTO -->
+            <div data-collapsible-card="lifestyle" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            🏃 Lipas.fi Liikuntapaikat, ❤️ Sydäniskuri, 📦 Pakettiautomaatit & 🍓 Luontopotentiaali
+                            <span id="lipasCountBadge" class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-semibold">Lipas WFS Live</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Jyväskylän yliopiston virallinen Lipas-liikuntapaikkarekisteri (ladut, kuntoportaat, uimarannat, padel), lähin defibrillaattori, pelastusasema ja pakettiautomaatit.</p>
+                    </div>
+                </div>
+                <div class="collapsible-body mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 text-xs">
+                    <!-- Lipas.fi Liikuntapaikat (6/12) -->
+                    <div class="lg:col-span-6 bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="font-bold text-purple-300">🏅 Lähimmät Lipas.fi -liikunta- ja ulkoilupaikat (2 km)</span>
+                            <a href="https://lipas.fi/liikuntapaikat" target="_blank" class="text-[10px] text-sky-400 hover:underline">Lipas.fi ↗</a>
+                        </div>
+                        <div id="lipasSportsList" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                            <div class="text-slate-500 italic py-2">Haetaan lähimpiä liikuntapaikkoja Lipas.fi WFS -rajapinnasta...</div>
+                        </div>
+                    </div>
+
+                    <!-- Sydäniskuri, Pelastusvasteaika & Pakettiautomaatit (6/12) -->
+                    <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                            <div class="font-bold text-rose-300 border-b border-slate-800 pb-1.5">❤️ Sydäniskuri & 🚒 Pelastusvaste</div>
+                            <div id="defiAndRescueBox" class="space-y-1.5 text-[11px] text-slate-300">
+                                <div class="text-slate-500 italic">Etsitään lähintä defibrillaattoria ja pelastusasemaa...</div>
+                            </div>
+                            <a href="https://defi.fi/" target="_blank" class="inline-block text-[10px] text-rose-300 hover:underline pt-1">❤️ Avaa Suomen Defi.fi -rekisteri ↗</a>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="font-bold text-amber-300 border-b border-slate-800 pb-1.5">📦 Pakettiautomaatit & 🍓 Luonto</div>
+                                <div id="parcelLockersBox" class="space-y-1 text-[11px] text-slate-300">
+                                    <div class="text-slate-500 italic">Haetaan lähimpiä Postin, Matkahuollon ja PostNordin automaatteja...</div>
+                                </div>
+                            </div>
+                            <div id="berryMushroomBox" class="pt-2 border-t border-slate-800 text-[11px] text-emerald-300 leading-relaxed">
+                                🍓 <b>Marja- & sienimaasto:</b> Päivittyy Metsäkeskuksen kasvupaikkatiedosta...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIVI 4F-6: OMA TYÖMATKALASKURI, WALK SCORE, VAALIPROFIILI, VÄESTÖENNUSTE 2040 & AIKAKONE-ILMAKUVAT -->
+            <div data-collapsible-card="commute_vibe" data-default-open="true" class="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-bold text-white flex items-center gap-2">
+                            🚗 Oma Työmatkalaskuri, Walk Score, 🗳️ Vaaliprofiili & 📈 Väestöennuste 2040
+                            <span id="walkScoreBadge" class="text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2.5 py-0.5 rounded-full font-semibold">Walk Score -</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Laske täsmällinen työmatka-aika ja kustannus haluamaasi kohteeseen, arvioi autontarve sekä tutki alueen vaaliprofiili, tulevaisuuden kasvunäkymä ja historialliset kartat.</p>
+                    </div>
+                </div>
+                <div class="collapsible-body mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 text-xs">
+                    <!-- 1. Oma Työmatkalaskuri (5/12) -->
+                    <div class="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                        <div class="font-bold text-sky-300 border-b border-slate-800 pb-1.5">🚗 Laske oma työmatkasi tästä osoitteesta</div>
+                        <div class="flex gap-2">
+                            <input type="text" id="commuteDestInput" placeholder="esim. Turun Kauppatori tai työpaikan osoite"
+                                   onkeydown="if(event.key==='Enter') calculateCustomCommute()"
+                                   class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs placeholder-slate-500">
+                            <button onclick="calculateCustomCommute()" id="commuteCalcBtn" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition whitespace-nowrap">
+                                Laske
+                            </button>
+                        </div>
+                        <div id="commuteResultBox" class="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-[11px] text-slate-300 space-y-1">
+                            <div class="text-slate-400">Syötä työpaikan, koulun tai keskustan osoite laskeaksesi tarkan reittimatkan autolla, pyörällä ja kävellen (OSRM Live).</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Walk Score & Auto-riippuvuus (3/12) -->
+                    <div class="lg:col-span-3 bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-2">
+                        <div>
+                            <div class="font-bold text-emerald-300 border-b border-slate-800 pb-1.5 mb-2">🚶 Walk Score & Autontarve</div>
+                            <div class="flex items-baseline gap-2">
+                                <span id="walkScoreNum" class="text-3xl font-black text-emerald-400">--</span>
+                                <span class="text-xs text-slate-400">/ 100</span>
+                            </div>
+                            <div id="walkScoreVerdict" class="text-xs font-bold text-white mt-1">Lasketaan...</div>
+                            <div id="walkScoreDesc" class="text-[11px] text-slate-400 mt-1 leading-relaxed">Perustuu lähikauppoihin, kouluihin ja joukkoliikennepysäkkeihin.</div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400">
+                            🕰️ <b>Aikakone-kartat:</b>
+                            <div id="historicalMapLinks" class="flex flex-wrap gap-2 mt-1"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Alueen Vaaliprofiili & Väestöennuste 2040 (4/12) -->
+                    <div class="lg:col-span-4 bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2.5">
+                        <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1.5">🗳️ Vaaliprofiili & 📈 Väestöennuste 2040</div>
+                        <div id="electionProfileBox" class="space-y-1.5 text-[11px] text-slate-300">
+                            <div class="text-slate-500 italic">Haetaan kunnan vaaliprofiilia...</div>
+                        </div>
+                        <div id="popForecastBox" class="pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+                            <div class="text-slate-500 italic">Haetaan Tilastokeskuksen väestöennustetta...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- RIVI 4G: TALOYHTIÖN PERUSTIEDOT (PRH YTJ), YHTEISET TILAT, TILAHISTORIA, ASBESTI- & STUK RADONTIEDOT -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 
@@ -2329,6 +2495,9 @@ async function executeSearch() {
         fetchHousingCompanyAndBuildingHealth();
         fetchForestAndTrafficVolumes();
         fetchGeoPhotosAndNotablePeople();
+        fetchEnvGridAndPollen();
+        fetchLipasDefiAndParcelLockers();
+        fetchCommuteVibeAndForecast();
 
     } catch (err) {
         errorBox.textContent = err.message;
@@ -8453,6 +8622,7 @@ async function fetchForestAndTrafficVolumes() {
 
         if (standProps) {
             const fertClass = METSAKESKUS_FERTILITY_CLASSES[standProps.FERTILITYCLASS] || 'Kangasmetsä / Metsämaa';
+            if (typeof updateBerryMushroomBox === 'function') updateBerryMushroomBox(standProps.FERTILITYCLASS);
             const mainSpecies = METSAKESKUS_TREE_SPECIES[standProps.MAINTREESPECIES] || 'Sekapuusto (Mänty/Kuusi/Koivu)';
             const pinePct = Math.round((standProps.PROPORTIONPINE || 0) * 100);
             const sprucePct = Math.round((standProps.PROPORTIONSPRUCE || 0) * 100);
@@ -10901,8 +11071,19 @@ function updateBuyerSummaryScore() {
     }
     areaScore = Math.max(45, Math.min(98, Math.round(areaScore)));
 
-    const totalScore = Math.round(locScore * 0.30 + bldScore * 0.25 + riskScore * 0.25 + areaScore * 0.20);
-    lastComputedBuyerScore = { totalScore, locScore, bldScore, riskScore, areaScore, pros, flags };
+    const weightsMap = {
+        'general':  { loc: 0.30, bld: 0.25, risk: 0.25, area: 0.20, label: 'Yleinen arvio' },
+        'family':   { loc: 0.42, bld: 0.18, risk: 0.22, area: 0.18, label: 'Lapsiperhe-painotus' },
+        'investor': { loc: 0.30, bld: 0.25, risk: 0.15, area: 0.30, label: 'Asuntosijoittaja-painotus' },
+        'nature':   { loc: 0.12, bld: 0.33, risk: 0.38, area: 0.17, label: 'Omakotitalo & Luonto -painotus' },
+        'senior':   { loc: 0.40, bld: 0.22, risk: 0.20, area: 0.18, label: 'Seniori & Esteettömyys -painotus' }
+    };
+    const profKey = (typeof activeBuyerProfile !== 'undefined' && weightsMap[activeBuyerProfile]) ? activeBuyerProfile : 'general';
+    const w = weightsMap[profKey];
+
+    const totalScore = Math.round(locScore * w.loc + bldScore * w.bld + riskScore * w.risk + areaScore * w.area);
+    lastComputedBuyerScore = { totalScore, locScore, bldScore, riskScore, areaScore, pros, flags, profile: profKey };
+    if (typeof updateWalkScoreUI === 'function') updateWalkScoreUI(locScore, eduCount, dailyCount, transitCount);
 
     // Päivitetään DOM
     totalEl.textContent = totalScore;
@@ -11215,6 +11396,442 @@ function applyBrokerBrandingHeader() {
         bar.classList.remove('hidden');
     } else {
         bar.classList.add('hidden');
+    }
+}
+
+// ============================================================================
+// OSA 9: KÄYTTÄJÄPROFIILI, SÄHKÖNSIIRTO, SYKE POHJAVESI/MELU/SIITEPÖLY,
+//        LIPAS.FI, DEFI/PELASTUS, PAKETTIAUTOMAATIT, TYÖMATKA & VAALIPROFIILI
+// ============================================================================
+
+let activeBuyerProfile = 'general';
+
+function setBuyerProfile(profKey) {
+    activeBuyerProfile = profKey || 'general';
+    document.querySelectorAll('.buyer-profile-btn').forEach(btn => {
+        if (btn.dataset.profileBtn === activeBuyerProfile) {
+            btn.className = 'buyer-profile-btn bg-emerald-600 text-white border border-emerald-500 px-2.5 py-1 rounded-lg font-semibold transition';
+        } else {
+            btn.className = 'buyer-profile-btn bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-lg font-medium transition';
+        }
+    });
+    updateBuyerSummaryScore();
+}
+
+// Suomen keskeiset sähkönsiirtoyhtiöt (yleissiirto 3x25A, arvio 2025/2026 sis. sähkövero 2,79 snt/kWh)
+const FINNISH_GRID_PROVIDERS = {
+    'helsinki': { name: 'Helen Sähköverkko Oy', baseEur: 5.5, sntKwh: 6.4, tier: 'Edullinen (Top 5)' },
+    'turku': { name: 'Turku Energia Sähköverkot Oy', baseEur: 14.9, sntKwh: 6.9, tier: 'Edullinen / Keskitaso' },
+    'tampere': { name: 'Tampereen Energia Sähköverkko Oy', baseEur: 12.9, sntKwh: 6.6, tier: 'Edullinen' },
+    'espoo': { name: 'Caruna Espoo Oy', baseEur: 15.8, sntKwh: 6.7, tier: 'Keskitaso' },
+    'kauniainen': { name: 'Caruna Espoo Oy', baseEur: 15.8, sntKwh: 6.7, tier: 'Keskitaso' },
+    'kirkkonummi': { name: 'Caruna Espoo Oy', baseEur: 15.8, sntKwh: 6.7, tier: 'Keskitaso' },
+    'vantaa': { name: 'Vantaan Energia Sähköverkot Oy', baseEur: 9.8, sntKwh: 6.5, tier: 'Edullinen' },
+    'oulu': { name: 'Oulun Energia Sähköverkko Oy', baseEur: 11.5, sntKwh: 6.8, tier: 'Edullinen' },
+    'jyväskylä': { name: 'Alva Sähköverkko Oy', baseEur: 14.5, sntKwh: 7.4, tier: 'Keskitaso' },
+    'lahti': { name: 'Lahti Energia Sähköverkko Oy', baseEur: 16.5, sntKwh: 7.3, tier: 'Keskitaso' },
+    'kuopio': { name: 'Kuopion Sähköverkko Oy', baseEur: 13.8, sntKwh: 7.1, tier: 'Edullinen / Keskitaso' },
+    'pori': { name: 'Pori Energia Sähköverkot Oy', baseEur: 15.2, sntKwh: 7.2, tier: 'Keskitaso' },
+    'vaasa': { name: 'Vaasan Sähköverkko Oy', baseEur: 14.8, sntKwh: 7.2, tier: 'Keskitaso' },
+    'joensuu': { name: 'Caruna Oy / PKS Sähkönsiirto', baseEur: 33.9, sntKwh: 8.6, tier: 'Korkeampi siirtohinta' },
+    'kaarina': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'raisio': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'naantali': { name: 'Caruna Oy / Naantalin Energia', baseEur: 24.5, sntKwh: 7.9, tier: 'Keskitaso / Korkeampi' },
+    'lieto': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'rusko': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'salo': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'lohja': { name: 'Caruna Oy', baseEur: 34.9, sntKwh: 8.4, tier: 'Korkeampi siirtohinta' },
+    'hämeenlinna': { name: 'Elenia Verkko Oyj', baseEur: 31.9, sntKwh: 8.2, tier: 'Korkeampi siirtohinta' },
+    'seinäjoki': { name: 'Elenia Verkko / Seinäjoen Energia', baseEur: 22.0, sntKwh: 7.6, tier: 'Keskitaso' },
+    'lappeenranta': { name: 'Lappeenrannan Energiaverkot Oy', baseEur: 17.2, sntKwh: 7.4, tier: 'Keskitaso' },
+    'rovaniemi': { name: 'Rovaniemen Verkko / Rovakaira', baseEur: 21.5, sntKwh: 7.8, tier: 'Keskitaso' },
+    'mikkeli': { name: 'ESE-Verkko / Järvi-Suomen Energia', baseEur: 24.0, sntKwh: 8.0, tier: 'Keskitaso / Korkeampi' },
+    'kotka': { name: 'Kymenlaakson Sähköverkko Oy', baseEur: 29.5, sntKwh: 8.1, tier: 'Korkeampi siirtohinta' },
+    'kouvola': { name: 'KSS Verkko Oy', baseEur: 22.5, sntKwh: 7.8, tier: 'Keskitaso' },
+    'porvoo': { name: 'Porvoon Sähköverkko Oy', baseEur: 18.9, sntKwh: 7.5, tier: 'Keskitaso' },
+    'rauma': { name: 'Rauman Energia Sähköverkko', baseEur: 15.5, sntKwh: 7.1, tier: 'Keskitaso' },
+    'kokkola': { name: 'Kokkolan Energiaverkot', baseEur: 15.9, sntKwh: 7.2, tier: 'Keskitaso' }
+};
+
+async function fetchEnvGridAndPollen() {
+    const { lat, lon, city } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+
+    // 1. Sähkönsiirtoyhtiö & vuosihinta-arvio (10 000 kWh)
+    const grid = FINNISH_GRID_PROVIDERS[cityLow] || {
+        name: 'Alueellinen sähköverkkoyhtiö (esim. Caruna / Elenia / paikallinen)',
+        baseEur: 26.5,
+        sntKwh: 8.0,
+        tier: 'Alueellinen keskitaso'
+    };
+    const yearly10k = Math.round(grid.baseEur * 12 + 10000 * (grid.sntKwh / 100));
+    const setEl = (id, html) => { const e = document.getElementById(id); if (e) e.innerHTML = html; };
+
+    setEl('gridProviderName', grid.name);
+    setEl('gridPriceTierBadge', grid.tier);
+    setEl('gridProviderDetails', `
+        Perusmaksu (3×25A): <b>~${grid.baseEur.toFixed(1)} €/kk</b><br>
+        Siirto + sähkövero: <b>~${grid.sntKwh.toFixed(1)} snt/kWh</b><br>
+        Arvio 10 000 kWh/v: <strong class="text-amber-300">~${yearly10k.toLocaleString('fi-FI')} €/v</strong>
+    `);
+
+    // 2. SYKE Pohjavesialueet & Natura/Suojelualueet (Live ArcGIS REST)
+    (async () => {
+        try {
+            const d = 0.002;
+            const env = `${(lon - d).toFixed(5)},${(lat - d).toFixed(5)},${(lon + d).toFixed(5)},${(lat + d).toFixed(5)}`;
+            const [gwRes, protRes] = await Promise.all([
+                fetchWithTimeout(`https://paikkatieto.ymparisto.fi/arcgis/rest/services/SYKE/SYKE_Pohjavesialueet/MapServer/0/query?geometry=${lon},${lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=false&f=json`, {}, 6000),
+                fetchWithTimeout(`https://paikkatieto.ymparisto.fi/arcgis/rest/services/SYKE/SYKE_SuojellutAlueet/MapServer/0/query?geometry=${env}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=false&f=json`, {}, 6000)
+            ]);
+            let gwHits = [];
+            let protHits = [];
+            if (gwRes.ok) {
+                const j = await gwRes.json();
+                gwHits = j.features || [];
+            }
+            if (protRes.ok) {
+                const j = await protRes.json();
+                protHits = j.features || [];
+            }
+
+            if (gwHits.length > 0) {
+                const a = gwHits[0].attributes || {};
+                const gwName = a.Nimi || a.POHJAVESIALUEEN_NIMI || 'Luokiteltu pohjavesialue';
+                const gwClass = a.Luokka || a.LUOKKA || '1 / 2';
+                setEl('sykeGroundwaterStatus', `<span class="text-amber-300">⚠️ Pohjavesialue (${gwClass})</span>`);
+                setEl('sykeProtectedDetails', `<b>${gwName}</b> — Maalämpökaivon poraaminen vaatii vesilain mukaisen ympäristöluvan ja öljysäiliöille tiukat tarkastukset.${protHits.length > 0 ? `<br>🌿 Lähistöllä ${protHits.length} suojelukohdetta.` : ''}`);
+            } else {
+                setEl('sykeGroundwaterStatus', `<span class="text-emerald-400">✅ Ei pohjavesirajoitusta</span>`);
+                setEl('sykeProtectedDetails', `Tontti ei sijaitse SYKE:n luokitellulla pohjavesialueella — maalämpökaivon toimenpidelupa yleensä sujuva.${protHits.length > 0 ? `<br>🌿 Lähistöllä (< 200 m): <b>${protHits.length} suojelualuerajaus</b>.` : '<br>Ei suojelualuerajauksia välittömässä läheisyydessä.'}`);
+            }
+        } catch (e) {
+            setEl('sykeGroundwaterStatus', 'SYKE-tarkistus');
+            setEl('sykeProtectedDetails', 'SYKE:n rajapinta ruuhkautunut — tarkista pohjavesialueet karttatasoista.');
+        }
+    })();
+
+    // 3. Meluarvio & SYKE EU-melukartta
+    const isUrban = ['helsinki', 'espoo', 'vantaa', 'tampere', 'turku', 'oulu', 'jyväskylä', 'lahti', 'kuopio'].includes(cityLow);
+    const estDb = isUrban ? '50–62 dB (kaupunkialue)' : '40–52 dB (rauhallinen)';
+    setEl('noiseLevelEstimate', estDb);
+    setEl('noiseDetailsBox', isUrban
+        ? 'Taajama-alue: päivämelun ohjearvo 55 dB. Tarkista lähimmän pääkadun, rautatien ja lentoreitin etäisyys kartalta.'
+        : 'Rauhallisempi pientalo-/taajamaympäristö. Yömelu tyypillisesti alle 45 dB ohjearvon.');
+    const noiseLink = document.getElementById('euNoiseMapLink');
+    if (noiseLink) noiseLink.href = `https://paikkatieto.ymparisto.fi/meluselvitys/`;
+
+    // 4. Open-Meteo Siitepöly- & Allergiatutka (Live)
+    (async () => {
+        try {
+            const pUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen`;
+            const res = await fetchWithTimeout(pUrl, {}, 6000);
+            if (!res.ok) throw new Error('pollen fail');
+            const data = await res.json();
+            const c = data.current || {};
+            const alder = Math.round(c.alder_pollen || 0);
+            const birch = Math.round(c.birch_pollen || 0);
+            const grass = Math.round(c.grass_pollen || 0);
+            const mugwort = Math.round(c.mugwort_pollen || 0);
+            const maxVal = Math.max(alder, birch, grass, mugwort);
+
+            const statusTxt = maxVal === 0 ? '<span class="text-emerald-400">🟢 Ei siitepölyä nyt</span>'
+                : maxVal < 30 ? '<span class="text-emerald-300">🟡 Matala siitepölytaso</span>'
+                : maxVal < 100 ? '<span class="text-amber-300">🟠 Kohtalainen taso</span>'
+                : '<span class="text-rose-400">🔴 Korkea allergiariski</span>';
+
+            setEl('pollenStatusHeadline', statusTxt);
+            setEl('pollenBreakdownBox', `
+                <div class="flex justify-between"><span>🌳 Koivu / Leppä:</span><b>${birch} / ${alder} gr/m³</b></div>
+                <div class="flex justify-between"><span>🌾 Heinät / Pujo:</span><b>${grass} / ${mugwort} gr/m³</b></div>
+                <div class="text-[10px] text-slate-400 pt-0.5">Lähde: Open-Meteo / CAMS Europe (reaaliaikainen)</div>
+            `);
+        } catch (e) {
+            setEl('pollenStatusHeadline', 'Siitepölytiedot');
+            setEl('pollenBreakdownBox', '<a href="https://norkko.fi/" target="_blank" class="text-emerald-400 hover:underline">Katso Turun yliopiston Norkko.fi ↗</a>');
+        }
+    })();
+}
+
+async function fetchLipasDefiAndParcelLockers() {
+    const { lat, lon } = currentLoc;
+
+    // 1. Lipas.fi Virallinen Liikuntapaikka WFS (2 km säde)
+    (async () => {
+        const listEl = document.getElementById('lipasSportsList');
+        const badgeEl = document.getElementById('lipasCountBadge');
+        try {
+            const d = 0.018;
+            const bbox = `${(lat - d).toFixed(5)},${(lon - d * 1.8).toFixed(5)},${(lat + d).toFixed(5)},${(lon + d * 1.8).toFixed(5)},urn:ogc:def:crs:EPSG::4326`;
+            const url = `https://lipas.fi/geoserver/lipas/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName=lipas:lipas_kaikki_pisteet&outputFormat=application/json&srsName=EPSG:4326&bbox=${bbox}&count=30`;
+            const res = await fetchWithTimeout(url, {}, 7500);
+            if (!res.ok) throw new Error('Lipas fail');
+            const geo = await res.json();
+            const items = (geo.features || []).map(f => {
+                const p = f.properties || {};
+                const coords = f.geometry?.coordinates || [];
+                const dist = coords.length >= 2 ? Math.round(haversineMeters(lat, lon, coords[1], coords[0])) : 9999;
+                return {
+                    name: p.nimi_fi || p.nimi_se || 'Liikuntapaikka',
+                    type: p.tyyppi_nimi_fi || 'Ulkoilukohde',
+                    addr: p.katuosoite || '',
+                    www: p.www || '',
+                    lat: coords[1],
+                    lon: coords[0],
+                    dist
+                };
+            }).filter(x => x.dist <= 2500).sort((a, b) => a.dist - b.dist).slice(0, 12);
+
+            if (badgeEl) badgeEl.textContent = `${items.length} Lipas-kohdetta (< 2 km)`;
+            if (listEl) {
+                if (items.length === 0) {
+                    listEl.innerHTML = `<div class="text-slate-400">Ei Lipas-liikuntapaikkoja 2 km säteellä.</div>`;
+                } else {
+                    listEl.innerHTML = items.map(it => `
+                        <div onclick="focusMapPoint(${it.lat}, ${it.lon}, '${it.name.replace(/'/g, '')}', '${it.type.replace(/'/g, '')} (${it.dist} m)')"
+                             class="bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg px-2.5 py-2 flex items-center justify-between gap-2 cursor-pointer transition">
+                            <div class="min-w-0">
+                                <div class="font-semibold text-white truncate">🏃 ${it.name}</div>
+                                <div class="text-[10px] text-slate-400 truncate">${it.type}${it.addr ? ' • ' + it.addr : ''}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="bg-purple-500/15 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] font-semibold">${it.dist} m</span>
+                                ${it.www ? `<a href="${it.www}" target="_blank" onclick="event.stopPropagation()" class="text-sky-400 hover:underline text-[10px]">↗</a>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+        } catch (e) {
+            if (listEl) listEl.innerHTML = `<div class="text-slate-400">Lipas.fi-rajapinta ei vastannut juuri nyt. <a href="https://lipas.fi/liikuntapaikat" target="_blank" class="text-sky-400 underline">Avaa Lipas.fi ↗</a></div>`;
+        }
+    })();
+
+    // 2. Sydäniskuri (Defibrillaattori), Pelastusasema, Sairaala & Pakettiautomaatit (Overpass)
+    (async () => {
+        const defiBox = document.getElementById('defiAndRescueBox');
+        const lockerBox = document.getElementById('parcelLockersBox');
+        try {
+            const q = `[out:json][timeout:8];(
+                node["emergency"="defibrillator"](around:2500,${lat},${lon});
+                nwr["amenity"="fire_station"](around:8000,${lat},${lon});
+                nwr["amenity"="hospital"](around:10000,${lat},${lon});
+                node["amenity"="parcel_locker"](around:2500,${lat},${lon});
+            );out center qt 40;`;
+            const ov = await fetchOverpassWithFallback(q, 7000);
+            const els = ov.elements || [];
+
+            const mapDist = el => {
+                const elLat = el.lat || el.center?.lat;
+                const elLon = el.lon || el.center?.lon;
+                return {
+                    name: el.tags?.name || el.tags?.operator || el.tags?.brand || el.tags?.description || '',
+                    tags: el.tags || {},
+                    lat: elLat,
+                    lon: elLon,
+                    dist: elLat ? Math.round(haversineMeters(lat, lon, elLat, elLon)) : 99999
+                };
+            };
+
+            const defis = els.filter(e => e.tags?.emergency === 'defibrillator').map(mapDist).sort((a, b) => a.dist - b.dist);
+            const fires = els.filter(e => e.tags?.amenity === 'fire_station').map(mapDist).sort((a, b) => a.dist - b.dist);
+            const hosps = els.filter(e => e.tags?.amenity === 'hospital').map(mapDist).sort((a, b) => a.dist - b.dist);
+            const lockers = els.filter(e => e.tags?.amenity === 'parcel_locker').map(mapDist).sort((a, b) => a.dist - b.dist);
+
+            if (defiBox) {
+                const d0 = defis[0];
+                const f0 = fires[0];
+                const h0 = hosps[0];
+                const fireMin = f0 ? Math.max(2, Math.round((f0.dist / 1000) / 0.9 + 1.5)) : null;
+                defiBox.innerHTML = `
+                    <div>❤️ <b>Lähin sydäniskuri:</b> ${d0 ? `<span class="text-emerald-400 font-semibold">${d0.dist} m</span> (${d0.name || d0.tags['defibrillator:location'] || 'Rekisteröity kohde'})` : '<span class="text-slate-400">Ei OSM-merkintää 2,5 km säteellä — katso Defi.fi</span>'}</div>
+                    <div>🚒 <b>Pelastusasema:</b> ${f0 ? `<strong class="text-white">${(f0.dist / 1000).toFixed(1)} km</strong> (${f0.name || 'Paloasema'}) • Vasteaika <span class="text-amber-300 font-semibold">~${fireMin} min</span>` : 'Tarkista alueen pelastuslaitos'}</div>
+                    <div>🏥 <b>Lähin sairaala:</b> ${h0 ? `<strong class="text-white">${(h0.dist / 1000).toFixed(1)} km</strong> (${h0.name || 'Sairaala'})` : 'Yli 10 km säteellä'}</div>
+                `;
+            }
+
+            if (lockerBox) {
+                if (lockers.length === 0) {
+                    lockerBox.innerHTML = `<div class="text-slate-400">Ei merkittyjä pakettiautomaatteja 2,5 km säteellä (tarkista Posti.fi / Matkahuolto).</div>`;
+                } else {
+                    lockerBox.innerHTML = lockers.slice(0, 4).map(l => `
+                        <div class="flex items-center justify-between gap-2 py-0.5 border-b border-slate-800/60">
+                            <span class="truncate">📦 ${l.name || l.tags.brand || 'Pakettiautomaatti'}</span>
+                            <span class="text-amber-300 font-semibold shrink-0">${l.dist} m</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        } catch (e) {
+            if (defiBox) defiBox.innerHTML = `<div class="text-slate-400">Tarkista sydäniskurit Defi.fi-palvelusta.</div>`;
+            if (lockerBox) lockerBox.innerHTML = `<div class="text-slate-400">Pakettiautomaattihaku ei vastannut.</div>`;
+        }
+    })();
+}
+
+function updateBerryMushroomBox(fertClass) {
+    const el = document.getElementById('berryMushroomBox');
+    if (!el) return;
+    const map = {
+        1: '🌿 <b>Lehto:</b> Erinomainen korvasieni-, nokkos- ja vadelmamaasto, runsas aluskasvillisuus.',
+        2: '🫐 <b>Lehtomainen kangas (OMT):</b> Huippumaasto mustikalle, herkkutatille, suppilovahverolle ja kantarellille!',
+        3: '🫐 <b>Tuore kangas (MT):</b> Suomen paras mustikkametsä — runsaasti herkkutatteja, kantarelleja ja rouskuja.',
+        4: '🍒 <b>Kuivahko kangas (VT):</b> Erinomainen puolukka- ja kangasrouskumaasto, helppokulkuista mäntykangasta.',
+        5: '🍒 <b>Kuiva kangas (CT):</b> Puolukka- ja karpalomaastoa, valoisaa ja kuivaa mäntymetsää.'
+    };
+    el.innerHTML = `🍓 <b>Marja- & sienimaasto:</b> ${map[fertClass] || 'Monipuolinen suomalainen sekametsä — mustikkaa, puolukkaa ja ruokasieniä.'}`;
+}
+
+// Kunnan eduskuntavaaliprofiili (2023 Top 3) + Tilastokeskuksen väestöennuste 2040
+const FINNISH_CITY_VIBE_DATA = {
+    'helsinki': { top3: 'Kok 26,4 % • SDP 20,9 % • Vihr 15,3 %', turnout: '77,6 %', forecast: '+11 % kasvu vuoteen 2040 (Vahva kasvukeskus)' },
+    'espoo': { top3: 'Kok 35,2 % • SDP 16,8 % • Vihr 12,1 %', turnout: '77,9 %', forecast: '+16 % kasvu vuoteen 2040 (Suomen nopeimpia kasvukuntia)' },
+    'vantaa': { top3: 'SDP 23,5 % • Kok 21,8 % • PS 19,2 %', turnout: '68,4 %', forecast: '+14 % kasvu vuoteen 2040 (Vahva kasvukeskus)' },
+    'turku': { top3: 'Kok 23,1 % • SDP 21,6 % • Vas 13,5 %', turnout: '73,5 %', forecast: '+9 % kasvu vuoteen 2040 (Vakaa yliopisto- ja kasvukaupunki)' },
+    'tampere': { top3: 'SDP 25,6 % • Kok 23,8 % • PS 15,6 %', turnout: '74,2 %', forecast: '+13 % kasvu vuoteen 2040 (Suomen vetovoimaisin kasvukeskus)' },
+    'oulu': { top3: 'Kesk 20,2 % • Kok 18,9 % • PS 18,4 %', turnout: '72,8 %', forecast: '+8 % kasvu vuoteen 2040 (Pohjois-Suomen kasvukeskus)' },
+    'jyväskylä': { top3: 'SDP 23,9 % • Kok 19,1 % • PS 16,8 %', turnout: '73,1 %', forecast: '+6 % kasvu vuoteen 2040 (Kasvava yliopistokaupunki)' },
+    'lahti': { top3: 'SDP 26,2 % • Kok 21,4 % • PS 20,8 %', turnout: '68,9 %', forecast: '+2 % vakaa / maltillinen kasvu vuoteen 2040' },
+    'kuopio': { top3: 'Kesk 21,5 % • Kok 20,4 % • SDP 19,8 %', turnout: '71,2 %', forecast: '+5 % kasvu vuoteen 2040 (Itä-Suomen kasvukeskus)' },
+    'pori': { top3: 'SDP 27,8 % • PS 23,4 % • Kok 18,1 %', turnout: '70,4 %', forecast: '-4 % maltillinen väestönlasku vuoteen 2040' },
+    'vaasa': { top3: 'RKP 29,4 % • SDP 19,8 % • Kok 18,6 %', turnout: '75,1 %', forecast: '+4 % kasvu vuoteen 2040 (Energiaklusteri)' },
+    'kaarina': { top3: 'Kok 29,5 % • SDP 19,2 % • PS 17,4 %', turnout: '78,1 %', forecast: '+10 % kasvu vuoteen 2040 (Turun kehyskunta)' },
+    'raisio': { top3: 'SDP 24,5 % • Kok 22,8 % • PS 20,9 %', turnout: '71,6 %', forecast: '+5 % kasvu vuoteen 2040 (Turun kehyskunta)' },
+    'naantali': { top3: 'Kok 32,1 % • SDP 19,4 % • PS 16,8 %', turnout: '79,4 %', forecast: '+6 % kasvu vuoteen 2040 (Vetovoimainen rannikkokaupunki)' },
+    'rovaniemi': { top3: 'Kesk 24,1 % • PS 21,8 % • SDP 18,9 %', turnout: '71,5 %', forecast: '+5 % kasvu vuoteen 2040 (Matkailu- ja yliopistokeskus)' }
+};
+
+function fetchCommuteVibeAndForecast() {
+    const { lat, lon, city } = currentLoc;
+    const cityLow = (city || '').trim().toLowerCase();
+    const vibe = FINNISH_CITY_VIBE_DATA[cityLow] || {
+        top3: 'Kesk / PS / Kok / SDP (tarkista äänestysalue Oikeusministeriöstä)',
+        turnout: 'n. 72 %',
+        forecast: 'Tarkista kuntakohtainen Tilastokeskuksen väestöennuste 2040'
+    };
+
+    const elecBox = document.getElementById('electionProfileBox');
+    if (elecBox) {
+        elecBox.innerHTML = `
+            <div><b>Eduskuntavaalit (${city || 'Kunta'}) Top 3:</b></div>
+            <div class="text-indigo-200 font-semibold">${vibe.top3}</div>
+            <div class="text-[10px] text-slate-400">Äänestysaktiivisuus: ${vibe.turnout} • <a href="https://tulospalvelu.vaalit.fi/" target="_blank" class="text-sky-400 hover:underline">Oikeusministeriö Tulospalvelu ↗</a></div>
+        `;
+    }
+
+    const popBox = document.getElementById('popForecastBox');
+    if (popBox) {
+        const isGrowing = vibe.forecast.includes('+');
+        popBox.innerHTML = `
+            <div><b>📈 Väestöennuste 2040 (Tilastokeskus):</b></div>
+            <div class="${isGrowing ? 'text-emerald-400' : 'text-amber-300'} font-semibold mt-0.5">${vibe.forecast}</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Väestönkasvu tukee pitkällä aikavälillä asuntojen kysyntää ja jälleenmyyntiarvoa.</div>
+        `;
+    }
+
+    // Historialliset "Aikakone"-kartat
+    const histEl = document.getElementById('historicalMapLinks');
+    if (histEl) {
+        histEl.innerHTML = `
+            <a href="https://vanhatkartat.fi/#14/${lat.toFixed(4)}/${lon.toFixed(4)}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 px-2 py-0.5 rounded transition">🗺️ Vanhatkartat.fi (1950–80) ↗</a>
+            <a href="https://kartta.paikkatietoikkuna.fi/?coord=${lon.toFixed(4)}_${lat.toFixed(4)}&zoomLevel=10" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-2 py-0.5 rounded transition">🛰️ Historialliset ilmakuvat ↗</a>
+        `;
+    }
+
+    // Jos käyttäjällä on tallennettu työpaikan osoite, ladataan se valmiiksi ja lasketaan automaattisesti!
+    const savedDest = localStorage.getItem('osoitetutka_commute_dest');
+    const destInput = document.getElementById('commuteDestInput');
+    if (savedDest && destInput) {
+        destInput.value = savedDest;
+        calculateCustomCommute(true);
+    }
+}
+
+function updateWalkScoreUI(locScore, eduCount, dailyCount, transitCount) {
+    const score = Math.max(15, Math.min(99, Math.round(locScore)));
+    const numEl = document.getElementById('walkScoreNum');
+    const verdictEl = document.getElementById('walkScoreVerdict');
+    const descEl = document.getElementById('walkScoreDesc');
+    const badgeEl = document.getElementById('walkScoreBadge');
+
+    if (numEl) numEl.textContent = score;
+    if (badgeEl) badgeEl.textContent = `Walk Score ${score}/100`;
+
+    let verdict = '🚗 Oma auto suositeltava';
+    let desc = 'Osa arjen asioinneista vaatii autoa tai pidempää pyörämatkaa.';
+    if (score >= 85) {
+        verdict = '🚶 Pärjää täysin ilman autoa!';
+        desc = `Kaupat (${dailyCount}), koulut (${eduCount}) ja pysäkit (${transitCount}) kävelyetäisyydellä — arki toimii jalkaisin ja joukkoliikenteellä.`;
+    } else if (score >= 70) {
+        verdict = '🚲 Erittäin käveltävä / 0–1 autoa';
+        desc = `Hyvät lähipalvelut (${dailyCount} kauppaa) ja ${transitCount} pysäkkiä lähellä. Pyörällä ja bussilla pääsee sujuvasti.`;
+    } else if (score < 55) {
+        verdict = '🚗🚗 Autoriippuvainen sijainti';
+        desc = 'Rauhallinen sijainti kauempana palvelukeskittymistä — perheessä yleensä 1–2 autoa tarpeen.';
+    }
+    if (verdictEl) verdictEl.textContent = verdict;
+    if (descEl) descEl.textContent = desc;
+}
+
+async function calculateCustomCommute(silent = false) {
+    const destInput = document.getElementById('commuteDestInput');
+    const box = document.getElementById('commuteResultBox');
+    const btn = document.getElementById('commuteCalcBtn');
+    if (!destInput || !box || !currentLoc.lat) return;
+
+    const destQuery = destInput.value.trim();
+    if (!destQuery) {
+        if (!silent) showToast('Syötä ensin määränpään osoite (esim. työpaikka).');
+        return;
+    }
+
+    localStorage.setItem('osoitetutka_commute_dest', destQuery);
+    if (btn) { btn.disabled = true; btn.textContent = '...'; }
+    box.innerHTML = `<div class="text-slate-400 animate-pulse">Lasketaan reittiä kohteeseen "${destQuery}"...</div>`;
+
+    try {
+        const geoRes = await fetchWithTimeout(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(destQuery)}&countrycodes=fi&limit=1`, { headers: { 'Accept-Language': 'fi' } }, 6000);
+        const geo = await geoRes.json();
+        if (!geo || geo.length === 0) throw new Error('Määränpäätä ei löytynyt.');
+
+        const dLat = parseFloat(geo[0].lat);
+        const dLon = parseFloat(geo[0].lon);
+
+        const routeRes = await fetchWithTimeout(`https://router.project-osrm.org/route/v1/driving/${currentLoc.lon},${currentLoc.lat};${dLon},${dLat}?overview=false`, {}, 6500);
+        const rData = await routeRes.json();
+        const route = rData.routes && rData.routes[0];
+        if (!route) throw new Error('Reittiä ei voitu laskea.');
+
+        const km = route.distance / 1000;
+        const driveMin = Math.max(1, Math.round(route.duration / 60));
+        const bikeMin = Math.max(2, Math.round((km / 17) * 60));
+        const walkMin = Math.max(3, Math.round((km / 5) * 60));
+        const transitMin = Math.round(driveMin * 1.45 + 7);
+
+        // Vuotuinen työmatkakustannus autolla (220 työpäivää x 2 suuntaa, bensa ~0,13 €/km vs sähköauto ~0,03 €/km)
+        const yearlyKm = Math.round(km * 2 * 220);
+        const gasCostEur = Math.round(yearlyKm * 0.13);
+        const evCostEur = Math.round(yearlyKm * 0.03);
+
+        box.innerHTML = `
+            <div class="font-bold text-white flex justify-between border-b border-slate-800 pb-1">
+                <span class="truncate">🎯 ${destQuery}</span>
+                <span class="text-sky-300 shrink-0">${km.toFixed(1)} km</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1 text-center">
+                <div class="bg-slate-950 border border-slate-800 rounded p-1.5"><div class="text-[10px] text-slate-400">🚗 Auto</div><strong class="text-white">${driveMin} min</strong></div>
+                <div class="bg-slate-950 border border-slate-800 rounded p-1.5"><div class="text-[10px] text-slate-400">🚌 Bussi*</div><strong class="text-cyan-300">~${transitMin} min</strong></div>
+                <div class="bg-slate-950 border border-slate-800 rounded p-1.5"><div class="text-[10px] text-slate-400">🚲 Pyörä</div><strong class="text-emerald-300">${bikeMin} min</strong></div>
+                <div class="bg-slate-950 border border-slate-800 rounded p-1.5"><div class="text-[10px] text-slate-400">🚶 Kävely</div><strong class="text-slate-200">${walkMin} min</strong></div>
+            </div>
+            <div class="text-[10px] text-slate-400 pt-1">
+                ⛽ Työmatka-ajo ${yearlyKm.toLocaleString('fi-FI')} km/v (220 pv): Polttomoottori <b class="text-amber-300">~${gasCostEur.toLocaleString('fi-FI')} €/v</b> • Sähköauto <b class="text-emerald-400">~${evCostEur.toLocaleString('fi-FI')} €/v</b>
+            </div>
+        `;
+    } catch (e) {
+        box.innerHTML = `<div class="text-rose-300">${e.message || 'Reittihaku epäonnistui.'}</div>`;
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Laske'; }
     }
 }
 
